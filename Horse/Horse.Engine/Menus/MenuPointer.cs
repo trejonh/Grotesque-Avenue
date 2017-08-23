@@ -1,0 +1,78 @@
+﻿using SFML.Graphics;
+using SFML.System;
+using Drawable = Horse.Engine.Core.Drawable;
+
+namespace Horse.Engine.Menus
+{
+    /// <summary>
+    /// Representative of a pointer on a menu screen
+    /// </summary>
+    public class MenuPointer : Drawable
+    {
+        private readonly Sprite _pointerSprite;
+
+        public Vector2u Size { get { return (Vector2u)_pointerSprite?.Texture.Size; }  }
+
+        /// <summary>
+        /// Default constructor for a menu pointer with no texture nor window reference
+        /// </summary>
+        public MenuPointer()
+        {
+            _pointerSprite = null;
+        }
+
+        /// <summary>
+        /// Constructor loading a sprite with the given texture and a window for drawing
+        /// </summary>
+        /// <param name="window">Reference to the window to draw to</param>
+        /// <param name="pointerTexture">The texture for the pointer's sprite</param>
+        public MenuPointer(ref RenderWindow window, Sprite pointerSprite) : base (ref window)
+        {
+            _pointerSprite = pointerSprite;
+        }
+
+        /// <summary>
+        /// Draw the pointer to the window
+        /// </summary>
+        public override void Draw()
+        {
+            WinInstance.Draw(_pointerSprite);
+        }
+
+        /// <summary>
+        /// Move the pointer on the window
+        /// </summary>
+        /// <param name="moveToPosition"></param>
+        public void Move(Vector2f moveToPosition)
+        {
+            _pointerSprite.Position = moveToPosition;
+        }
+
+        /// <summary>
+        /// Get the position of the pointer
+        /// </summary>
+        /// <returns>The pointer's position</returns>
+        public Vector2f? GetPosition()
+        {
+            return _pointerSprite?.Position;
+        }
+
+        /// <summary>
+        /// Set the position of the pointer
+        /// </summary>
+        /// <param name="postion">New Position</param>
+        public void SetPosition(Vector2f postion)
+        {
+            _pointerSprite.Position = postion;
+        }
+
+        /// <summary>
+        /// Set the scale of the pointer
+        /// </summary>
+        /// <param name="scale">The new scale of the pointer</param>
+        public void SetScale(Vector2f scale)
+        {
+            _pointerSprite.Scale = scale;
+        }
+    }
+}
