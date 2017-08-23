@@ -6,7 +6,7 @@ using System.Xml.Linq;
 using SFML;
 using SFML.Audio;
 using SFML.Graphics;
-
+using static System.Windows.Media.ColorConverter;
 namespace Horse.Engine.Utils
 {
     /// <summary>
@@ -23,6 +23,8 @@ namespace Horse.Engine.Utils
         private static readonly Dictionary<string, string> FontAssets = new Dictionary<string, string>();
 
         private static readonly Dictionary<string, string> ImageAssets = new Dictionary<string, string>();
+
+        private static readonly Dictionary<string, string> ColorAssets = new Dictionary<string, string>();
 
         private static readonly string BaseFileLocation = Environment.CurrentDirectory + @"\Assets";
 
@@ -69,6 +71,9 @@ namespace Horse.Engine.Utils
                         break;
                     case "image":
                         ImageAssets.Add(asset.Name, asset.Text);
+                        break;
+                    case "color":
+                        ColorAssets.Add(asset.Name, asset.Text);
                         break;
                     default:
                         LogManager.LogWarning("Following asset could not be mapped"+asset);
@@ -211,6 +216,25 @@ namespace Horse.Engine.Utils
                 LogManager.LogError(ex.Message + "\r\n" + ex.StackTrace);
             }
             return text;
+        }
+
+
+        public static Color LoadColor(string name)
+        {
+            Color color = Color.Transparent;
+            try
+            {
+                var hexVal = ConvertFromString(ColorAssets[name]);
+                if (hexVal == null)
+                    return color;
+                var mediaColor = (System.Windows.Media.Color)hexVal;
+                color = new Color(mediaColor.R, mediaColor.G, mediaColor.B, mediaColor.A);
+            }
+            catch (Exception ex) when (ex is LoadingFailedException || ex is KeyNotFoundException)
+            {
+                LogManager.LogError(ex.Message + "\r\n" + ex.StackTrace);
+            }
+            return color;
         }
     }
 }

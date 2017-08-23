@@ -1,6 +1,7 @@
 ﻿using System;
 using SFML.Graphics;
 using SFML.System;
+using Horse.Engine.Extensions;
 
 namespace Horse.Engine.Core
 {
@@ -23,6 +24,7 @@ namespace Horse.Engine.Core
         private Sprite _spriteItem;
         private Shape _shapeItem;
         private Func<int> _action;
+        public Vector2f Position => GetPosition();
 
         public ScreenItem(ref RenderWindow window, Text item, ScreenPositions position, Func<int> func) : base(ref window)
         {
@@ -45,6 +47,27 @@ namespace Horse.Engine.Core
             SetPosition(position);
         }
 
+        public ScreenItem(ref RenderWindow window, Text item, Vector2f position, Func<int> func) : base(ref window)
+        {
+            _textItem = item;
+            _action = func;
+            SetPosition(position);
+        }
+
+        public ScreenItem(ref RenderWindow window, Sprite item, Vector2f position, Func<int> func) : base(ref window)
+        {
+            _spriteItem = item;
+            _action = func;
+            SetPosition(position);
+        }
+
+        public ScreenItem(ref RenderWindow window, Shape item, Vector2f position, Func<int> func) : base(ref window)
+        {
+            _shapeItem = item;
+            _action = func;
+            SetPosition(position);
+        }
+
         public ScreenItem(ref RenderWindow window) : base(ref window)
         {
         }
@@ -52,6 +75,23 @@ namespace Horse.Engine.Core
         public void SetFont(Text text) => _textItem = text;
         public void SetSprite(Sprite sprite) => _spriteItem = sprite;
         public void SetShape(Shape shape) => _shapeItem = shape;
+
+        public void SetPosition(Vector2f position)
+        {
+            if (_shapeItem != null)
+            {
+                _shapeItem.Position = position;
+            }
+            if (_spriteItem != null)
+            {
+                _spriteItem.Position = position;
+            }
+            if (_textItem != null)
+            {
+                _textItem.Position = position;
+            }
+
+        }
 
         public void SetPosition(ScreenPositions position)
         {
@@ -77,24 +117,38 @@ namespace Horse.Engine.Core
                     }
                     break;
                 case ScreenPositions.Top:
-                    var top = new Vector2f(centerX, marginY);
                     if (_shapeItem != null)
                     {
-                        _shapeItem.Position = top;
+                        var size = 0.0f;
+                        if (_shapeItem.GetType() == typeof(CircleShape))
+                            size = ((CircleShape)_shapeItem).Radius * 2;
+                        if (_shapeItem.GetType() == typeof(RectangleShape))
+                            size = ((RectangleShape)_shapeItem).Size.X;
+                        if (_shapeItem.GetType() == typeof(RoundedRectangle))
+                            size = ((RoundedRectangle)_shapeItem).GetSize().X;
+                        _shapeItem.Position = new Vector2f(WinInstance.Size.X - size - marginX, marginY);
+                        _shapeItem.Position = new Vector2f(centerX -(size*2),marginY);
                     }
                     if (_spriteItem != null)
                     {
-                        _spriteItem.Position = top;
+                        _spriteItem.Position = new Vector2f(centerX-(_spriteItem.Texture.Size.X*2.5f),marginY);
                     }
                     if (_textItem != null)
                     {
-                        _textItem.Position = top;
+                        _textItem.Position = new Vector2f(centerX - (_textItem.CharacterSize * 2.5f), marginY);
                     }
                     break;
                 case ScreenPositions.TopRight:
                     if (_shapeItem != null)
                     {
-                        _shapeItem.Position = new Vector2f(WinInstance.Size.X-_shapeItem.Texture.Size.X-marginX,marginY);
+                        var size = 0.0f;
+                        if (_shapeItem.GetType() == typeof(CircleShape))
+                            size = ((CircleShape)_shapeItem).Radius * 2;
+                        if (_shapeItem.GetType() == typeof(RectangleShape))
+                            size = ((RectangleShape)_shapeItem).Size.X;
+                        if (_shapeItem.GetType() == typeof(RoundedRectangle))
+                            size = ((RoundedRectangle)_shapeItem).GetSize().X;
+                        _shapeItem.Position = new Vector2f(WinInstance.Size.X-size-marginX,marginY);
                     }
                     if (_spriteItem != null)
                     {
@@ -121,24 +175,47 @@ namespace Horse.Engine.Core
                     }
                     break;
                 case ScreenPositions.Center:
-                    var center = new Vector2f(centerX, centerY);
                     if (_shapeItem != null)
                     {
-                        _shapeItem.Position = center;
+                        var size = 0.0f;
+                        var sizeY = 0.0f;
+                        if (_shapeItem.GetType() == typeof(CircleShape))
+                        {
+                            size = ((CircleShape)_shapeItem).Radius * 2;
+                            sizeY = size;
+                        }
+                        if (_shapeItem.GetType() == typeof(RectangleShape))
+                        {
+                            size = ((RectangleShape)_shapeItem).Size.X;
+                            sizeY = ((RectangleShape)_shapeItem).Size.Y;
+                        }
+                        if (_shapeItem.GetType() == typeof(RoundedRectangle))
+                        {
+                            size = ((RoundedRectangle)_shapeItem).GetSize().X;
+                            sizeY = ((RoundedRectangle)_shapeItem).GetSize().Y;
+                        }
+                        _shapeItem.Position = new Vector2f(centerX - (size*2.0f), centerY - sizeY / 2.0f);
                     }
                     if (_spriteItem != null)
                     {
-                        _spriteItem.Position = center;
+                        _spriteItem.Position = new Vector2f(centerX - (_spriteItem.Texture.Size.X * 2.5f), centerY - _spriteItem.Texture.Size.Y / 2.0f); ;
                     }
                     if (_textItem != null)
                     {
-                        _textItem.Position = center;
+                        _textItem.Position = new Vector2f(centerX - (_textItem.CharacterSize *  2.5f) , centerY - _textItem.CharacterSize / 2.0f); ;
                     }
                     break;
                 case ScreenPositions.CenterRight:
                     if (_shapeItem != null)
                     {
-                        _shapeItem.Position = new Vector2f(WinInstance.Size.X-marginX-_shapeItem.Texture.Size.X,centerY);
+                        var size = 0.0f;
+                        if (_shapeItem.GetType() == typeof(CircleShape))
+                            size = ((CircleShape)_shapeItem).Radius * 2;
+                        if (_shapeItem.GetType() == typeof(RectangleShape))
+                            size = ((RectangleShape)_shapeItem).Size.X;
+                        if (_shapeItem.GetType() == typeof(RoundedRectangle))
+                            size = ((RoundedRectangle)_shapeItem).GetSize().X;
+                        _shapeItem.Position = new Vector2f(WinInstance.Size.X-marginX-size,centerY);
                     }
                     if (_spriteItem != null)
                     {
@@ -152,7 +229,15 @@ namespace Horse.Engine.Core
                 case ScreenPositions.BottomLeft:
                     if (_shapeItem != null)
                     {
-                        _shapeItem.Position = new Vector2f(marginX, WinInstance.Size.Y-marginY-_shapeItem.Texture.Size.Y);
+
+                        var size = 0.0f;
+                        if (_shapeItem.GetType() == typeof(CircleShape))
+                            size = ((CircleShape)_shapeItem).Radius * 2;
+                        if (_shapeItem.GetType() == typeof(RectangleShape))
+                            size = ((RectangleShape)_shapeItem).Size.Y;
+                        if (_shapeItem.GetType() == typeof(RoundedRectangle))
+                            size = ((RoundedRectangle)_shapeItem).GetSize().Y;
+                        _shapeItem.Position = new Vector2f(marginX, WinInstance.Size.Y-marginY-size);
                     }
                     if (_spriteItem != null)
                     {
@@ -166,21 +251,44 @@ namespace Horse.Engine.Core
                 case ScreenPositions.Bottom:
                     if (_shapeItem != null)
                     {
-                        _shapeItem.Position = new Vector2f(centerX, WinInstance.Size.Y - marginY - _shapeItem.Texture.Size.Y);
+                        var size = 0.0f;
+                        if (_shapeItem.GetType() == typeof(CircleShape))
+                            size = ((CircleShape)_shapeItem).Radius * 2;
+                        if (_shapeItem.GetType() == typeof(RectangleShape))
+                            size = ((RectangleShape)_shapeItem).Size.Y;
+                        if (_shapeItem.GetType() == typeof(RoundedRectangle))
+                            size = ((RoundedRectangle)_shapeItem).GetSize().Y;
+                        _shapeItem.Position = new Vector2f(centerX - (size*2.0f), WinInstance.Size.Y - marginY - size);
                     }
                     if (_spriteItem != null)
                     {
-                        _spriteItem.Position = new Vector2f(centerX, WinInstance.Size.Y - marginY - _spriteItem.Texture.Size.Y);
+                        _spriteItem.Position = new Vector2f(centerX - (_spriteItem.Texture.Size.X * 2.5f), WinInstance.Size.Y - marginY - _spriteItem.Texture.Size.Y);
                     }
                     if (_textItem != null)
                     {
-                        _textItem.Position = new Vector2f(centerX, WinInstance.Size.Y - marginY - _textItem.CharacterSize);
+                        _textItem.Position = new Vector2f(centerX - (_textItem.CharacterSize * 2.5f), WinInstance.Size.Y - marginY - _textItem.CharacterSize);
                     }
                     break;
                 case ScreenPositions.BottomRight:
                     if (_shapeItem != null)
                     {
-                        _shapeItem.Position = new Vector2f(WinInstance.Size.X - marginX - _shapeItem.Texture.Size.X, WinInstance.Size.Y - marginY - _shapeItem.Texture.Size.Y);
+                        var size = 0.0f;
+                        var sizeY = 0.0f;
+                        if (_shapeItem.GetType() == typeof(CircleShape))
+                        {
+                            size = ((CircleShape)_shapeItem).Radius * 2;
+                            sizeY = size;
+                        }
+                        if (_shapeItem.GetType() == typeof(RectangleShape)) {
+                            size = ((RectangleShape)_shapeItem).Size.X;
+                            sizeY = ((RectangleShape)_shapeItem).Size.Y;
+                        }
+                        if (_shapeItem.GetType() == typeof(RoundedRectangle))
+                        {
+                            size = ((RoundedRectangle)_shapeItem).GetSize().X;
+                            sizeY = ((RoundedRectangle)_shapeItem).GetSize().Y;
+                        }
+                        _shapeItem.Position = new Vector2f(WinInstance.Size.X - marginX - size, WinInstance.Size.Y - marginY - sizeY);
                     }
                     if (_spriteItem != null)
                     {
@@ -193,7 +301,23 @@ namespace Horse.Engine.Core
                     break;
             }
         }
+        private Vector2f GetPosition()
+        {
 
+            if (_shapeItem != null)
+            {
+                return _shapeItem.Position;
+            }
+            if (_spriteItem != null)
+            {
+                return _spriteItem.Position;
+            }
+            if (_textItem != null)
+            {
+               return _textItem.Position;
+            }
+            return new Vector2f();
+        }
         public int DoAction()
         {
             return _action == null ? -1 : _action();

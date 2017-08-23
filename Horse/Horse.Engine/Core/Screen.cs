@@ -7,7 +7,7 @@ namespace Horse.Engine.Core
     public abstract class Screen : Drawable
     {
         protected List<ScreenItem> ScreenItems;
-
+        protected Color BgColor;
         protected Screen()
         {
             ScreenItems = new List<ScreenItem>();
@@ -26,6 +26,16 @@ namespace Horse.Engine.Core
                 return;
             WinInstance.KeyReleased -= OnKeyRelease;
             WinInstance.KeyPressed -= OnKeyPress;
+        }
+
+        public void AddScreenItem(ScreenItem item)
+        {
+            if(ScreenItems == null)
+            {
+                ScreenItems = new List<ScreenItem>();
+                ScreenItems.Add(item);
+            }
+            ScreenItems.Add(item);
         }
 
         public abstract void OnKeyPress(object sender, KeyEventArgs keyEventArgs);

@@ -88,6 +88,8 @@ namespace Horse.Engine.Utils
         {
             lock (_log)
             {
+                if (_log.BaseStream == null)
+                    return;
                 _log.Write(_close);
                 _log.Close();
             }

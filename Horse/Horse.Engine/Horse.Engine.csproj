@@ -30,21 +30,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\SFML.Net-2.2\extlibs\OpenTK.dll</HintPath>
-    </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="sfmlnet-audio-2">
-      <HintPath>..\lib\SFML.Net-2.2\lib\sfmlnet-audio-2.dll</HintPath>
+      <HintPath>..\lib\lib\sfmlnet-audio-2.dll</HintPath>
     </Reference>
     <Reference Include="sfmlnet-graphics-2">
-      <HintPath>..\lib\SFML.Net-2.2\lib\sfmlnet-graphics-2.dll</HintPath>
+      <HintPath>..\lib\lib\sfmlnet-graphics-2.dll</HintPath>
     </Reference>
     <Reference Include="sfmlnet-system-2">
-      <HintPath>..\lib\SFML.Net-2.2\lib\sfmlnet-system-2.dll</HintPath>
+      <HintPath>..\lib\lib\sfmlnet-system-2.dll</HintPath>
     </Reference>
     <Reference Include="sfmlnet-window-2">
-      <HintPath>..\lib\SFML.Net-2.2\lib\sfmlnet-window-2.dll</HintPath>
+      <HintPath>..\lib\lib\sfmlnet-window-2.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -75,12 +72,22 @@
     <Compile Include="Utils\LogManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\assets.xml" />
+    <Content Include="Assets\assets.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\audio\menuClick.wav" />
     <Content Include="Assets\audio\pills.wav" />
     <Content Include="Assets\audio\splashScreenSound.wav" />
     <Content Include="Assets\audio\themeMusic.wav" />
-    <Content Include="Assets\images\houseLogo.png" />
+    <Content Include="Assets\images\bojackpointer.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\images\houseLogo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\images\sfml-logo-small.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="csfml-audio-2.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -110,10 +117,32 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Assets\fonts\" />
     <Folder Include="Assets\maps\" />
     <Folder Include="Assets\misc\" />
     <Folder Include="Assets\sprites\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\fonts\Aerofoil.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Assets\fonts\BreatheKarma.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Assets\fonts\Bubble3D.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Assets\fonts\Hunt.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Assets\fonts\KissMeOrNot.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Assets\fonts\Langoustine.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Assets\fonts\ShogunsClan.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

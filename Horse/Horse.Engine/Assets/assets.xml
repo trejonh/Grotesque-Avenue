@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <assets>
   <asset>
     <type>font</type>
@@ -5,39 +6,9 @@
     <location>\fonts\orange_juice.ttf</location>
   </asset>
   <asset>
-    <type>texture</type>
-    <name>OldTimeyPointer</name>
-    <location>\images\pointer.png</location>
-  </asset>
-  <asset>
     <type>text</type>
-    <name>DefaultMenuTitle</name>
-    <text>Four Old Dudes</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>Mack</name>
-    <text>Mack</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>Trent</name>
-    <text>Trent</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>Sergei</name>
-    <text>Sergei</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>Jaun</name>
-    <text>Jaun</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>Health</name>
-    <text>Health</text>
+    <name>GameTitle</name>
+    <text>H.O.R.S.E.</text>
   </asset>
   <asset>
     <type>text</type>
@@ -46,260 +17,8 @@
   </asset>
   <asset>
     <type>text</type>
-    <name>Back</name>
-    <text>Back</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>NewGame</name>
-    <text>New Game</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>ResumeGame</name>
-    <text>Resume</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>SaveGame</name>
-    <text>Save Game</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>SaveGameMess</name>
-    <text>mysave</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>LoadGame</name>
-    <text>Load Game</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>PauseMenu</name>
-    <text>Paused</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>Stats</name>
-    <text>Stats</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>GameTitle</name>
-    <text>Four Old Dudes!</text>
-  </asset>
-  <asset>
-    <type>audio</type>
-    <name>ShiftThroughMenu</name>
-    <location>\audio\menuClick.wav</location>
-  </asset>
-  <asset>
-    <type>audio</type>
-    <name>Funkadelic</name>
-    <location>\audio\funky.wav</location>
-  </asset>
-  <asset>
-    <type>movingSprite</type>
-    <name>TestPlayer</name>
-    <location>\sprites\player.png</location>
-    <firstFrame>0</firstFrame>
-    <lastFrame>11</lastFrame>
-    <width>32</width>
-    <height>32</height>
-    <frames>
-      <down>0,2</down>
-      <up>9,11</up>
-      <left>3,5</left>
-      <right>6,8</right>
-    </frames>
-  </asset>
-  <asset>
-    <type>movingSprite</type>
-    <name>Nurse</name>
-    <location>\sprites\nurse.png</location>
-    <firstFrame>0</firstFrame>
-    <lastFrame>15</lastFrame>
-    <width>32</width>
-    <height>33</height>
-    <frames>
-      <down>0,3</down>
-      <up>12,15</up>
-      <left>4,7</left>
-      <right>8,11</right>
-    </frames>
-  </asset>
-  <asset>
-    <type>movingSprite</type>
-    <name>Skater</name>
-    <location>\sprites\skater.png</location>
-    <width>32</width>
-    <height>32</height>
-    <firstFrame>0</firstFrame>
-    <lastFrame>11</lastFrame>
-    <frames>
-      <left>6,11</left>
-      <right>0,5</right>
-    </frames>
-  </asset>
-  <asset>
-    <type>movingSprite</type>
-    <name>Sergi</name>
-    <location>\sprites\sergi.png</location>
-    <width>32</width>
-    <height>32</height>
-    <firstFrame>0</firstFrame>
-    <lastFrame>11</lastFrame>
-    <frames>
-      <left>6,11</left>
-      <right>0,5</right>
-    </frames>
-  </asset>
-  <asset>
-    <type>movingSprite</type>
-    <name>Mack</name>
-    <location>\sprites\mack.png</location>
-    <firstFrame>0</firstFrame>
-    <lastFrame>11</lastFrame>
-    <width>32</width>
-    <height>32</height>
-    <frames>
-      <left>6,11</left>
-      <right>0,5</right>
-    </frames>
-  </asset>
-  <asset>
-    <type>movingSprite</type>
-    <name>Trent</name>
-    <location>\sprites\trent.png</location>
-    <width>32</width>
-    <height>32</height>
-    <firstFrame>0</firstFrame>
-    <lastFrame>11</lastFrame>
-    <frames>
-      <left>6,11</left>
-      <right>0,5</right>
-    </frames>
-  </asset>
-  <asset>
-    <type>movingSprite</type>
-    <name>TreBiker</name>
-    <location>\sprites\treBiker.png</location>
-    <width>32</width>
-    <height>32</height>
-    <firstFrame>0</firstFrame>
-    <lastFrame>11</lastFrame>
-    <frames>
-      <left>6,11</left>
-      <right>0,5</right>
-    </frames>
-  </asset>
-  <asset>
-    <type>movingSprite</type>
-    <name>Jaun</name>
-    <location>\sprites\jaun.png</location>
-    <width>32</width>
-    <height>32</height>
-    <firstFrame>0</firstFrame>
-    <lastFrame>11</lastFrame>
-    <frames>
-      <left>6,11</left>
-      <right>0,5</right>
-    </frames>
-  </asset>
-  <asset>
-    <type>movingSprite</type>
-    <name>Matthew</name>
-    <location>\sprites\matthew.png</location>
-    <width>64</width>
-    <height>64</height>
-    <firstFrame>0</firstFrame>
-    <lastFrame>11</lastFrame>
-    <frames>
-      <left>6,11</left>
-      <right>0,5</right>
-    </frames>
-  </asset>
-  <asset>
-    <type>map</type>
-    <name>DefaultMap</name>
-    <location>\maps\map.tmx</location>
-    <order>0</order>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>DefaultMap</name>
-    <text>Default Map</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>LoadError</name>
-    <text>Bad save file. Check logs for more info.</text>
-  </asset>
-  <asset>
-    <type>texture</type>
-    <name>MackStill</name>
-    <location>\images\mackDaddy.png</location>
-  </asset>
-  <asset>
-    <type>texture</type>
-    <name>SergeiStill</name>
-    <location>\images\sergiTheCommie.png</location>
-  </asset>
-  <asset>
-    <type>texture</type>
-    <name>TrentStill</name>
-    <location>\images\trentTheAsian.png</location>
-  </asset>
-  <asset>
-    <type>texture</type>
-    <name>JaunStill</name>
-    <location>\images\juanito.png</location>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>Loading</name>
-    <text>Loading...</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>Four</name>
-    <text>Four</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>Old</name>
-    <text>Old</text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>Dudes</name>
-    <text>Dudes</text>
-  </asset>
-  <asset>
-    <type>texture</type>
-    <name>SplashLogo</name>
-    <location>\images\logo.png</location>
-  </asset>
-  <asset>
-    <type>audio</type>
-    <name>ThemeMusic</name>
-    <location>\audio\uke.flac</location>
-  </asset>
-  <asset>
-    <type>audio</type>
-    <name>SplashSound</name>
-    <location>\audio\splashScreenSound.wav</location>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>Lives</name>
-    <text>Lives: </text>
-  </asset>
-  <asset>
-    <type>text</type>
-    <name>Go</name>
-    <text>Go!</text>
+    <name>StartLobby</name>
+    <text>Start Lobby</text>
   </asset>
   <asset>
     <type>texture</type>
@@ -307,63 +26,73 @@
     <location>\images\houseLogo.png</location>
   </asset>
   <asset>
-    <type>shot</type>
-    <name>SergiShot</name>
-    <location>\sprites\sergei_attack_mini.png</location>
+    <type>texture</type>
+    <name>Pointer</name>
+    <location>\images\bojackpointer.png</location>
   </asset>
   <asset>
-    <type>shot</type>
-    <name>MackShot</name>
-    <location>\sprites\mackshot.png</location>
+    <type>texture</type>
+    <name>SFMLLogo</name>
+    <location>\images\sfml-logo-small.png</location>
   </asset>
   <asset>
-    <type>shot</type>
-    <name>TrentShot</name>
-    <location>\sprites\trentShot.png</location>
+    <type>font</type>
+    <name>DefaultFont</name>
+    <location>\fonts\Aerofoil.ttf</location>
   </asset>
   <asset>
-    <type>shot</type>
-    <name>JaunShot</name>
-    <location>\sprites\jaunShot.png</location>
+    <type>font</type>
+    <name>BreatheKarma</name>
+    <location>\fonts\BreatheKarma.ttf</location>
   </asset>
   <asset>
-    <type>shot</type>
-    <name>Needle</name>
-    <location>\sprites\needle.png</location>
+    <type>font</type>
+    <name>Bubble</name>
+    <location>\fonts\Bubble3D.ttf</location>
   </asset>
   <asset>
-    <type>shot</type>
-    <name>Skateboard</name>
-    <location>\sprites\skateboard.png</location>
+    <type>font</type>
+    <name>Hunt</name>
+    <location>\fonts\Hunt.ttf</location>
   </asset>
   <asset>
-    <type>audio</type>
-    <name>SergiShot</name>
-    <location>\audio\sergeiShot.wav</location>
+    <type>font</type>
+    <name>KissMeOrNot</name>
+    <location>\fonts\KissMeOrNot.ttf</location>
   </asset>
   <asset>
-    <type>audio</type>
-    <name>JaunShot</name>
-    <location>\audio\pills.wav</location>
+    <type>font</type>
+    <name>Langoustine</name>
+    <location>\fonts\Lanoustine.ttf</location>
   </asset>
   <asset>
-    <type>audio</type>
-    <name>TrentShot</name>
-    <location>\audio\whack.ogg</location>
+    <type>font</type>
+    <name>Shogun</name>
+    <location>\fonts\ShogunsClan.ttf</location>
   </asset>
   <asset>
-    <type>audio</type>
-    <name>MackShot</name>
-    <location>\audio\mackShot.wav</location>
+    <type>color</type>
+    <name>FunkyDarkBlue</name>
+    <text>#008080</text>
   </asset>
   <asset>
-    <type>audio</type>
-    <name>Tada</name>
-    <location>\audio\tada.flac</location>
+    <type>color</type>
+    <name>FunkyTeal</name>
+    <text>#a4debf</text>
   </asset>
   <asset>
-    <type>audio</type>
-    <name>PlayerDeath</name>
-    <location>\audio\playerDeath.ogg</location>
+    <type>color</type>
+    <name>FunkyRed</name>
+    <text>#ef0041</text>
+  </asset>
+  <asset>
+    <type>color</type>
+    <name>FunkyYellow</name>
+    <text>#ffe33d</text>
+  </asset>
+  <asset>
+    <type>color</type>
+    <name>FunkyPink</name>
+    <text>#ff5bd7</text>
   </asset>
 </assets>
