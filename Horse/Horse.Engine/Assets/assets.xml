@@ -17,6 +17,11 @@
   </asset>
   <asset>
     <type>text</type>
+    <name>ServerName</name>
+    <text>Server Name: </text>
+  </asset>
+  <asset>
+    <type>text</type>
     <name>StartLobby</name>
     <text>Start Lobby</text>
   </asset>

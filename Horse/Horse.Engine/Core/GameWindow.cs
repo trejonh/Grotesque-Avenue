@@ -10,7 +10,7 @@ namespace Horse.Engine.Core
         public GameWindow(uint width, uint height, string title,bool debug)
         {
             GameRenderWindow = debug == false ? new RenderWindow(new VideoMode(width,height),title,Styles.Fullscreen) 
-                    : new RenderWindow(new VideoMode(width, height), title, Styles.Titlebar);
+                    : new RenderWindow(new VideoMode(width, height), title, Styles.Close);
         }
     }
 }

@@ -11,6 +11,7 @@ namespace Horse.Server.Core
     {
         public static RenderWindow GameWindow { get; private set; }
         public static Screen CurrentScreen { get; private set; }
+        private static Screen _previousScreen;
         private static Thread _mainDrawingThread;
         public static Time FrameDelta { get; private set; }
         private static Clock _serverClock;
@@ -29,6 +30,7 @@ namespace Horse.Server.Core
                 return;
             }
             GameWindow.SetActive(false);
+            GameWindow.Closed += WindowClosed;
             var ts = new ThreadStart(Draw);
             _mainDrawingThread = new Thread(ts) { IsBackground = false, Priority = ThreadPriority.Highest };
             _mainDrawingThread.Start();
@@ -61,7 +63,17 @@ namespace Horse.Server.Core
         }
         public static void ChangeScreen(Screen screen)
         {
+            _previousScreen = CurrentScreen;
             CurrentScreen = screen;
+        }
+
+        public static void GotoPreviousScreen()
+        {
+            if(_previousScreen != null)
+            {
+                CurrentScreen = _previousScreen;
+                CurrentScreen.AddWindowKeyEventHandler();
+            }
         }
         /// <summary>
         /// Close the window

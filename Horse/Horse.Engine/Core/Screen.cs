@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using SFML.Graphics;
 using SFML.Window;
 
@@ -48,6 +49,11 @@ namespace Horse.Engine.Core
                 return;
             foreach (var item in ScreenItems)
                 item.Draw();
+        }
+
+        public void AddWindowKeyEventHandler()
+        {
+            WinInstance.KeyPressed += OnKeyPress;
         }
     }
 }
