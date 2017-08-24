@@ -1,4 +1,5 @@
-﻿using Horse.Engine.Core;
+﻿using System;
+using Horse.Engine.Core;
 using SFML.Window;
 using SFML.Graphics;
 using Horse.Engine.Extensions;
@@ -11,8 +12,8 @@ namespace Horse.Server.Screens
 {
     public class MainMenu : Screen
     {
-        private Sprite _pointer;
-        private IEnumerator<Vector2f> _pointerPositions;
+        private readonly Sprite _pointer;
+        private readonly IEnumerator<Vector2f> _pointerPositions;
         private Vector2f _previous;
         public MainMenu(ref RenderWindow window):base(ref window)
         {
@@ -30,17 +31,20 @@ namespace Horse.Server.Screens
             AddScreenItem(new ScreenItem(ref window, exitGame, new Vector2f(WinInstance.Size.X/2.0f - (exitGame.CharacterSize+40), WinInstance.Size.Y - roundRect.GetSize().Y - 32), null));
             BgColor = AssetManager.LoadColor("FunkyDarkBlue");
             _pointer = AssetManager.LoadSprite("Pointer");
+            if (_pointer == null){
+                LogManager.LogError("MainMenu Screen cannot find pointer");
+                return;
+            }
             _pointer.Scale = new Vector2f(0.5f, 0.4f);
             var pp = new List<Vector2f>();
             foreach (var item in ScreenItems)
             {
-                if(item is Shape)
-                {
+                if (item.IsShape())
                     pp.Add(new Vector2f(item.Position.X - (_pointer.Texture.Size.X * 0.75f), item.Position.Y - 16));
-                }
             }
             _pointerPositions = pp.GetEnumerator();
             _pointerPositions.Reset();
+            _pointerPositions.MoveNext();
             _pointer.Position = _pointerPositions.Current;
         }
 
@@ -56,12 +60,19 @@ namespace Horse.Server.Screens
             switch (keyEventArgs.Code)
             {
                 case Keyboard.Key.Up:
-                    if(_previous == null)
+                    if (Math.Abs(_previous.X) < 0.1f && Math.Abs(_previous.Y) < 0.1f)
                     {
                         while (_pointerPositions.MoveNext())
                             _previous = _pointerPositions.Current;
+                        _pointer.Position = _previous;
                     }
-                    _pointer.Position = _previous;
+                    else
+                    {
+                        _previous = _pointerPositions.Current;
+                        _pointerPositions.Reset();
+                        _pointerPositions.MoveNext();
+                        _pointer.Position = _pointerPositions.Current;
+                    }
                     break;
                 case Keyboard.Key.Down:
                     _previous = _pointerPositions.Current;
@@ -70,13 +81,14 @@ namespace Horse.Server.Screens
                     else
                     {
                         _pointerPositions.Reset();
+                        _pointerPositions.MoveNext();
                         _pointer.Position = _pointerPositions.Current;
                     }
                     break;
                 case Keyboard.Key.Return:
                     foreach(var item in ScreenItems)
                     {
-                        if (item.Position.Y == _pointerPositions.Current.Y + 16)
+                        if (Math.Abs(item.Position.Y - (_pointerPositions.Current.Y + 16)) < 1.0f)
                             item.DoAction();
                     }
                     break;
@@ -93,6 +105,9 @@ namespace Horse.Server.Screens
 
         private int PresentLobbyAndStartServer()
         {
+            RemoveWindowKeyEventHandler();
+            var renderWindow = WinInstance;
+            ServerGameWindowMaster.ChangeScreen(new LobbyScreen(ref renderWindow));
             return 0;
         }
 

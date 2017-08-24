@@ -20,7 +20,7 @@ namespace Horse.Server.Core
             var width = (uint)resolution.Width;
             var height = (uint)resolution.Height;
             var title = AssetManager.GetMessage("GameTitle");
-            new GameWindow(width,height,title);
+            new GameWindow(width,height,title, true);
             GameWindow = Engine.Core.GameWindow.GameRenderWindow;
             _serverClock = new Clock();
             if (GameWindow == null)

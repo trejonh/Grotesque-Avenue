@@ -23,7 +23,7 @@ namespace Horse.Engine.Core
         private Text _textItem;
         private Sprite _spriteItem;
         private Shape _shapeItem;
-        private Func<int> _action;
+        private readonly Func<int> _action;
         public Vector2f Position => GetPosition();
 
         public ScreenItem(ref RenderWindow window, Text item, ScreenPositions position, Func<int> func) : base(ref window)
@@ -198,11 +198,11 @@ namespace Horse.Engine.Core
                     }
                     if (_spriteItem != null)
                     {
-                        _spriteItem.Position = new Vector2f(centerX - (_spriteItem.Texture.Size.X * 2.5f), centerY - _spriteItem.Texture.Size.Y / 2.0f); ;
+                        _spriteItem.Position = new Vector2f(centerX - (_spriteItem.Texture.Size.X * 2.5f), centerY - _spriteItem.Texture.Size.Y / 2.0f);
                     }
                     if (_textItem != null)
                     {
-                        _textItem.Position = new Vector2f(centerX - (_textItem.CharacterSize *  2.5f) , centerY - _textItem.CharacterSize / 2.0f); ;
+                        _textItem.Position = new Vector2f(centerX - (_textItem.CharacterSize *  2.5f) , centerY - _textItem.CharacterSize / 2.0f);
                     }
                     break;
                 case ScreenPositions.CenterRight:
@@ -337,6 +337,11 @@ namespace Horse.Engine.Core
             {
                 WinInstance.Draw(_textItem);
             }
+        }
+
+        public bool IsShape()
+        {
+            return _shapeItem != null;
         }
     }
 }

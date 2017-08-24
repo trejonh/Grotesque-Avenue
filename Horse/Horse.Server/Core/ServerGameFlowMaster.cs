@@ -16,7 +16,7 @@ namespace Horse.Server.Core
             var win = ServerGameWindowMaster.GameWindow;
             _splashScreen = new SplashScreen(ref win);
             ServerGameWindowMaster.ChangeScreen(_splashScreen);
-            _flowTimer = new Timer(1000) { AutoReset = true, Enabled = true};
+            _flowTimer = new Timer(1000) { AutoReset = false, Enabled = true};
             _flowTimer.Elapsed +=  (sender, e) => {
                 _splashScreen.RemoveWindowKeyEventHandler();
                 _mainMenu = new MainMenu(ref win);
