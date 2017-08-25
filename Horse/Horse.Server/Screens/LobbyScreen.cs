@@ -1,7 +1,9 @@
 ﻿using Horse.Engine.Core;
+using Horse.Engine.Extensions;
 using Horse.Engine.Utils;
 using Horse.Server.Core;
 using SFML.Graphics;
+using SFML.System;
 using SFML.Window;
 using System;
 using System.Net;
@@ -23,7 +25,7 @@ namespace Horse.Server.Screens
             {
                 LogManager.LogError("Local IP not found");
             }
-            ServerSocketManagerMaster.Listen(_ipAdress);
+            ServerSocketManagerMaster.Listen();
             var serverName = new Text() { CharacterSize = 120, Color = Color.Black, DisplayedString = AssetManager.GetMessage("ServerName")+_ipAdress, Font = AssetManager.LoadFont("Shogun") };
             AddScreenItem(new ScreenItem(ref window, serverName, ScreenItem.ScreenPositions.BottomLeft,null));
             BgColor = AssetManager.LoadColor("FunkyPink");
@@ -65,6 +67,11 @@ namespace Horse.Server.Screens
                 }
             }
             throw new Exception("Local IP Address Not Found!");
+        }
+
+        internal void AddPlayer(NetworkMobilePlayer mobPlay)
+        {
+            var roundedRect = new RoundedRectangle(new Vector2f(128.0f, 64.0f), 10f, 4) { FillColor = Color.Transparent, OutlineColor = AssetManager.LoadColor("FunkyPink")};
         }
     }
 }

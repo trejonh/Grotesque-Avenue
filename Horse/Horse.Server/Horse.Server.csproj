@@ -56,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\NetworkMobilePlayer.cs" />
     <Compile Include="Core\ServerGameFlowMaster.cs" />
     <Compile Include="Core\ServerSocketManagerMaster.cs" />
     <Compile Include="Program.cs" />
