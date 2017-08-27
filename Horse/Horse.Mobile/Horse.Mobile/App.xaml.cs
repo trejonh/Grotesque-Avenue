@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿using Horse.Mobile.Screens;
 using Xamarin.Forms;
 
 namespace Horse.Mobile
@@ -12,8 +8,7 @@ namespace Horse.Mobile
 		public App ()
 		{
 			InitializeComponent();
-
-			MainPage = new Horse.Mobile.MainPage();
+			MainPage = new NavigationPage(new MainPage());
 		}
 
 		protected override void OnStart ()
