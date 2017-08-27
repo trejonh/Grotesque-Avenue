@@ -10,6 +10,7 @@ namespace Horse.Server.Core
         private Timer _flowTimer;
         private Screen _splashScreen;
         private Screen _mainMenu;
+        public static ServerSocketManagerMaster ServerSocket;
         public ServerGameFlowMaster()
         {
             ServerGameWindowMaster.InitGameWindow();

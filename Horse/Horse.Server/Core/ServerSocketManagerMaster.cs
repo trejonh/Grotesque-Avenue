@@ -13,38 +13,39 @@ namespace Horse.Server.Core
     {
         private static bool _listen;
         private static List<TcpClient> _mobileClients;
-        private static TcpListener listener;
+        private static TcpListener _listener;
         public static List<NetworkMobilePlayer> MobilePlayers;
-        public event EventHandler PlayDisconnected;
-        private Thread _checkConnectionThread;
+        public event EventHandler PlayerDisconnected;
+        private static Thread _checkConnectionThread;
 
         public ServerSocketManagerMaster()
         {
-            _checkConnectionThread = new Thread(new ThreadStart(() =>
-            {
-                try
+            _checkConnectionThread = new Thread(() =>
                 {
-                    while (ServerGameWindowMaster.GameWindow.IsOpen)
+                    try
                     {
-                        if (MobilePlayers == null || MobilePlayers.Count == 0)
-                            continue;
-                        var tempArr = MobilePlayers.ToArray();
-                        foreach (var player in tempArr)
+                        while (ServerGameWindowMaster.GameWindow.IsOpen)
                         {
-                            if (player.Client.Connected)
+                            if (MobilePlayers == null || MobilePlayers.Count == 0)
                                 continue;
-                            player.Client.Close();
-                            MobilePlayers.Remove(player);
-                            OnPlayerDisconnected(new EventArgs());
+                            var tempArr = MobilePlayers.ToArray();
+                            foreach (var player in tempArr)
+                            {
+                                if (player.Client.Connected)
+                                    continue;
+                                player.Client.Close();
+                                MobilePlayers.Remove(player);
+                                OnPlayerDisconnected(new EventArgs());
+                            }
                         }
                     }
-                }
-                catch (ThreadAbortException)
-                {
-                    LogManager.LogError("Aborting connection checking thread");
-                }
-            }))
-            { Priority = ThreadPriority.Lowest , IsBackground = true, Name = "Client Connection Checker"};
+                    catch (ThreadAbortException)
+                    {
+                        LogManager.LogError("Aborting connection checking thread");
+                    }
+                })
+                { Priority = ThreadPriority.Lowest , IsBackground = true, Name = "Client Connection Checker"};
+            _checkConnectionThread.Start();
         }
         public static void Listen()
         {
@@ -53,16 +54,16 @@ namespace Horse.Server.Core
             _listen = true;
             MobilePlayers = new List<NetworkMobilePlayer>();
             _mobileClients = new List<TcpClient>();
-            listener = new TcpListener(IPAddress.Any, 54000);
-            listener.Start();
+            _listener = new TcpListener(IPAddress.Any, 54000);
+            _listener.Start();
             Console.WriteLine("Listening...");
             StartAccept();
         }
 
         protected virtual void OnPlayerDisconnected(EventArgs e)
         {
-            if (PlayDisconnected != null)
-                PlayDisconnected(this, e);
+            if (PlayerDisconnected != null)
+                PlayerDisconnected(this, e);
         }
 
         private static void CloseExistingConnections()
@@ -84,16 +85,23 @@ namespace Horse.Server.Core
             _listen = false;
         }
 
+        public static void CloseAllConnections()
+        {
+            StopListening();
+            CloseExistingConnections();
+            _checkConnectionThread?.Abort();
+        }
+
         private static void StartAccept()
         {
-            listener.BeginAcceptTcpClient(HandleAsyncConnection, listener);
+            _listener.BeginAcceptTcpClient(HandleAsyncConnection, _listener);
         }
         private static void HandleAsyncConnection(IAsyncResult res)
         {
             if (_listen == false && _mobileClients.Count >= 8)
                 return;
             StartAccept(); //listen for new connections again
-            TcpClient client = listener.EndAcceptTcpClient(res);
+            TcpClient client = _listener.EndAcceptTcpClient(res);
             _mobileClients.Add(client);
             //proceed
             var clientStream = client.GetStream();
