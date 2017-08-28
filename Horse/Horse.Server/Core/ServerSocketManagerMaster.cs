@@ -101,7 +101,7 @@ namespace Horse.Server.Core
             if (_listen == false && _mobileClients.Count >= 8)
                 return;
             StartAccept(); //listen for new connections again
-            TcpClient client = _listener.EndAcceptTcpClient(res);
+            var client = _listener.EndAcceptTcpClient(res);
             _mobileClients.Add(client);
             //proceed
             var clientStream = client.GetStream();
@@ -128,10 +128,11 @@ namespace Horse.Server.Core
                 LogManager.LogError("Invalid data sent from mobile client, closing connection");
                 client.Close();
             }
-            var mobPlay = new NetworkMobilePlayer(client, clientDetails[0], clientDetails[1], clientDetails[2]);
-            MobilePlayers.Add(mobPlay);
-            if (ServerGameWindowMaster.CurrentScreen.GetType() == typeof(LobbyScreen))
-                ((LobbyScreen)ServerGameWindowMaster.CurrentScreen).AddPlayer(mobPlay);
+            Console.WriteLine(message);
+            //var mobPlay = new NetworkMobilePlayer(client, clientDetails[0], clientDetails[1], clientDetails[2]);
+            //MobilePlayers.Add(mobPlay);
+            //if (ServerGameWindowMaster.CurrentScreen.GetType() == typeof(LobbyScreen))
+              //  ((LobbyScreen)ServerGameWindowMaster.CurrentScreen).AddPlayer(mobPlay);
         }
     }
 }

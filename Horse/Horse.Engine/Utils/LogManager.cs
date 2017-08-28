@@ -23,6 +23,7 @@ namespace Horse.Engine.Utils
                                       "<link rel='stylesheet' href='.\\log.css'><body>";
 
         private static readonly string _close = "\r\n<script src='.\\log.js'></script>\r\n</body>\r\n</html>";
+        private static bool _closed;
 
         /// <summary>
         /// Create a log file for latest run
@@ -47,6 +48,8 @@ namespace Horse.Engine.Utils
         {
             lock (_log)
             {
+                if (_closed)
+                    return;
                 const string eleO = "<error class=\'text-danger\'>";
                 const string eleC = "</error>";
                 _log.WriteLine(eleO + error + eleC);
@@ -61,6 +64,8 @@ namespace Horse.Engine.Utils
         {
             lock (_log)
             {
+                if (_closed)
+                    return;
                 const string eleO = "<warning class=\'text-warning\'>";
                 const string eleC = "</warning>";
                 _log.WriteLine(eleO + warning + eleC);
@@ -75,6 +80,8 @@ namespace Horse.Engine.Utils
         {
             lock (_log)
             {
+                if (_closed)
+                    return;
                 const string eleO = "<info class=\'text-info\'>";
                 const string eleC = "</info>";
                 _log.WriteLine(eleO + log + eleC);
@@ -88,10 +95,11 @@ namespace Horse.Engine.Utils
         {
             lock (_log)
             {
-                if (_log.BaseStream == null)
+                if (_closed)
                     return;
                 _log.Write(_close);
                 _log.Close();
+                _closed = true;
             }
         }
     }

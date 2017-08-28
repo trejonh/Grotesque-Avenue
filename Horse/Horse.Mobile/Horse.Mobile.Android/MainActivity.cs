@@ -6,6 +6,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
+using Horse.Mobile.Droid.Core;
 
 namespace Horse.Mobile.Droid
 {
@@ -20,7 +21,9 @@ namespace Horse.Mobile.Droid
 			base.OnCreate (bundle);
 
 			global::Xamarin.Forms.Forms.Init (this, bundle);
-			LoadApplication (new Horse.Mobile.App ());
+
+		    Xamarin.Forms.DependencyService.Register<AndroidPhone>();
+            LoadApplication (new Horse.Mobile.App ());
 		}
 	}
 }

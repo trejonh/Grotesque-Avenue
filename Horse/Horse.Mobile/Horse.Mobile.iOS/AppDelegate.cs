@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Foundation;
+using Horse.Mobile.iOS.Core;
 using UIKit;
 
 namespace Horse.Mobile.iOS
@@ -23,7 +24,9 @@ namespace Horse.Mobile.iOS
 		public override bool FinishedLaunching(UIApplication app, NSDictionary options)
 		{
 			global::Xamarin.Forms.Forms.Init ();
-			LoadApplication (new Horse.Mobile.App ());
+
+		    Xamarin.Forms.DependencyService.Register<Apple>();
+            LoadApplication (new Horse.Mobile.App ());
 
 			return base.FinishedLaunching (app, options);
 		}

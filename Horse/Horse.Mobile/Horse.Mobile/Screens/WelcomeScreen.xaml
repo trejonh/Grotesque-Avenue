@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Horse.Mobile.Screens.WelcomeScreen"
+             Title="Welcome Screen">
+
+    <StackLayout Spacing="10">
+        <StackLayout Orientation="Horizontal"
+                     VerticalOptions="Start"
+                     HorizontalOptions="CenterAndExpand">
+            <Label x:Name="HorseGameLabel"
+                   Text="H.O.R.S.E."
+                   TextColor="#ef0041"
+                   FontSize="60"
+                   BackgroundColor="Transparent">
+                <!-- top center -->
+            </Label>
+        </StackLayout>
+        <StackLayout VerticalOptions="CenterAndExpand">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="200" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Entry x:Name ="PlayerName"
+                       Placeholder="Display Name"
+                       Grid.Row="1" Grid.Column="0"></Entry>
+                <Entry x:Name ="ServerAddress"
+                       Placeholder="Server Adress: 0.0.0.0"
+                       Grid.Row="2" Grid.Column="0"></Entry>
+            </Grid>
+        </StackLayout>
+        <StackLayout Orientation="Horizontal"
+                     VerticalOptions="End"
+                     HorizontalOptions="Center">
+            <Button x:Name="JoinGameLobby"
+                    Text="Join Game Lobby"
+                    FontSize="30"
+                    TextColor="#008080"
+                    BackgroundColor="Transparent"
+                    AbsoluteLayout.LayoutBounds =" 0.5,1,-1,-1"
+                    AbsoluteLayout.LayoutFlags="PositionProportional">
+                <!-- bottom center -->
+            </Button>
+        </StackLayout>
+    </StackLayout>
+</ContentPage>

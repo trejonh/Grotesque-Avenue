@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Horse.Mobile.UWP.Core;
 
 namespace Horse.Mobile.UWP
 {
@@ -59,6 +60,7 @@ namespace Horse.Mobile.UWP
                 rootFrame.NavigationFailed += OnNavigationFailed;
 
                 Xamarin.Forms.Forms.Init(e);
+                Xamarin.Forms.DependencyService.Register<WindowsPhone>();
 
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {

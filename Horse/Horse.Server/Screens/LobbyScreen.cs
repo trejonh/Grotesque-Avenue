@@ -7,6 +7,7 @@ using SFML.System;
 using SFML.Window;
 using System;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
 namespace Horse.Server.Screens
@@ -64,18 +65,8 @@ namespace Horse.Server.Screens
 
         private string GetLocalIPAdress()
         {
-            if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
-            {
-                var host = Dns.GetHostEntry(Dns.GetHostName());
-                foreach (var ip in host.AddressList)
-                {
-                    if (ip.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        return ip.ToString();
-                    }
-                }
-            }
-            throw new Exception("Local IP Address Not Found!");
+            var tmp = Dns.GetHostAddresses(Dns.GetHostName());
+            return tmp.Length > 0 ? tmp[tmp.Length - 1].ToString() : "";
         }
 
         internal void AddPlayer(NetworkMobilePlayer mobPlay)
