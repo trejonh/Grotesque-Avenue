@@ -106,14 +106,18 @@ namespace Horse.Server.Core
             //proceed
             var clientStream = client.GetStream();
             var sb = new StringBuilder();
-            while (clientStream.DataAvailable)
-            {
+            var continueToRead = true;
+            while (continueToRead){
                 var bytes = new byte[client.ReceiveBufferSize];
 
                 // Read can return anything from 0 to numBytesToRead. 
                 // This method blocks until at least one byte is read.
                 clientStream.Read(bytes, 0, client.ReceiveBufferSize);
-                sb.Append(Encoding.UTF8.GetString(bytes));
+                var str = Encoding.UTF8.GetString(bytes);
+                if (str.Contains("ENDTRANS"))
+                    continueToRead = false;
+                sb.Append(str);
+                Console.WriteLine("received: {0}", str);
             }
 
             CreatePlayer(client, sb.ToString());
@@ -129,10 +133,16 @@ namespace Horse.Server.Core
                 client.Close();
             }
             Console.WriteLine(message);
-            //var mobPlay = new NetworkMobilePlayer(client, clientDetails[0], clientDetails[1], clientDetails[2]);
-            //MobilePlayers.Add(mobPlay);
-            //if (ServerGameWindowMaster.CurrentScreen.GetType() == typeof(LobbyScreen))
-              //  ((LobbyScreen)ServerGameWindowMaster.CurrentScreen).AddPlayer(mobPlay);
+            var clientStream = client.GetStream();
+            if (clientStream.CanWrite)
+            {
+                var bytesToWrite = Encoding.UTF8.GetBytes("OK ENDTRANS");
+                clientStream.Write(bytesToWrite,0,bytesToWrite.Length);
+            }
+            var mobPlay = new NetworkMobilePlayer(client, clientDetails[0], clientDetails[1]);
+            MobilePlayers.Add(mobPlay);
+            if (ServerGameWindowMaster.CurrentScreen.GetType() == typeof(LobbyScreen))
+                ((LobbyScreen)ServerGameWindowMaster.CurrentScreen).AddPlayer(mobPlay);
         }
     }
 }
