@@ -28,10 +28,11 @@ namespace Horse.Server.Core
             _checkConnectionThread.Start();
         }
 
-        private void PollMobileClients()
+        private async void PollMobileClients()
         {
             try
             {
+                var sb = new StringBuilder();
                 while (ServerGameWindowMaster.GameWindow.IsOpen)
                 {
                     if (MobilePlayers == null || MobilePlayers.Count == 0)
@@ -51,6 +52,24 @@ namespace Horse.Server.Core
                             MobilePlayers.Remove(player);
                             OnPlayerDisconnected(new EventArgs());
                         }
+                        if (player.Client.Available > 0)
+                        {
+                            var clientStream = player.Client.GetStream();
+                            while (clientStream.DataAvailable)
+                            {
+                                var bytes = new byte[player.Client.ReceiveBufferSize];
+
+                                // Read can return anything from 0 to numBytesToRead. 
+                                // This method blocks until at least one byte is read.
+                                await clientStream.ReadAsync(bytes, 0, player.Client.ReceiveBufferSize);
+                                var str = Encoding.UTF8.GetString(bytes);
+                                sb.Append(str);
+                                if (sb.ToString().Contains("ENDTRANS"))
+                                    break;
+                            }
+                            processMessage(sb.Replace(" ENDTRANS","").ToString());
+                            sb.Clear();
+                        }
                     }
                 }
             }
@@ -59,6 +78,12 @@ namespace Horse.Server.Core
                 LogManager.LogError("Aborting connection checking thread");
             }
         }
+
+        private void processMessage(string message)
+        {
+            throw new NotImplementedException();
+        }
+
         public static void Listen()
         {
             if (MobilePlayers != null && MobilePlayers.Count > 0 || _mobileClients != null && _mobileClients.Count > 0)
@@ -162,6 +187,12 @@ namespace Horse.Server.Core
             MobilePlayers.Add(mobPlay);
             if (ServerGameWindowMaster.CurrentScreen.GetType() == typeof(LobbyScreen))
                 ((LobbyScreen)ServerGameWindowMaster.CurrentScreen).AddPlayer(mobPlay);
+        }
+
+        public enum MessageType
+        {
+            CMD = "CMD",
+
         }
     }
 }
