@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 
@@ -17,35 +18,46 @@ namespace Horse.Server.Core
         public static List<NetworkMobilePlayer> MobilePlayers;
         public event EventHandler PlayerDisconnected;
         private static Thread _checkConnectionThread;
+        private static byte[] salt;
 
         public ServerSocketManagerMaster()
         {
-            _checkConnectionThread = new Thread(() =>
-                {
-                    try
-                    {
-                        while (ServerGameWindowMaster.GameWindow.IsOpen)
-                        {
-                            if (MobilePlayers == null || MobilePlayers.Count == 0)
-                                continue;
-                            var tempArr = MobilePlayers.ToArray();
-                            foreach (var player in tempArr)
-                            {
-                                if (player.Client.Connected)
-                                    continue;
-                                player.Client.Close();
-                                MobilePlayers.Remove(player);
-                                OnPlayerDisconnected(new EventArgs());
-                            }
-                        }
-                    }
-                    catch (ThreadAbortException)
-                    {
-                        LogManager.LogError("Aborting connection checking thread");
-                    }
-                })
+            new RNGCryptoServiceProvider().GetBytes(salt = new byte[16]);
+            _checkConnectionThread = new Thread(() => { PollMobileClients(); })
                 { Priority = ThreadPriority.Lowest , IsBackground = true, Name = "Client Connection Checker"};
             _checkConnectionThread.Start();
+        }
+
+        private void PollMobileClients()
+        {
+            try
+            {
+                while (ServerGameWindowMaster.GameWindow.IsOpen)
+                {
+                    if (MobilePlayers == null || MobilePlayers.Count == 0)
+                        continue;
+                    var tempArr = MobilePlayers.ToArray();
+                    foreach (var player in tempArr)
+                    {
+                        if (player.Client == null)
+                        {
+                            MobilePlayers.Remove(player);
+                            OnPlayerDisconnected(new EventArgs());
+                            continue;
+                        }
+                        if (player.Client.Connected == false)
+                        {
+                            player.Client.Close();
+                            MobilePlayers.Remove(player);
+                            OnPlayerDisconnected(new EventArgs());
+                        }
+                    }
+                }
+            }
+            catch (ThreadAbortException)
+            {
+                LogManager.LogError("Aborting connection checking thread");
+            }
         }
         public static void Listen()
         {
@@ -114,32 +126,39 @@ namespace Horse.Server.Core
                 // This method blocks until at least one byte is read.
                 clientStream.Read(bytes, 0, client.ReceiveBufferSize);
                 var str = Encoding.UTF8.GetString(bytes);
-                if (str.Contains("ENDTRANS"))
-                    continueToRead = false;
                 sb.Append(str);
                 Console.WriteLine("received: {0}", str);
+                if (str.Contains("ENDTRANS") || sb.ToString().Contains("ENDTRANS"))
+                    continueToRead = false;
             }
 
-            CreatePlayer(client, sb.ToString());
+            CreatePlayer(client, sb.Replace(" ENDTRANS","").ToString());
 
         }
 
         private static void CreatePlayer(TcpClient client, string message)
         {
             var clientDetails = message.Split(',');
-            if(clientDetails.Length != 3)
+            if(clientDetails.Length != 2)
             {
                 LogManager.LogError("Invalid data sent from mobile client, closing connection");
                 client.Close();
             }
-            Console.WriteLine(message);
+            var pbkdf2 = new Rfc2898DeriveBytes(clientDetails[1], salt, 1000);
+            var hash = pbkdf2.GetBytes(20);
+            var hashBytes = new byte[36];
+            Array.Copy(salt, 0, hashBytes, 0, 16);
+            Array.Copy(hash, 0, hashBytes, 16, 20);
+            Console.WriteLine("Messages passed to us: {0}",message);
             var clientStream = client.GetStream();
             if (clientStream.CanWrite)
             {
-                var bytesToWrite = Encoding.UTF8.GetBytes("OK ENDTRANS");
+                Console.WriteLine("attempting to send back ok");
+                var bytesToWrite = Encoding.UTF8.GetBytes("OK "+Convert.ToBase64String(hashBytes)+ " ENDTRANS");
                 clientStream.Write(bytesToWrite,0,bytesToWrite.Length);
+                Console.WriteLine("sent ok");
             }
-            var mobPlay = new NetworkMobilePlayer(client, clientDetails[0], clientDetails[1]);
+            var mobPlay = new NetworkMobilePlayer(client, clientDetails[0],Convert.ToBase64String(hashBytes));
             MobilePlayers.Add(mobPlay);
             if (ServerGameWindowMaster.CurrentScreen.GetType() == typeof(LobbyScreen))
                 ((LobbyScreen)ServerGameWindowMaster.CurrentScreen).AddPlayer(mobPlay);

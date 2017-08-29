@@ -3,6 +3,7 @@ package com.horse.screens;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
@@ -53,7 +54,7 @@ public class WelcomeScreenActivity extends Activity implements View.OnClickListe
             obsBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                        String displayName = ((EditText)findViewById(R.id.displayName)).getText().toString();
+                        String displayName = ((EditText)((AlertDialog)dialog).findViewById(R.id.displayName)).getText().toString();
                         if(displayName.length() < 3){
                             Toast.makeText(WelcomeScreenActivity.this,"Chosen display name is too short",Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
@@ -68,9 +69,10 @@ public class WelcomeScreenActivity extends Activity implements View.OnClickListe
             builder.setView(serverAddress);
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {String ip = ((EditText)findViewById(R.id.serverAddress)).getText().toString();
+                public void onClick(DialogInterface dialog, int which) {
+                    String ip = ((EditText)((AlertDialog)dialog).findViewById(R.id.serverAddress)).getText().toString();
                     try {
-                        if((inetAddress = InetAddress.getByName(ip)) ==  null){
+                        if(ip == null || ip.length() == 0 || (inetAddress = InetAddress.getByName(ip)) ==  null){
                             Toast.makeText(WelcomeScreenActivity.this,"Bad Server address",Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                             return;
@@ -95,15 +97,15 @@ public class WelcomeScreenActivity extends Activity implements View.OnClickListe
                 dialog.dismiss();
                 break;
             case BUTTON_POSITIVE:
-                String displayName = ((EditText)findViewById(R.id.displayName)).getText().toString();
+                String displayName = ((EditText)((AlertDialog)dialog).findViewById(R.id.displayName)).getText().toString();
                 if(displayName.length() < 3){
                     Toast.makeText(this,"Chosen display name is too short",Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                     break;
                 }
-                String ip = ((EditText)findViewById(R.id.serverAddress)).getText().toString();
+                String ip = ((EditText)((AlertDialog)dialog).findViewById(R.id.serverAddress)).getText().toString();
                 try {
-                    if((inetAddress = InetAddress.getByName(ip)) ==  null){
+                    if(ip == null || ip.length() == 0 || (inetAddress = InetAddress.getByName(ip)) ==  null){
                         Toast.makeText(this,"Bad Server address",Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
                         break;
@@ -115,6 +117,10 @@ public class WelcomeScreenActivity extends Activity implements View.OnClickListe
                 }
                 name = displayName;
                 dialog.dismiss();
+                Intent intent = new Intent(this, LobbyScreenActivity.class);
+                intent.putExtra("DisplayName",name);
+                intent.putExtra("InetAddr",inetAddress);
+                startActivity(intent);
                 break;
         }
     }

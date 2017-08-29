@@ -3,4 +3,7 @@
     <string name="join_game_lobby">Join Game Lobby</string>
     <string name="display_name">Display Name</string>
     <string name="server_address">Server Address: 0.0.0.0</string>
+    <string name="title_activity_lobby_screen">Lobby</string>
+    <string name="Connecting">Connecting...</string>
+    <string name="ok">OK</string>
 </resources>
