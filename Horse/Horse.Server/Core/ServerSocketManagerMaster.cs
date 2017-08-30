@@ -18,13 +18,13 @@ namespace Horse.Server.Core
         public static List<NetworkMobilePlayer> MobilePlayers;
         public event EventHandler PlayerDisconnected;
         private static Thread _checkConnectionThread;
-        private static byte[] salt;
+        private static byte[] _salt;
 
         public ServerSocketManagerMaster()
         {
-            new RNGCryptoServiceProvider().GetBytes(salt = new byte[16]);
-            _checkConnectionThread = new Thread(() => { PollMobileClients(); })
-                { Priority = ThreadPriority.Lowest , IsBackground = true, Name = "Client Connection Checker"};
+            new RNGCryptoServiceProvider().GetBytes(_salt = new byte[16]);
+            _checkConnectionThread = new Thread(PollMobileClients)
+            { Priority = ThreadPriority.Lowest , IsBackground = true, Name = "Client Connection Checker"};
             _checkConnectionThread.Start();
         }
 
@@ -52,24 +52,22 @@ namespace Horse.Server.Core
                             MobilePlayers.Remove(player);
                             OnPlayerDisconnected(new EventArgs());
                         }
-                        if (player.Client.Available > 0)
+                        if (player.Client.Available <= 0) continue;
+                        var clientStream = player.Client.GetStream();
+                        while (clientStream.DataAvailable)
                         {
-                            var clientStream = player.Client.GetStream();
-                            while (clientStream.DataAvailable)
-                            {
-                                var bytes = new byte[player.Client.ReceiveBufferSize];
+                            var bytes = new byte[player.Client.ReceiveBufferSize];
 
-                                // Read can return anything from 0 to numBytesToRead. 
-                                // This method blocks until at least one byte is read.
-                                await clientStream.ReadAsync(bytes, 0, player.Client.ReceiveBufferSize);
-                                var str = Encoding.UTF8.GetString(bytes);
-                                sb.Append(str);
-                                if (sb.ToString().Contains("ENDTRANS"))
-                                    break;
-                            }
-                            processMessage(sb.Replace(" ENDTRANS","").ToString());
-                            sb.Clear();
+                            // Read can return anything from 0 to numBytesToRead. 
+                            // This method blocks until at least one byte is read.
+                            await clientStream.ReadAsync(bytes, 0, player.Client.ReceiveBufferSize);
+                            var str = Encoding.UTF8.GetString(bytes);
+                            sb.Append(str);
+                            if (sb.ToString().Contains("ENDTRANS"))
+                                break;
                         }
+                        ProcessMessage(player.Client,sb.Replace(" ENDTRANS","").ToString());
+                        sb.Clear();
                     }
                 }
             }
@@ -79,9 +77,49 @@ namespace Horse.Server.Core
             }
         }
 
-        private void processMessage(string message)
+        private void ProcessMessage(TcpClient client, string message)
         {
-            throw new NotImplementedException();
+            if (message.StartsWith(MessageType.Cmd))
+            {
+                var cmd = message.Replace(MessageType.Cmd, "");
+                switch (cmd.ToLower())
+                {
+                    case "getplayerlist":
+                        SendPlayerList(client);
+                        break;
+                    default:
+                        LogManager.LogWarning("Command: "+cmd+" not found");
+                        break;
+                }
+            }
+            else if (message.StartsWith(MessageType.Data))
+            {
+
+            }
+            else
+            {
+                LogManager.Log("Message from client: "+message.Replace(MessageType.Info,""));
+            }
+        }
+
+        private void SendPlayerList(TcpClient client)
+        {
+            try
+            {
+                var sb = new StringBuilder(MessageType.Info+" ");
+                foreach (var player in MobilePlayers)
+                {
+                    sb.Append("player:");
+                    sb.Append(player.Name);
+                    sb.Append(",");
+                    sb.Append(player.DeviceId);
+                }
+                SendMessage(sb.ToString(), client.GetStream());
+            }
+            catch (Exception ex)
+            {
+                LogManager.LogError(ex.ToString());
+            }
         }
 
         public static void Listen()
@@ -169,30 +207,27 @@ namespace Horse.Server.Core
                 LogManager.LogError("Invalid data sent from mobile client, closing connection");
                 client.Close();
             }
-            var pbkdf2 = new Rfc2898DeriveBytes(clientDetails[1], salt, 1000);
+            var pbkdf2 = new Rfc2898DeriveBytes(clientDetails[1], _salt, 1000);
             var hash = pbkdf2.GetBytes(20);
             var hashBytes = new byte[36];
-            Array.Copy(salt, 0, hashBytes, 0, 16);
+            Array.Copy(_salt, 0, hashBytes, 0, 16);
             Array.Copy(hash, 0, hashBytes, 16, 20);
             Console.WriteLine("Messages passed to us: {0}",message);
             var clientStream = client.GetStream();
-            if (clientStream.CanWrite)
-            {
                 Console.WriteLine("attempting to send back ok");
-                var bytesToWrite = Encoding.UTF8.GetBytes("OK "+Convert.ToBase64String(hashBytes)+ " ENDTRANS");
-                clientStream.Write(bytesToWrite,0,bytesToWrite.Length);
-                Console.WriteLine("sent ok");
-            }
+            SendMessage(MessageType.Info+" OK " + Convert.ToBase64String(hashBytes), clientStream);
             var mobPlay = new NetworkMobilePlayer(client, clientDetails[0],Convert.ToBase64String(hashBytes));
             MobilePlayers.Add(mobPlay);
             if (ServerGameWindowMaster.CurrentScreen.GetType() == typeof(LobbyScreen))
                 ((LobbyScreen)ServerGameWindowMaster.CurrentScreen).AddPlayer(mobPlay);
         }
 
-        public enum MessageType
+        public static void SendMessage(string message,  NetworkStream stream)
         {
-            CMD = "CMD",
-
+            if (!stream.CanWrite) return;
+            var bytesToWrite = Encoding.UTF8.GetBytes(message + " ENDTRANS");
+            stream.Write(bytesToWrite, 0, bytesToWrite.Length);
+            Console.WriteLine("sent");
         }
     }
 }

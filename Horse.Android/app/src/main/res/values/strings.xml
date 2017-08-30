@@ -6,4 +6,5 @@
     <string name="title_activity_lobby_screen">Lobby</string>
     <string name="Connecting">Connecting...</string>
     <string name="ok">OK</string>
+    <string name="instruction_set">H.O.R.S.E. is a</string>
 </resources>

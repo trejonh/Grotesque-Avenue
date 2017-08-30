@@ -41,7 +41,7 @@
                 android:id="@+id/instructionSet"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text=""/>
+                android:text="@string/instruction_set"/>
             <Button
                 android:id="@+id/readInstructions"
                 android:layout_width="match_parent"

@@ -14,6 +14,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.horse.R;
+import com.horse.core.MessageType;
 import com.horse.core.Player;
 import com.horse.core.ServerConnection;
 
@@ -57,12 +58,13 @@ public class LobbyScreenActivity extends Activity {
             readBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    ServerConnection.sendTimedMessage(MessageType.CMD+" getPlayerList ENDTRANS","getplayerlist",15);
                     findViewById(R.id.lobby_scrollView).setVisibility(View.GONE);
                     readBtn.setVisibility(View.GONE);
-                    ArrayAdapter<Player> playerAdapter = new ArrayAdapter<>(LobbyScreenActivity.this, R.layout.player_list, R.id.playerName, Players);
+                   /* ArrayAdapter<Player> playerAdapter = new ArrayAdapter<>(LobbyScreenActivity.this, R.layout.player_list, R.id.playerName, Players);
                     ListView lv = (ListView)findViewById(R.id.players_list_view);
                     lv.setVisibility(View.VISIBLE);
-                    lv.setAdapter(playerAdapter);
+                    lv.setAdapter(playerAdapter);*/
                 }
             });
         }
