@@ -66,6 +66,7 @@ namespace Horse.Server.Core
                             if (sb.ToString().Contains("ENDTRANS"))
                                 break;
                         }
+                        LogManager.Log(player.Name + " " + player.DeviceId + " sent:" + sb.ToString() );
                         ProcessMessage(player.Client,sb.Replace(" ENDTRANS","").ToString());
                         sb.Clear();
                     }
@@ -79,20 +80,20 @@ namespace Horse.Server.Core
 
         private void ProcessMessage(TcpClient client, string message)
         {
-            if (message.StartsWith(MessageType.Cmd))
+            StringBuilder sb = new StringBuilder(message);
+            sb.Replace("$", "").Replace("\0", "");
+            message = sb.ToString();
+            if (message.Contains(MessageType.Cmd))
             {
-                var cmd = message.Replace(MessageType.Cmd, "");
-                switch (cmd.ToLower())
-                {
-                    case "getplayerlist":
+                var cmd = message.Substring(message.IndexOf(MessageType.Cmd)+4).Trim().ToLower();
+                if (cmd.Equals("getplayerlist")) { 
                         SendPlayerList(client);
-                        break;
-                    default:
+                }
+                else { 
                         LogManager.LogWarning("Command: "+cmd+" not found");
-                        break;
                 }
             }
-            else if (message.StartsWith(MessageType.Data))
+            else if (message.Contains(MessageType.Data))
             {
 
             }
@@ -106,14 +107,23 @@ namespace Horse.Server.Core
         {
             try
             {
-                var sb = new StringBuilder(MessageType.Info+" ");
+                var sb = new StringBuilder(MessageType.Info+" playerList[");
                 foreach (var player in MobilePlayers)
                 {
-                    sb.Append("player:");
+                    sb.Append("player: ");
                     sb.Append(player.Name);
                     sb.Append(",");
                     sb.Append(player.DeviceId);
+                    if (player.IsVip)
+                        sb.Append(",true");
+                    else
+                        sb.Append(",false");
+                    if (player.IsNext)
+                        sb.Append(",true");
+                    else
+                        sb.Append(",false");
                 }
+                sb.Append(" ]");
                 SendMessage(sb.ToString(), client.GetStream());
             }
             catch (Exception ex)
@@ -212,11 +222,15 @@ namespace Horse.Server.Core
             var hashBytes = new byte[36];
             Array.Copy(_salt, 0, hashBytes, 0, 16);
             Array.Copy(hash, 0, hashBytes, 16, 20);
-            Console.WriteLine("Messages passed to us: {0}",message);
             var clientStream = client.GetStream();
-                Console.WriteLine("attempting to send back ok");
+
+            LogManager.Log("Adding player : " + clientDetails[0].Substring(1) + " " + clientDetails[1]);
             SendMessage(MessageType.Info+" OK " + Convert.ToBase64String(hashBytes), clientStream);
-            var mobPlay = new NetworkMobilePlayer(client, clientDetails[0],Convert.ToBase64String(hashBytes));
+            var mobPlay = new NetworkMobilePlayer(client, clientDetails[0].Substring(1),Convert.ToBase64String(hashBytes));
+            if (MobilePlayers.Count == 0)
+                mobPlay.IsVip = true;
+            if (MobilePlayers.Count == 1)
+                mobPlay.IsNext = true;
             MobilePlayers.Add(mobPlay);
             if (ServerGameWindowMaster.CurrentScreen.GetType() == typeof(LobbyScreen))
                 ((LobbyScreen)ServerGameWindowMaster.CurrentScreen).AddPlayer(mobPlay);
@@ -228,6 +242,7 @@ namespace Horse.Server.Core
             var bytesToWrite = Encoding.UTF8.GetBytes(message + " ENDTRANS");
             stream.Write(bytesToWrite, 0, bytesToWrite.Length);
             Console.WriteLine("sent");
+            LogManager.Log("Sent message: " + message);
         }
     }
 }

@@ -57,7 +57,6 @@ namespace Horse.Server.Core
             }
             finally
             {
-                LogManager.CloseLog();
                 GameWindow.Close();
             }
         }
@@ -83,7 +82,6 @@ namespace Horse.Server.Core
         private static void WindowClosed(object sender, System.EventArgs e)
         {
             _mainDrawingThread?.Abort();
-            LogManager.CloseLog();
             GameWindow.Close();
         }
     }

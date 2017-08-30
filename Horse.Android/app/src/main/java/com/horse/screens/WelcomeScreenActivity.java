@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.horse.R;
+import com.horse.core.HorseActivity;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -24,7 +25,7 @@ import static android.content.DialogInterface.BUTTON_POSITIVE;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class WelcomeScreenActivity extends Activity implements View.OnClickListener, DialogInterface.OnClickListener {
+public class WelcomeScreenActivity extends HorseActivity implements View.OnClickListener, DialogInterface.OnClickListener {
     private InetAddress inetAddress;
     private String name;
     @Override

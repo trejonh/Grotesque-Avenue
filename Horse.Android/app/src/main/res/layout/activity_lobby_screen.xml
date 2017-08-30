@@ -28,31 +28,66 @@
             android:layout_height="wrap_content"
             android:progressBackgroundTint="@color/FunkyRed"/>
     </LinearLayout>
-    <ScrollView
-        android:id="@+id/lobby_scrollView"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible">
-        <LinearLayout
+        android:layout_height="wrap_content"
+        android:textSize="120px"
+        android:text="@string/app_name"
+        android:textColor="@color/FunkyPink"
+        android:id="@+id/instructionSet_title"
+        android:visibility="invisible"
+        android:textAlignment="center"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/lobby_title"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <TextView
-                android:id="@+id/instructionSet"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/instruction_set"/>
-            <Button
-                android:id="@+id/readInstructions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text="@string/ok"/>
-            <ListView
-                android:id="@+id/players_list_view"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:text="@string/lobby"
+            android:textSize="120px"
+            android:textAlignment="center"
+            android:textColor="@color/FunkyDarkBlue"/>
+        <include layout="@layout/lobby_legend"
+            android:id="@+id/legend"
+            android:visibility="invisible"/>
+        <ScrollView
+            android:id="@+id/lobby_scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible">
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="invisible"></ListView>
-        </LinearLayout>
-    </ScrollView>
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/instructionSet"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/instruction_set"
+                    android:textColor="@color/FunkyPink"
+                    android:textSize="45px"
+                    android:visibility="visible"
+                    android:gravity="center"/>
+                <Button
+                    android:id="@+id/readInstructions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="@string/ok"
+                    android:textColor="@color/FunkyDarkBlue"
+                    android:visibility="visible"
+                    android:gravity="bottom"/>
+                <ListView
+                    android:id="@+id/players_list_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="invisible"
+                    android:layout_marginTop="20px"></ListView>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
 </FrameLayout>

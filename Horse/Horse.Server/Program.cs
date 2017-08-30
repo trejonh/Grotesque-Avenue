@@ -10,6 +10,7 @@ namespace Horse.Server
             LogManager.InitLogFile();
             AssetManager.LoadAssets();
             new ServerGameFlowMaster().BeginFlow();
+            LogManager.CloseLog();
         }
     }
 }

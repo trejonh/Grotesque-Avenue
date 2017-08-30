@@ -6,5 +6,21 @@
     <string name="title_activity_lobby_screen">Lobby</string>
     <string name="Connecting">Connecting...</string>
     <string name="ok">OK</string>
-    <string name="instruction_set">H.O.R.S.E. is a</string>
+    <string name="instruction_set">
+       "\tH.O.R.S.E. is an unique game in and of it's own."
+        "It is based off the childhood basketball game H.O.R.S.E."
+        "However you will not be playing basketball here… or maybe you will"
+        "In this version of the childhood classic you and hopefully some 'friends'"
+        "will be engaging in a series of mini-games, and the VIP will be the one to "
+        "set the standard, and the players afterwards are to do as well as the player them,"
+        "if the players succeeds in beating the previous player, the previous player gains a letter,"
+        "if the player fails then they receive a letter instead, and if they tie then nothing happens."
+        "A host of mini-games will be available to play from the game server you chose, the smart device"
+        "in your hand shall be your tool to win. The game may ask of you to do weird and crazy things with "
+        "your device, just play along and have fun. The last player who has yet to spell H.O.R.S.E. wins."
+    </string>
+    <string name="lobby">Lobby</string>
+    <string name="vip">VIP</string>
+    <string name="up_next">Up Next</string>
+    <string name="my_device">My Device</string>
 </resources>

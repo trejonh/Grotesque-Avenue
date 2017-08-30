@@ -61,11 +61,11 @@ public class ServerConnection {
             boolean endReached = false;
             byte[] messageByte = new byte[256];
             StringBuilder sb = new StringBuilder();
+            long startTime = System.currentTimeMillis();
             while(!endReached){
                 int read;
                 synchronized (_in) {
                     if(_in.available() <=  0) {
-                        endReached = true;
                         continue;
                     }
                     read = _in.read(messageByte);
@@ -73,15 +73,19 @@ public class ServerConnection {
                 sb.append(new String(messageByte, 0, read));
                 if(sb.toString().contains("ENDTRANS"))
                     endReached = true;
+                else if(!sb.toString().contains("ENDTRANS") && (System.currentTimeMillis()-startTime)/1000 >= 5){
+                    //taking too long to retrieve message exiting early
+                    return "FAILED";
+                }
             }
             String message = sb.toString().replace(" ENDTRANS","");
-            String cmd = message.substring(0, message.indexOf(" "));
+            String cmd = message.substring(0,4);
             if(cmd.equals(MessageType.CMD))
-                MessagesIn.add(new Message(message.substring(cmd.length()),MessageType.CMD, new Date()));
+                MessagesIn.add(new Message(message.substring(5),MessageType.CMD, new Date()));
             if(cmd.equals(MessageType.DATA))
-                MessagesIn.add(new Message(message.substring(cmd.length()),MessageType.DATA, new Date()));
+                MessagesIn.add(new Message(message.substring(5),MessageType.DATA, new Date()));
             if(cmd.equals(MessageType.INFO))
-                MessagesIn.add(new Message(message.substring(cmd.length()),MessageType.INFO, new Date()));
+                MessagesIn.add(new Message(message.substring(5),MessageType.INFO, new Date()));
             return message.substring(cmd.length());
         }catch(IOException ex){
             //log it
@@ -163,18 +167,6 @@ public class ServerConnection {
             }catch (IOException ex){
                 //log it
             }
-        }
-    }
-
-    private static class Message{
-        public String Message;
-        public String Type;
-        public Date ReceivedDate;
-
-        public Message(String message, String type, Date receivedDate) {
-            Message = message;
-            Type = type;
-            ReceivedDate = receivedDate;
         }
     }
 }

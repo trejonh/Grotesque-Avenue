@@ -5,7 +5,7 @@ package com.horse.core;
  */
 
 public final class MessageType {
-    public static  String CMD = "CMD";
+    public static  String CMD = "COMM";
     public static  String DATA = "DATA";
     public static  String INFO = "INFO";
 }

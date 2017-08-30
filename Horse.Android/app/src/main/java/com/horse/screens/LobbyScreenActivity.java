@@ -8,29 +8,32 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.horse.R;
+import com.horse.core.HorseActivity;
 import com.horse.core.MessageType;
 import com.horse.core.Player;
+import com.horse.core.PlayerAdapter;
 import com.horse.core.ServerConnection;
 
 import java.net.InetAddress;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class LobbyScreenActivity extends Activity {
-    private Player[] Players;
+public class LobbyScreenActivity extends HorseActivity {
     private final int MAX_ALLOWED_PLAYERS = 8;
-    private static String myHash;
+    public static String MyHash;
+    private static Timer _getPlayerList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby_screen);
         checkPermissions();
-        Players = new Player[MAX_ALLOWED_PLAYERS];
         String displayName = getIntent().getStringExtra("DisplayName");
         InetAddress inet = (InetAddress) getIntent().getExtras().get("InetAddr");
         new ServerConnection(inet,displayName);
@@ -45,26 +48,52 @@ public class LobbyScreenActivity extends Activity {
         }).start();
     }
 
+    private void initInstructionset(){
+        findViewById(R.id.connecting_view).setVisibility(View.GONE);
+        findViewById(R.id.instructionSet_title).setVisibility(View.VISIBLE);
+        findViewById(R.id.lobby_scrollView).setVisibility(View.VISIBLE);
+        final Button readBtn = (Button)findViewById(R.id.readInstructions);
+        readBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ServerConnection.sendTimedMessage(MessageType.CMD+" getplayerlist","getplayerlist",15);
+                readBtn.setVisibility(View.GONE);
+                findViewById(R.id.instructionSet).setVisibility(View.GONE);
+                findViewById(R.id.instructionSet_title).setVisibility(View.GONE);
+                findViewById(R.id.legend).setVisibility(View.VISIBLE);
+                findViewById(R.id.lobby_title).setVisibility(View.VISIBLE);
+                final PlayerAdapter playerAdapter = new PlayerAdapter(LobbyScreenActivity.this, new ArrayList<Player>());
+                ListView lv = (ListView)findViewById(R.id.players_list_view);
+                lv.setVisibility(View.VISIBLE);
+                lv.setAdapter(playerAdapter);
+                _getPlayerList = new Timer();
+                _getPlayerList.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                playerAdapter.clear();
+                                playerAdapter.addAll(Player.getPlayersFromServer());
+                            }
+                        });
+                    }
+                }, 0, 20);
+            }
+        });
+    }
+
     private void receiveOk() {
         String messageRecieved = ServerConnection.readMessage();
         if(!messageRecieved.contains("OK")){
             Toast.makeText(this,"Failed to connect, try again",Toast.LENGTH_LONG).show();
             finish();
         }else{
-            myHash = messageRecieved.substring(2);
-            findViewById(R.id.connecting_view).setVisibility(View.GONE);
-            findViewById(R.id.lobby_scrollView).setVisibility(View.VISIBLE);
-            final Button readBtn = (Button)findViewById(R.id.readInstructions);
-            readBtn.setOnClickListener(new View.OnClickListener() {
+            MyHash = messageRecieved.substring(2);
+            runOnUiThread(new Runnable() {
                 @Override
-                public void onClick(View view) {
-                    ServerConnection.sendTimedMessage(MessageType.CMD+" getPlayerList ENDTRANS","getplayerlist",15);
-                    findViewById(R.id.lobby_scrollView).setVisibility(View.GONE);
-                    readBtn.setVisibility(View.GONE);
-                   /* ArrayAdapter<Player> playerAdapter = new ArrayAdapter<>(LobbyScreenActivity.this, R.layout.player_list, R.id.playerName, Players);
-                    ListView lv = (ListView)findViewById(R.id.players_list_view);
-                    lv.setVisibility(View.VISIBLE);
-                    lv.setAdapter(playerAdapter);*/
+                public void run() {
+                    initInstructionset();
                 }
             });
         }
@@ -72,7 +101,7 @@ public class LobbyScreenActivity extends Activity {
     }
 
     private void sendInitialMessage() {
-        String message = ServerConnection.DisplayName + "," + Settings.Secure.ANDROID_ID.toString();
+        String message = ServerConnection.DisplayName + "," + Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);;
         ServerConnection.sendMessage(message);
     }
 
@@ -114,6 +143,8 @@ public class LobbyScreenActivity extends Activity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        if(_getPlayerList != null)
+            _getPlayerList.cancel();
         ServerConnection.closeConnection();
     }
 }
