@@ -29,14 +29,25 @@ namespace Horse.Server.Screens
                 ServerGameFlowMaster.ServerSocket = new ServerSocketManagerMaster();
             ServerGameFlowMaster.ServerSocket.PlayerDisconnected += ServerSocketOnPlayerDisconnected;
             ServerSocketManagerMaster.Listen();
-            var serverName = new Text() { CharacterSize = 120, Color = Color.Black, DisplayedString = AssetManager.GetMessage("ServerName")+ipAdress, Font = AssetManager.LoadFont("Shogun") };
-            AddScreenItem(new ScreenItem(ref window, serverName, ScreenItem.ScreenPositions.BottomLeft,null));
+            var serverName = new Text() { CharacterSize = 120, Color = Color.Black, DisplayedString = AssetManager.GetMessage("ServerName") + ipAdress, Font = AssetManager.LoadFont("Shogun") };
+            AddScreenItem(new ScreenItem(ref window, serverName, ScreenItem.ScreenPositions.BottomLeft, null));
+            var lobbyText = new Text() { CharacterSize = 120, Color = Color.Black, DisplayedString = AssetManager.GetMessage("Lobby"), Font = AssetManager.LoadFont("KissMeOrNot") };
+            AddScreenItem(new ScreenItem(ref window, lobbyText, ScreenItem.ScreenPositions.Top, null));
             BgColor = AssetManager.LoadColor("FunkyPink");
         }
 
         private void ServerSocketOnPlayerDisconnected(object sender, EventArgs eventArgs)
         {
-            //throw new NotImplementedException();
+            var tmp = ScreenItems.ToArray();
+            foreach (var item in tmp)
+            {
+                if (item.GetType() == typeof(LobbyScreenItem))
+                    ScreenItems.Remove(item);
+            }
+            foreach (var player in ServerSocketManagerMaster.MobilePlayers)
+            {
+                AddPlayer(player);
+            }
         }
 
         public override void Draw()
@@ -80,8 +91,19 @@ namespace Horse.Server.Screens
                 DisplayedString = mobPlay.Name
             };
             var renderWindow = WinInstance;
-            AddScreenItem(new ScreenItem(ref renderWindow, roundedRect, ScreenItem.ScreenPositions.TopLeft, null));
-            AddScreenItem(new ScreenItem(ref renderWindow, text, ScreenItem.ScreenPositions.TopLeft, null));
+            var mobCount = ServerSocketManagerMaster.MobilePlayers.Count;
+            if (mobCount % 2 == 1)
+            {
+                var pos = new Vector2f(32.0f,128.0f*mobCount);
+                AddScreenItem(new LobbyScreenItem(ref renderWindow, roundedRect, pos, null));
+                AddScreenItem(new LobbyScreenItem(ref renderWindow, text, pos, null));
+            }
+            else
+            {
+                var pos = new Vector2f(WinInstance.Size.X-256.0f,128.0f*mobCount);
+                AddScreenItem(new LobbyScreenItem(ref renderWindow, roundedRect, pos, null));
+                AddScreenItem(new LobbyScreenItem(ref renderWindow, text, pos, null));
+            }
         }
     }
 }

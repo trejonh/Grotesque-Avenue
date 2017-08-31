@@ -31,14 +31,27 @@ namespace Horse.Server.Core
         {
             if (ServerGameWindowMaster.GameWindow.IsOpen == false)
                 return;
-            while (ServerGameWindowMaster.GameWindow.IsOpen)
+            try
             {
-                ServerGameWindowMaster.GameWindow.DispatchEvents();
+                while (ServerGameWindowMaster.GameWindow.IsOpen)
+                {
+                    ServerGameWindowMaster.GameWindow.DispatchEvents();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogManager.LogError("Major exception occurred while dispatching events <br/>" + ex.Message);
+            }
+            finally
+            {
+                QuitGame();
             }
         }
 
         internal static void QuitGame()
         {
+            ServerSocketManagerMaster.CloseAllConnections();
+            ServerGameWindowMaster.StopDrawing();
             ServerGameWindowMaster.GameWindow.Close();
         }
     }

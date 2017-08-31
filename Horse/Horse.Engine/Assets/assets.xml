@@ -100,4 +100,9 @@
     <name>FunkyPink</name>
     <text>#ff5bd7</text>
   </asset>
+  <asset>
+    <type>text</type>
+    <name>Lobby</name>
+    <text>Lobby</text>
+  </asset>
 </assets>

@@ -23,6 +23,7 @@ namespace Horse.Server.Core
             var title = AssetManager.GetMessage("GameTitle");
             new GameWindow(width,height,title, true);
             GameWindow = Engine.Core.GameWindow.GameRenderWindow;
+            GameWindow.SetVerticalSyncEnabled(true);
             _serverClock = new Clock();
             if (GameWindow == null)
             {
@@ -45,10 +46,7 @@ namespace Horse.Server.Core
                 {
                     if(_serverClock != null)
                         FrameDelta = _serverClock.Restart();
-                    if(CurrentScreen != null)
-                    {
-                        CurrentScreen.Draw();
-                    }
+                    CurrentScreen?.Draw();
                     GameWindow.Display();
                 }
             }catch(Exception ex)
@@ -68,11 +66,14 @@ namespace Horse.Server.Core
 
         public static void GotoPreviousScreen()
         {
-            if(_previousScreen != null)
-            {
-                CurrentScreen = _previousScreen;
-                CurrentScreen.AddWindowKeyEventHandler();
-            }
+            if (_previousScreen == null) return;
+            CurrentScreen = _previousScreen;
+            CurrentScreen.AddWindowKeyEventHandler();
+        }
+
+        public static void StopDrawing()
+        {
+            _mainDrawingThread?.Abort();
         }
         /// <summary>
         /// Close the window

@@ -37,19 +37,33 @@ namespace Horse.Server.Core
                 {
                     if (MobilePlayers == null || MobilePlayers.Count == 0)
                         continue;
-                    var tempArr = MobilePlayers.ToArray();
+                    NetworkMobilePlayer[] tempArr;
+                    lock (MobilePlayers)
+                    {
+                        tempArr = MobilePlayers.ToArray();
+                    }
                     foreach (var player in tempArr)
                     {
+                        if (player == null)
+                        {
+                            continue;
+                        }
                         if (player.Client == null)
                         {
-                            MobilePlayers.Remove(player);
+                            lock (MobilePlayers)
+                            {
+                                MobilePlayers.Remove(player);
+                            }
                             OnPlayerDisconnected(new EventArgs());
                             continue;
                         }
                         if (player.Client.Connected == false)
                         {
                             player.Client.Close();
-                            MobilePlayers.Remove(player);
+                            lock (MobilePlayers)
+                            {
+                                MobilePlayers.Remove(player);
+                            }
                             OnPlayerDisconnected(new EventArgs());
                         }
                         if (player.Client.Available <= 0) continue;
@@ -66,7 +80,7 @@ namespace Horse.Server.Core
                             if (sb.ToString().Contains("ENDTRANS"))
                                 break;
                         }
-                        LogManager.Log(player.Name + " " + player.DeviceId + " sent:" + sb.ToString() );
+                        LogManager.Log(player.Name + " " + player.DeviceId + " sent:" + sb);
                         ProcessMessage(player.Client,sb.Replace(" ENDTRANS","").ToString());
                         sb.Clear();
                     }
@@ -85,12 +99,14 @@ namespace Horse.Server.Core
             message = sb.ToString();
             if (message.Contains(MessageType.Cmd))
             {
-                var cmd = message.Substring(message.IndexOf(MessageType.Cmd)+4).Trim().ToLower();
-                if (cmd.Equals("getplayerlist")) { 
+                var cmd = message.Substring(message.IndexOf(MessageType.Cmd, StringComparison.Ordinal)+4).Trim().ToLower();
+                switch (cmd) {
+                    case "getplayerlist":
                         SendPlayerList(client);
-                }
-                else { 
+                        break;
+                    default:
                         LogManager.LogWarning("Command: "+cmd+" not found");
+                        break;
                 }
             }
             else if (message.Contains(MessageType.Data))
@@ -114,14 +130,8 @@ namespace Horse.Server.Core
                     sb.Append(player.Name);
                     sb.Append(",");
                     sb.Append(player.DeviceId);
-                    if (player.IsVip)
-                        sb.Append(",true");
-                    else
-                        sb.Append(",false");
-                    if (player.IsNext)
-                        sb.Append(",true");
-                    else
-                        sb.Append(",false");
+                    sb.Append(player.IsVip ? ",true" : ",false");
+                    sb.Append(player.IsNext ? ",true" : ",false");
                 }
                 sb.Append(" ]");
                 SendMessage(sb.ToString(), client.GetStream());
@@ -155,7 +165,7 @@ namespace Horse.Server.Core
         {
             foreach (var player in MobilePlayers)
             {
-                if (player.Client != null && player.Client.Connected)
+                if (player?.Client != null && player.Client.Connected)
                     player.Client.Close();
             }
             foreach (var client in _mobileClients)

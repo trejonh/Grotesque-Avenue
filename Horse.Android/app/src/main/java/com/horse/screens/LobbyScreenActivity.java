@@ -86,7 +86,12 @@ public class LobbyScreenActivity extends HorseActivity {
     private void receiveOk() {
         String messageRecieved = ServerConnection.readMessage();
         if(!messageRecieved.contains("OK")){
-            Toast.makeText(this,"Failed to connect, try again",Toast.LENGTH_LONG).show();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(LobbyScreenActivity.this,"Failed to connect, try again",Toast.LENGTH_LONG).show();
+                }
+            });
             finish();
         }else{
             MyHash = messageRecieved.substring(2);
