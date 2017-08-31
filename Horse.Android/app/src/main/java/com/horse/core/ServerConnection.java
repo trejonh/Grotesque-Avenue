@@ -3,6 +3,8 @@ package com.horse.core;
 import android.os.AsyncTask;
 import android.os.Handler;
 
+import com.horse.utils.LogManager;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -51,6 +53,7 @@ public class ServerConnection {
             }
         }catch(IOException ex){
             //log it
+            LogManager.getInstance().error(ex);
         }
     }
 
@@ -75,6 +78,7 @@ public class ServerConnection {
                     endReached = true;
                 else if(!sb.toString().contains("ENDTRANS") && (System.currentTimeMillis()-startTime)/1000 >= 5){
                     //taking too long to retrieve message exiting early
+                    LogManager.getInstance().warn("Message was taking to long to receive: ", sb.toString());
                     return "FAILED";
                 }
             }
@@ -88,7 +92,7 @@ public class ServerConnection {
                 MessagesIn.add(new Message(message.substring(5),MessageType.INFO, new Date()));
             return message.substring(cmd.length());
         }catch(IOException ex){
-            //log it
+            LogManager.getInstance().error(ex);
         }
         return "";
     }
@@ -109,6 +113,7 @@ public class ServerConnection {
             Ready = false;
         }catch(IOException  ex) {
             //ex
+            LogManager.getInstance().error(ex);
         }
     }
 
@@ -166,6 +171,7 @@ public class ServerConnection {
                 }, 1000,1000);
             }catch (IOException ex){
                 //log it
+                LogManager.getInstance().error(ex);
             }
         }
     }

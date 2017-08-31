@@ -8,6 +8,8 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.horse.screens.WelcomeScreenActivity;
+import com.horse.utils.HorseCache;
+import com.horse.utils.LogManager;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -19,6 +21,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
+        HorseCache.addItem("ApplicationContext",getApplicationContext());
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             public void run() {

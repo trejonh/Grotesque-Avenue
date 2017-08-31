@@ -18,6 +18,7 @@ import com.horse.core.MessageType;
 import com.horse.core.Player;
 import com.horse.core.PlayerAdapter;
 import com.horse.core.ServerConnection;
+import com.horse.utils.LogManager;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -90,6 +91,7 @@ public class LobbyScreenActivity extends HorseActivity {
                 @Override
                 public void run() {
                     Toast.makeText(LobbyScreenActivity.this,"Failed to connect, try again",Toast.LENGTH_LONG).show();
+                    LogManager.getInstance().warn("Failed to connect to address:" , getIntent().getExtras().get("InetAddr").toString());
                 }
             });
             finish();

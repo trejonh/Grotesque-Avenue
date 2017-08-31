@@ -22,16 +22,16 @@
             android:text="@string/Connecting"
             android:textAlignment="center"
             android:gravity="center"
-            android:textSize="60px"/>
+            android:textSize="60sp"/>
         <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:progressBackgroundTint="@color/FunkyRed"/>
     </LinearLayout>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="120px"
+        android:textSize="60sp"
         android:text="@string/app_name"
         android:textColor="@color/FunkyPink"
         android:id="@+id/instructionSet_title"
@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:visibility="invisible"
             android:text="@string/lobby"
-            android:textSize="120px"
+            android:textSize="60sp"
             android:textAlignment="center"
             android:textColor="@color/FunkyDarkBlue"/>
         <include layout="@layout/lobby_legend"
@@ -69,7 +69,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/instruction_set"
                     android:textColor="@color/FunkyPink"
-                    android:textSize="45px"
+                    android:textSize="30sp"
                     android:visibility="visible"
                     android:gravity="center"/>
                 <Button
@@ -80,13 +80,14 @@
                     android:text="@string/ok"
                     android:textColor="@color/FunkyDarkBlue"
                     android:visibility="visible"
-                    android:gravity="bottom"/>
+                    android:gravity="bottom"
+                    android:textSize="20sp"/>
                 <ListView
                     android:id="@+id/players_list_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:visibility="invisible"
-                    android:layout_marginTop="20px"></ListView>
+                    android:layout_marginTop="20dp"></ListView>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
