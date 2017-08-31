@@ -10,11 +10,28 @@ using Horse.Server.Core;
 
 namespace Horse.Server.Screens
 {
+    /// <summary>
+    /// The main menu of the game
+    /// </summary>
     public class MainMenu : Screen
     {
+        /// <summary>
+        /// The pointer for the main menu
+        /// </summary>
         private readonly Sprite _pointer;
+        /// <summary>
+        /// The pointer positions
+        /// </summary>
         private readonly IEnumerator<Vector2f> _pointerPositions;
+        /// <summary>
+        /// The previous position
+        /// </summary>
         private Vector2f _previous;
+
+        /// <summary>
+        /// Create the main menu of the game
+        /// </summary>
+        /// <param name="window">The window to draw to</param>
         public MainMenu(ref RenderWindow window):base(ref window)
         {
             var roundRect = new RoundedRectangle(new Vector2f(384, 108), 5f, 4) { FillColor = AssetManager.LoadColor("FunkyTeal"), OutlineColor = AssetManager.LoadColor("FunkyYellow") };
@@ -48,6 +65,9 @@ namespace Horse.Server.Screens
             _pointer.Position = _pointerPositions.Current;
         }
 
+        /// <summary>
+        /// Draws the main menu
+        /// </summary>
         public override void Draw()
         {
             WinInstance.Clear(BgColor);
@@ -55,6 +75,12 @@ namespace Horse.Server.Screens
             base.Draw();
         }
 
+
+        /// <summary>
+        /// Handles key presses for the main menu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="keyEventArgs"></param>
         public override void OnKeyPress(object sender, KeyEventArgs keyEventArgs)
         {
             switch (keyEventArgs.Code)
@@ -98,11 +124,20 @@ namespace Horse.Server.Screens
             }
         }
 
+        /// <summary>
+        /// Handle key release on the main menu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="keyEventArgs"></param>
         public override void OnKeyRelease(object sender, KeyEventArgs keyEventArgs)
         {
            
         }
 
+        /// <summary>
+        /// Remove the key handlers and switch to the lobby screen
+        /// </summary>
+        /// <returns></returns>
         private int PresentLobbyAndStartServer()
         {
             RemoveWindowKeyEventHandler();
@@ -111,6 +146,10 @@ namespace Horse.Server.Screens
             return 0;
         }
 
+        /// <summary>
+        /// Quit the game
+        /// </summary>
+        /// <returns></returns>
         private int QuitGame()
         {
             ServerGameFlowMaster.QuitGame();

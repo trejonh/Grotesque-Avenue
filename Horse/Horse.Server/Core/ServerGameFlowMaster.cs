@@ -6,10 +6,24 @@ using Horse.Engine.Utils;
 
 namespace Horse.Server.Core
 {
+    /// <summary>
+    /// Controls the flow of the game
+    /// </summary>
     public sealed class ServerGameFlowMaster
     {
+        /// <summary>
+        /// Timer for simple tasks
+        /// </summary>
         private Timer _flowTimer;
+        
+        /// <summary>
+        /// Reference to the splash screen
+        /// </summary>
         private Screen _splashScreen;
+
+        /// <summary>
+        /// Referencce to the main menu
+        /// </summary>
         private Screen _mainMenu;
         public static ServerSocketManagerMaster ServerSocket;
         public ServerGameFlowMaster()
@@ -27,6 +41,9 @@ namespace Horse.Server.Core
             _flowTimer.Start();;
         }
 
+        /// <summary>
+        /// Begin the game flow
+        /// </summary>
         public void BeginFlow()
         {
             if (ServerGameWindowMaster.GameWindow.IsOpen == false)
@@ -48,6 +65,9 @@ namespace Horse.Server.Core
             }
         }
 
+        /// <summary>
+        /// Close any open sockets, stop drawing, and close the window
+        /// </summary>
         internal static void QuitGame()
         {
             ServerSocketManagerMaster.CloseAllConnections();

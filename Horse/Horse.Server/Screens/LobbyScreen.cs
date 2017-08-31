@@ -7,13 +7,19 @@ using SFML.System;
 using SFML.Window;
 using System;
 using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
 
 namespace Horse.Server.Screens
 {
+    /// <summary>
+    /// The lobby screen is where player  can initially connect to the server
+    /// And all connected players are then displayed on the screen
+    /// </summary>
     public class LobbyScreen : Screen
     {
+        /// <summary>
+        /// Create a new lobby screen
+        /// </summary>
+        /// <param name="window">The window in which to draw to</param>
         public LobbyScreen(ref RenderWindow window) : base(ref window)
         {
             var ipAdress = "";
@@ -36,6 +42,11 @@ namespace Horse.Server.Screens
             BgColor = AssetManager.LoadColor("FunkyPink");
         }
 
+        /// <summary>
+        /// Redraw the players that are still connected to the server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
         private void ServerSocketOnPlayerDisconnected(object sender, EventArgs eventArgs)
         {
             var tmp = ScreenItems.ToArray();
@@ -49,17 +60,26 @@ namespace Horse.Server.Screens
                 AddPlayer(player);
             }
         }
-
+        
+        /// <summary>
+        /// Draw the contents of the screen
+        /// </summary>
         public override void Draw()
         {
             WinInstance.Clear(BgColor);
             base.Draw();
         }
 
+        /// <summary>
+        /// Handle key presses on the lobby screen
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="keyEventArgs"></param>
         public override void OnKeyPress(object sender, KeyEventArgs keyEventArgs)
         {
             switch (keyEventArgs.Code)
             {
+                //Go back to the main menu
                 case Keyboard.Key.Escape:
                     RemoveWindowKeyEventHandler();
                     ServerGameFlowMaster.ServerSocket.PlayerDisconnected -= ServerSocketOnPlayerDisconnected;
@@ -69,17 +89,30 @@ namespace Horse.Server.Screens
             }
         }
 
+        /// <summary>
+        /// Handle key releases on the lobby screen
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="keyEventArgs"></param>
         public override void OnKeyRelease(object sender, KeyEventArgs keyEventArgs)
         {
             
         }
 
+        /// <summary>
+        /// Get the ip address of the server
+        /// </summary>
+        /// <returns>The server ip address</returns>
         private string GetLocalIPAdress()
         {
             var tmp = Dns.GetHostAddresses(Dns.GetHostName());
             return tmp.Length > 0 ? tmp[tmp.Length - 1].ToString() : "";
         }
 
+        /// <summary>
+        /// Add a player to the lobby screen
+        /// </summary>
+        /// <param name="mobPlay">Yhe player to add</param>
         internal void AddPlayer(NetworkMobilePlayer mobPlay)
         {
             var roundedRect = new RoundedRectangle(new Vector2f(128.0f, 64.0f), 10f, 4) { FillColor = Color.Transparent, OutlineColor = AssetManager.LoadColor("FunkyPink")};

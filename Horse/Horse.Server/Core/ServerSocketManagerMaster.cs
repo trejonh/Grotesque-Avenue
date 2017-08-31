@@ -10,16 +10,49 @@ using System.Threading;
 
 namespace Horse.Server.Core
 {
+    /// <summary>
+    /// Master socket manager
+    /// </summary>
     public  class ServerSocketManagerMaster
     {
+        /// <summary>
+        /// Listen for incoming connections
+        /// </summary>
         private static bool _listen;
+
+        /// <summary>
+        /// The connected mobile clients
+        /// </summary>
         private static List<TcpClient> _mobileClients;
+
+        /// <summary>
+        /// The listener for tcp connections
+        /// </summary>
         private static TcpListener _listener;
+
+        /// <summary>
+        /// The connected mobile players
+        /// </summary>
         public static List<NetworkMobilePlayer> MobilePlayers;
+
+        /// <summary>
+        /// Handler for when a client disconnects
+        /// </summary>
         public event EventHandler PlayerDisconnected;
+
+        /// <summary>
+        /// Thread to check for incoming messages and if a client disconnects
+        /// </summary>
         private static Thread _checkConnectionThread;
+
+        /// <summary>
+        /// Salt used for hashing the device id
+        /// </summary>
         private static byte[] _salt;
 
+        /// <summary>
+        /// Initiate the connection checking thread
+        /// </summary>
         public ServerSocketManagerMaster()
         {
             new RNGCryptoServiceProvider().GetBytes(_salt = new byte[16]);
@@ -28,6 +61,10 @@ namespace Horse.Server.Core
             _checkConnectionThread.Start();
         }
 
+        /// <summary>
+        /// Iterate through connected clients checking for
+        /// closed connections or incoming messages
+        /// </summary>
         private async void PollMobileClients()
         {
             try
@@ -92,6 +129,11 @@ namespace Horse.Server.Core
             }
         }
 
+        /// <summary>
+        /// Proccess the incoming message
+        /// </summary>
+        /// <param name="client">The client that sent the message</param>
+        /// <param name="message">The sent message</param>
         private void ProcessMessage(TcpClient client, string message)
         {
             StringBuilder sb = new StringBuilder(message);
@@ -119,6 +161,10 @@ namespace Horse.Server.Core
             }
         }
 
+        /// <summary>
+        /// Send the list of currently connected players to the client
+        /// </summary>
+        /// <param name="client">The client to send the list to</param>
         private void SendPlayerList(TcpClient client)
         {
             try
@@ -142,6 +188,9 @@ namespace Horse.Server.Core
             }
         }
 
+        /// <summary>
+        /// List for incoming connections
+        /// </summary>
         public static void Listen()
         {
             if (MobilePlayers != null && MobilePlayers.Count > 0 || _mobileClients != null && _mobileClients.Count > 0)
@@ -155,12 +204,19 @@ namespace Horse.Server.Core
             StartAccept();
         }
 
+        /// <summary>
+        /// Handler for when a player disconnects
+        /// </summary>
+        /// <param name="e"></param>
         protected virtual void OnPlayerDisconnected(EventArgs e)
         {
             if (PlayerDisconnected != null)
                 PlayerDisconnected(this, e);
         }
 
+        /// <summary>
+        /// Close all existing connections
+        /// </summary>
         private static void CloseExistingConnections()
         {
             foreach (var player in MobilePlayers)
@@ -175,11 +231,17 @@ namespace Horse.Server.Core
             }
         }
 
+        /// <summary>
+        /// Stop listening for incoming connections
+        /// </summary>
         public static void StopListening()
         {
             _listen = false;
         }
 
+        /// <summary>
+        /// Close all connections and stop checking for messages
+        /// </summary>
         public static void CloseAllConnections()
         {
             StopListening();
@@ -187,10 +249,18 @@ namespace Horse.Server.Core
             _checkConnectionThread?.Abort();
         }
 
+        /// <summary>
+        /// Start accepting connections
+        /// </summary>
         private static void StartAccept()
         {
             _listener.BeginAcceptTcpClient(HandleAsyncConnection, _listener);
         }
+
+        /// <summary>
+        /// Handle the connetion
+        /// </summary>
+        /// <param name="res"></param>
         private static void HandleAsyncConnection(IAsyncResult res)
         {
             if (_listen == false && _mobileClients.Count >= 8)
@@ -219,6 +289,11 @@ namespace Horse.Server.Core
 
         }
 
+        /// <summary>
+        /// Create a mobile player if the message is valid
+        /// </summary>
+        /// <param name="client">The connected mobile client</param>
+        /// <param name="message">The messesage the client sent</param>
         private static void CreatePlayer(TcpClient client, string message)
         {
             var clientDetails = message.Split(',');
@@ -246,6 +321,11 @@ namespace Horse.Server.Core
                 ((LobbyScreen)ServerGameWindowMaster.CurrentScreen).AddPlayer(mobPlay);
         }
 
+        /// <summary>
+        /// Send a message
+        /// </summary>
+        /// <param name="message">The message to send</param>
+        /// <param name="stream">Stream inwhich to send the message on</param>
         public static void SendMessage(string message,  NetworkStream stream)
         {
             if (!stream.CanWrite) return;

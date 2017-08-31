@@ -9,12 +9,39 @@ namespace Horse.Server.Core
 {
     public static class ServerGameWindowMaster
     {
+        /// <summary>
+        /// The main game window
+        /// </summary>
         public static RenderWindow GameWindow { get; private set; }
+
+        /// <summary>
+        /// The current screen that is being drawn
+        /// </summary>
         public static Screen CurrentScreen { get; private set; }
+
+        /// <summary>
+        /// The previous screen
+        /// </summary>
         private static Screen _previousScreen;
+
+        /// <summary>
+        /// The thread that draws screens and other items
+        /// </summary>
         private static Thread _mainDrawingThread;
+
+        /// <summary>
+        /// The frame rate clock
+        /// </summary>
         public static Time FrameDelta { get; private set; }
+
+        /// <summary>
+        /// The main game clock
+        /// </summary>
         private static Clock _serverClock;
+
+        /// <summary>
+        /// Initialize the game window and start the drawing thread
+        /// </summary>
         public static void InitGameWindow()
         {
             var resolution = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
@@ -37,6 +64,9 @@ namespace Horse.Server.Core
             _mainDrawingThread.Start();
         }
 
+        /// <summary>
+        /// Draw the current screen and reset the frame clock
+        /// </summary>
         private static void Draw()
         {
             try
@@ -58,6 +88,11 @@ namespace Horse.Server.Core
                 GameWindow.Close();
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="screen"></param>
         public static void ChangeScreen(Screen screen)
         {
             _previousScreen = CurrentScreen;

@@ -5,6 +5,10 @@ using SFML.System;
 
 namespace Horse.Server.Core
 {
+    /// <summary>
+    /// Simple wrapper for screen items, to distingush 
+    /// which ones to remove
+    /// </summary>
     public class LobbyScreenItem : ScreenItem
     {
         public LobbyScreenItem(ref RenderWindow window, Text item, ScreenPositions position, Func<int> func) : base(ref window, item, position, func)
