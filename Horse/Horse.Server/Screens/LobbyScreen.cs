@@ -112,7 +112,7 @@ namespace Horse.Server.Screens
         /// <summary>
         /// Add a player to the lobby screen
         /// </summary>
-        /// <param name="mobPlay">Yhe player to add</param>
+        /// <param name="mobPlay">The player to add</param>
         internal void AddPlayer(NetworkMobilePlayer mobPlay)
         {
             var roundedRect = new RoundedRectangle(new Vector2f(128.0f, 64.0f), 10f, 4) { FillColor = Color.Transparent, OutlineColor = AssetManager.LoadColor("FunkyPink")};

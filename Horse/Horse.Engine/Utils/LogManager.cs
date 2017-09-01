@@ -24,12 +24,15 @@ namespace Horse.Engine.Utils
 
         private static readonly string _close = "\r\n<script src='.\\log.js'></script>\r\n</body>\r\n</html>";
         private static bool _closed;
+        private static bool _opened;
 
         /// <summary>
         /// Create a log file for latest run
         /// </summary>
         public static void InitLogFile()
         {
+            if (_opened)
+                return;
             if(!Directory.Exists(BaseFileLocation))
                 Directory.CreateDirectory(BaseFileLocation);
             if (File.Exists(LogFile))
@@ -38,6 +41,7 @@ namespace Horse.Engine.Utils
             File.SetAttributes(LogFile, FileAttributes.Normal);
             _log = new StreamWriter(logFs);
             _log.WriteLine(_head);
+            _opened = true;
         }
 
         /// <summary>

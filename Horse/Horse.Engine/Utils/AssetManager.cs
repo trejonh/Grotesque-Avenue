@@ -30,11 +30,15 @@ namespace Horse.Engine.Utils
 
         private static readonly string AssetXmlFile = BaseFileLocation + @".\assets.xml";
 
+        private static bool _loaded;
+
         /// <summary>
         /// Load in file locations of all assest found in assets.xml to be used for the game
         /// </summary>
         public static void LoadAssets()
         {
+            if (_loaded)
+                return;
             var fs = new FileStream(AssetXmlFile, FileMode.Open, FileAccess.Read);
 
             var xdoc = XDocument.Load(fs);
@@ -81,6 +85,7 @@ namespace Horse.Engine.Utils
                 }
             }
             fs.Close();
+            _loaded = true;
         }
 
         /// <summary>
