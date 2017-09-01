@@ -16,6 +16,10 @@ import java.util.ArrayList;
 
 /**
  * Created by trhous on 8/30/2017.
+ * @author TreJon House
+ * @version 1.0
+ * @see android.widget.ArrayAdapter
+ * A custom array adapter for player
  */
 
 public class PlayerAdapter extends ArrayAdapter<Player> {

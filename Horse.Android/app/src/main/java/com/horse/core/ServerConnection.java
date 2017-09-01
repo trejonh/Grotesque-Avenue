@@ -21,17 +21,38 @@ import java.util.TimerTask;
  * Created by trhous on 8/29/2017.
  */
 
+/**
+ * @author TreJon House
+ * @version 0.0.1
+ * The source of  the connection with the server and mobile client
+ * Is used to send and retrieve messages to the server.
+ */
 public class ServerConnection {
     private static InetAddress _inet;
+    /**
+     * The name displayed to the server
+     */
     public static String DisplayName;
     private static Socket _serverConnectionSocket;
     private static DataOutputStream _out;
     private static DataInputStream _in;
     private static final int _port = 54000;
     public static boolean Ready = false;
+    /**
+     * Cached tasks to run against the server
+     */
     public static HashMap<String, Timer> ServerConnectionTasks;
+    /**
+     * Message in queue
+     */
     public static Queue<Message> MessagesIn;
     private static Timer _readMessageTimer;
+
+    /**
+     * Sets up our connection parameters
+     * @param inet The ip address of the server
+     * @param name The name to display to the server
+     */
     public ServerConnection(InetAddress inet, String name){
         _inet = inet;
         DisplayName = name;
@@ -39,11 +60,18 @@ public class ServerConnection {
         MessagesIn = new LinkedList<>();
     }
 
+    /**
+     * Attempt to connect to the server
+     */
     public static void executeServerConnection(){
         AsyncConnectionTask act = new AsyncConnectionTask();
         act.execute();
     }
 
+    /**
+     * Send a message to the server
+     * @param message The message to send
+     */
     public static void sendMessage(String message){
         if(_out == null || _serverConnectionSocket.isClosed())
             return;
@@ -57,6 +85,10 @@ public class ServerConnection {
         }
     }
 
+    /**
+     * Read a message from the server if data is available to be read
+     * @return The message received
+     */
     public static String readMessage(){
         if(_in == null || _serverConnectionSocket.isClosed())
             return "";
@@ -97,6 +129,9 @@ public class ServerConnection {
         return "";
     }
 
+    /**
+     * Close any open connections to the server and stop running tasks
+     */
     public static void closeConnection(){
         if(_in == null || _out == null || _serverConnectionSocket.isClosed())
             return;
@@ -117,6 +152,12 @@ public class ServerConnection {
         }
     }
 
+    /**
+     * Send a repeated message to the server
+     * @param message The message to send
+     * @param name The name of the message
+     * @param seconds How often to repeat the message
+     */
     public static void sendTimedMessage(final String message, String name, int seconds){
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -130,13 +171,21 @@ public class ServerConnection {
             currentTask.cancel();
     }
 
+    /**
+     * Cancel a repeated message
+     * @param name Name of the message to stop sending
+     */
     public static void cancelTimedMessage(String name){
         Timer taskToCancel = ServerConnectionTasks.get(name);
         if(taskToCancel != null)
             taskToCancel.cancel();
     }
 
-
+    /**
+     * @author TreJon House
+     * @version 1.0
+     * Asynchronously connects to the server and if a connection is made then setup data streams
+     */
     private static class AsyncConnectionTask extends AsyncTask<Void, Void, Void>{
 
         @Override

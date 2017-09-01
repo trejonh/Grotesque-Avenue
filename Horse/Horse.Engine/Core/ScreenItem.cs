@@ -5,8 +5,14 @@ using Horse.Engine.Extensions;
 
 namespace Horse.Engine.Core
 {
+    /// <summary>
+    /// An item to draw onto a screen
+    /// </summary>
     public  class ScreenItem : Drawable
     {
+        /// <summary>
+        /// Possible screen position defaults
+        /// </summary>
         public enum ScreenPositions
         {
             TopLeft, 
@@ -20,12 +26,28 @@ namespace Horse.Engine.Core
             BottomRight
         }
 
+        /*Possible drawables on screen*/
         private Text _textItem;
         private Sprite _spriteItem;
         private Shape _shapeItem;
+
+        /// <summary>
+        /// Function to invoke if item is clicked
+        /// </summary>
         private readonly Func<int> _action;
+
+        /// <summary>
+        /// The position of the screen item
+        /// </summary>
         public Vector2f Position => GetPosition();
 
+        /// <summary>
+        /// Create a new screen item
+        /// </summary>
+        /// <param name="window">The window to draw to</param>
+        /// <param name="item">The item to draw</param>
+        /// <param name="position">The initial position on the screen</param>
+        /// <param name="func">The function to invoke if the item is clicked</param>
         public ScreenItem(ref RenderWindow window, Text item, ScreenPositions position, Func<int> func) : base(ref window)
         {
             _textItem = item;
@@ -33,6 +55,14 @@ namespace Horse.Engine.Core
             SetPosition(position);
         }
 
+
+        /// <summary>
+        /// Create a new screen item
+        /// </summary>
+        /// <param name="window">The window to draw to</param>
+        /// <param name="item">The item to draw</param>
+        /// <param name="position">The initial position on the screen</param>
+        /// <param name="func">The function to invoke if the item is clicked</param>
         public ScreenItem(ref RenderWindow window, Sprite item, ScreenPositions position, Func<int> func) : base(ref window)
         {
             _spriteItem = item;
@@ -40,6 +70,14 @@ namespace Horse.Engine.Core
             SetPosition(position);
         }
 
+
+        /// <summary>
+        /// Create a new screen item
+        /// </summary>
+        /// <param name="window">The window to draw to</param>
+        /// <param name="item">The item to draw</param>
+        /// <param name="position">The initial position on the screen</param>
+        /// <param name="func">The function to invoke if the item is clicked</param>
         public ScreenItem(ref RenderWindow window, Shape item, ScreenPositions position, Func<int> func) : base(ref window)
         {
             _shapeItem = item;
@@ -47,6 +85,14 @@ namespace Horse.Engine.Core
             SetPosition(position);
         }
 
+
+        /// <summary>
+        /// Create a new screen item
+        /// </summary>
+        /// <param name="window">The window to draw to</param>
+        /// <param name="item">The item to draw</param>
+        /// <param name="position">The initial position on the screen</param>
+        /// <param name="func">The function to invoke if the item is clicked</param>
         public ScreenItem(ref RenderWindow window, Text item, Vector2f position, Func<int> func) : base(ref window)
         {
             _textItem = item;
@@ -54,6 +100,14 @@ namespace Horse.Engine.Core
             SetPosition(position);
         }
 
+
+        /// <summary>
+        /// Create a new screen item
+        /// </summary>
+        /// <param name="window">The window to draw to</param>
+        /// <param name="item">The item to draw</param>
+        /// <param name="position">The initial position on the screen</param>
+        /// <param name="func">The function to invoke if the item is clicked</param>
         public ScreenItem(ref RenderWindow window, Sprite item, Vector2f position, Func<int> func) : base(ref window)
         {
             _spriteItem = item;
@@ -61,6 +115,14 @@ namespace Horse.Engine.Core
             SetPosition(position);
         }
 
+
+        /// <summary>
+        /// Create a new screen item
+        /// </summary>
+        /// <param name="window">The window to draw to</param>
+        /// <param name="item">The item to draw</param>
+        /// <param name="position">The initial position on the screen</param>
+        /// <param name="func">The function to invoke if the item is clicked</param>
         public ScreenItem(ref RenderWindow window, Shape item, Vector2f position, Func<int> func) : base(ref window)
         {
             _shapeItem = item;
@@ -68,14 +130,36 @@ namespace Horse.Engine.Core
             SetPosition(position);
         }
 
+        /// <summary>
+        /// Creates a blank screen item
+        /// </summary>
+        /// <param name="window">The window to draw on</param>
         public ScreenItem(ref RenderWindow window) : base(ref window)
         {
         }
 
-        public void SetFont(Text text) => _textItem = text;
+        /// <summary>
+        /// Sets the text of the screen item
+        /// </summary>
+        /// <param name="text">The new text</param>
+        public void SetText(Text text) => _textItem = text;
+
+        /// <summary>
+        /// Sets the sprite of the screen item
+        /// </summary>
+        /// <param name="sprite">The new sprite</param>
         public void SetSprite(Sprite sprite) => _spriteItem = sprite;
+
+        /// <summary>
+        /// Set the screen item shape
+        /// </summary>
+        /// <param name="shape">The new shape</param>
         public void SetShape(Shape shape) => _shapeItem = shape;
 
+        /// <summary>
+        /// Set the position of the screen item
+        /// </summary>
+        /// <param name="position">The new position</param>
         public void SetPosition(Vector2f position)
         {
             if (_shapeItem != null)
@@ -93,6 +177,10 @@ namespace Horse.Engine.Core
 
         }
 
+        /// <summary>
+        /// Set the position of the screen item
+        /// </summary>
+        /// <param name="position">The new position</param>
         public void SetPosition(ScreenPositions position)
         {
             var marginX = 32.0f;
@@ -301,6 +389,11 @@ namespace Horse.Engine.Core
                     break;
             }
         }
+
+        /// <summary>
+        /// Gets the position of the screen item
+        /// </summary>
+        /// <returns>Current position</returns>
         private Vector2f GetPosition()
         {
 
@@ -318,11 +411,18 @@ namespace Horse.Engine.Core
             }
             return new Vector2f();
         }
+        /// <summary>
+        /// Invoke the action meant for the screen item
+        /// </summary>
+        /// <returns>-1 if the function is null otherwise the return value of the function</returns>
         public int DoAction()
         {
             return _action == null ? -1 : _action();
         }
 
+        /// <summary>
+        /// Draw the screen item
+        /// </summary>
         public override void Draw()
         {
             if (_shapeItem != null)
@@ -339,6 +439,10 @@ namespace Horse.Engine.Core
             }
         }
 
+        /// <summary>
+        /// Determine if the screen item is of type Shape
+        /// </summary>
+        /// <returns>True if the screen item is a shape</returns>
         public bool IsShape()
         {
             return _shapeItem != null;

@@ -22,8 +22,9 @@ import static android.content.DialogInterface.BUTTON_NEGATIVE;
 import static android.content.DialogInterface.BUTTON_POSITIVE;
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
+ * @author TreJon House
+ * @version 0.1
+ * A welcome screen for users to get to lobby
  */
 public class WelcomeScreenActivity extends HorseActivity implements View.OnClickListener, DialogInterface.OnClickListener {
     private InetAddress inetAddress;

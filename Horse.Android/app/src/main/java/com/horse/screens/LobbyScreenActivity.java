@@ -25,6 +25,11 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * @author TreJon House
+ * @version 0.1
+ * A lobby screen to display the users connected to the server
+ */
 public class LobbyScreenActivity extends HorseActivity {
     private final int MAX_ALLOWED_PLAYERS = 8;
     public static String MyHash;
@@ -49,6 +54,9 @@ public class LobbyScreenActivity extends HorseActivity {
         }).start();
     }
 
+    /**
+     * Display the game instructions
+     */
     private void initInstructionset(){
         findViewById(R.id.connecting_view).setVisibility(View.GONE);
         findViewById(R.id.instructionSet_title).setVisibility(View.VISIBLE);
@@ -84,6 +92,10 @@ public class LobbyScreenActivity extends HorseActivity {
         });
     }
 
+    /**
+     * Wait for the 'OK' from the server that we are connected
+     * and validated to play
+     */
     private void receiveOk() {
         String messageRecieved = ServerConnection.readMessage();
         if(!messageRecieved.contains("OK")){
@@ -107,11 +119,17 @@ public class LobbyScreenActivity extends HorseActivity {
 
     }
 
+    /**
+     * Send the server the initial connection message
+     */
     private void sendInitialMessage() {
         String message = ServerConnection.DisplayName + "," + Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);;
         ServerConnection.sendMessage(message);
     }
 
+    /**
+     * Verify we have the all the correct permissions before proceeding
+     */
     private void checkPermissions(){
         while (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET)  != PackageManager.PERMISSION_GRANTED
                 &&
