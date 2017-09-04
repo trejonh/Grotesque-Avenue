@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<OrderedTest name="GameWindowOrderedTest" storage="c:\users\yorel56\documents\github\grotesque-avenue\horse\horse.server.test\coretests\gamewindoworderedtest.orderedtest" id="8a997a2f-87c8-4383-ba11-ae2d821c51a6" continueAfterFailure="true" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <TestLinks>
+    <TestLink id="12291a9c-343e-9e01-676e-522ee1dfc135" name="InitGameWindowTest" storage="..\bin\debug\horse.server.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel,   PublicKeyToken=b03f5f7f11d50a3a" />
+    <TestLink id="7a83f6d4-d9fc-b238-d015-8d0cea2fcafa" name="ChangeScreenTest" storage="..\bin\debug\horse.server.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel,   PublicKeyToken=b03f5f7f11d50a3a" />
+    <TestLink id="52f026ad-df51-7fec-3e6c-865498523730" name="GotoPreviousScreenNullTest" storage="..\bin\debug\horse.server.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel,   PublicKeyToken=b03f5f7f11d50a3a" />
+    <TestLink id="8b32359c-3aca-1388-7f2f-04c034897b20" name="GotoPreviousScreenNotNullTest" storage="..\bin\debug\horse.server.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel,   PublicKeyToken=b03f5f7f11d50a3a" />
+    <TestLink id="ec283791-91a2-a283-d58b-9de7752ababc" name="StopDrawingTest" storage="..\bin\debug\horse.server.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel,   PublicKeyToken=b03f5f7f11d50a3a" />
+  </TestLinks>
+</OrderedTest>

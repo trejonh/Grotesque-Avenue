@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Horse.Server", "Horse.Server\Horse.Server.csproj", "{6473953C-FB4F-4DF8-A6DD-6E439993E79A}"
 EndProject
@@ -12,6 +12,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Horse.Engine", "Horse.Engine\Horse.Engine.csproj", "{7E7A5F1E-C4B5-4F85-A27E-E174CEC6A12B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Horse.UWP", "Horse.UWP\Horse.UWP.csproj", "{DB9430D7-8FE7-4415-90C3-164554F1A666}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{15063627-889E-4E46-BD11-51743F633B09}"
+	ProjectSection(SolutionItems) = preProject
+		horse.testsettings = horse.testsettings
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -296,5 +301,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {852DE16F-5B99-4845-955D-0E9C152E36E7}
 	EndGlobalSection
 EndGlobal

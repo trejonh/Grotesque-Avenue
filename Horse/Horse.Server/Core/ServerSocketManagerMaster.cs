@@ -193,13 +193,20 @@ namespace Horse.Server.Core
         /// </summary>
         public static void Listen()
         {
+            if (_listen)
+                return;
             if (MobilePlayers != null && MobilePlayers.Count > 0 || _mobileClients != null && _mobileClients.Count > 0)
                 CloseExistingConnections();
-            _listen = true;
             MobilePlayers = new List<NetworkMobilePlayer>();
             _mobileClients = new List<TcpClient>();
+            if (_listener != null)
+            {
+                _listener.Server.Close();
+                _listener.Stop();
+            }
             _listener = new TcpListener(IPAddress.Any, 54000);
             _listener.Start();
+            _listen = true;
             Console.WriteLine("Listening...");
             StartAccept();
         }
@@ -237,6 +244,14 @@ namespace Horse.Server.Core
         public static void StopListening()
         {
             _listen = false;
+            try
+            {
+                _listener.Stop();
+            }
+            catch (SocketException ex)
+            {
+                LogManager.LogError("Listener stop exception. error code: "+ex.ErrorCode);
+            }
         }
 
         /// <summary>
@@ -244,8 +259,8 @@ namespace Horse.Server.Core
         /// </summary>
         public static void CloseAllConnections()
         {
-            StopListening();
             CloseExistingConnections();
+            StopListening();
             _checkConnectionThread?.Abort();
         }
 
@@ -254,6 +269,14 @@ namespace Horse.Server.Core
         /// </summary>
         private static void StartAccept()
         {
+
+            if (_listener == null || _listener.Server.Connected == false)
+            {
+                LogManager.LogError("Error with listener");
+                return;
+            }
+            if (_listen == false)
+                _listener.Start();
             _listener.BeginAcceptTcpClient(HandleAsyncConnection, _listener);
         }
 
@@ -266,6 +289,11 @@ namespace Horse.Server.Core
             if (_listen == false && _mobileClients.Count >= 8)
                 return;
             StartAccept(); //listen for new connections again
+            if (_listener == null || _listener.Server.Connected == false)
+            {
+                LogManager.LogError("Error with listener");
+                return;
+            }
             var client = _listener.EndAcceptTcpClient(res);
             _mobileClients.Add(client);
             //proceed

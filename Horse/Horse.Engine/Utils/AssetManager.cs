@@ -39,8 +39,35 @@ namespace Horse.Engine.Utils
         {
             if (_loaded)
                 return;
-            var fs = new FileStream(AssetXmlFile, FileMode.Open, FileAccess.Read);
-
+            FileStream fs = null;
+            var streamOpen = false;
+            try
+            {
+                fs = new FileStream(AssetXmlFile, FileMode.Open, FileAccess.Read);
+                streamOpen = true;
+            }
+            catch (DirectoryNotFoundException)
+            {
+                LogManager.LogError("Initial directory not found");
+            }
+            if (streamOpen == false)
+            {
+                try
+                {
+                    //should hit this only if in test enviroment
+                    fs = new FileStream(@".\assets.xml", FileMode.Open, FileAccess.Read);
+                    streamOpen = true;
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    LogManager.LogError("Secondary directory not found");
+                }
+            }
+            if (streamOpen == false)
+            {
+                LogManager.LogWarning("File stream was never opened");
+                return;
+            }
             var xdoc = XDocument.Load(fs);
             var assets = from u in xdoc.Descendants("asset")
                         select new

@@ -18,9 +18,9 @@ namespace Horse.Server.Test.Utils
         /// <returns>null is the method does not return</returns>
         public static object CallPrivateMethod(Type type, string methodName,object invoker,object[] args)
         {
-            var method = type.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic );
+            var method = type.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic );
             if (method == null)
-                throw new ArgumentException("No method " +methodName+" found for "+type.ToString());
+                throw new ArgumentException("No method " +methodName+" found for "+type);
             return method.Invoke(invoker,args);
         }
 
@@ -35,7 +35,7 @@ namespace Horse.Server.Test.Utils
         {
             return type.InvokeMember(fieldName,
             BindingFlags.DeclaredOnly |
-            BindingFlags.Public | BindingFlags.NonPublic |
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static|
             BindingFlags.Instance | BindingFlags.GetField, null, invoker, null);
         }
 
@@ -51,7 +51,7 @@ namespace Horse.Server.Test.Utils
         {
             return type.InvokeMember(fieldName,
             BindingFlags.DeclaredOnly |
-            BindingFlags.Public | BindingFlags.NonPublic |
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static |
             BindingFlags.Instance | BindingFlags.SetField, null, invoker, value);
         }
     }

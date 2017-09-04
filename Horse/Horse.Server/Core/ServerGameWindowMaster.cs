@@ -118,7 +118,25 @@ namespace Horse.Server.Core
         private static void WindowClosed(object sender, System.EventArgs e)
         {
             _mainDrawingThread?.Abort();
-            GameWindow.Close();
+            GameWindow?.Close();
+        }
+
+        /// <summary>
+        /// Sets the game window, to be used only for testing purposes
+        /// </summary>
+        /// <param name="gameWindow">The game window to set</param>
+        private static void SetGameWindow(RenderWindow gameWindow)
+        {
+            GameWindow = gameWindow;
+        }
+
+        /// <summary>
+        /// Sets the current screen, to be used only for testing
+        /// </summary>
+        /// <param name="screen">Screen scene to set</param>
+        private static void SetCurrentScreen(Screen screen)
+        {
+            CurrentScreen = screen;
         }
     }
 }

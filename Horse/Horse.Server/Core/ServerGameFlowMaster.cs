@@ -38,7 +38,7 @@ namespace Horse.Server.Core
                 _mainMenu = new MainMenu(ref win);
                 ServerGameWindowMaster.ChangeScreen(_mainMenu);
             };
-            _flowTimer.Start();;
+            _flowTimer.Start();
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Horse.Server.Core
         {
             ServerSocketManagerMaster.CloseAllConnections();
             ServerGameWindowMaster.StopDrawing();
-            ServerGameWindowMaster.GameWindow.Close();
+            ServerGameWindowMaster.GameWindow?.Close();
         }
     }
 }

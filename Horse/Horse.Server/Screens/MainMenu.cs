@@ -155,5 +155,23 @@ namespace Horse.Server.Screens
             ServerGameFlowMaster.QuitGame();
             return 0;
         }
+
+        /// <summary>
+        /// Returns the menu pointer; for testing purposes
+        /// </summary>
+        /// <returns></returns>
+        private Sprite GetPointer()
+        {
+            return _pointer;
+        }
+
+        /// <summary>
+        /// Returns the menu pointer positions; for testing purposes
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator<Vector2f> GetPointerPositions()
+        {
+            return _pointerPositions;
+        }
     }
 }
