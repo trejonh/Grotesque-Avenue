@@ -3,60 +3,70 @@
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="fill_horizontal">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:columnCount="3"
-            android:rowCount="1"
-            android:orientation="horizontal"
-            android:layout_gravity="fill_horizontal">
-                <RatingBar
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:numStars="1"
-                    android:background="@color/FunkyYellow"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="25sp"
-                    android:gravity="center_vertical"
-                    android:textColor="@color/FunkyYellow"
-                    android:text="@string/vip"/>
-            <Space
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="fill_horizontal"
+        android:columnCount="3"
+        android:orientation="horizontal"
+        android:rowCount="1">
+
+        <RatingBar
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/FunkyYellow"
+            android:numStars="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="@string/vip"
+            android:textColor="@color/FunkyYellow"
+            android:textSize="20sp" />
+
+        <Space
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1" />
-                <RatingBar
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:numStars="1"
-                    android:background="@color/FunkyRed"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="25sp"
-                    android:gravity="center_vertical"
-                    android:textColor="@color/FunkyRed"
-                    android:text="@string/my_device"/>
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-                <RatingBar
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:numStars="1"
-                    android:background="@color/FunkyGreen"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="25sp"
-                    android:gravity="center_vertical"
-                    android:text="@string/up_next"
-                    android:textColor="@color/FunkyGreen"/>
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-        </LinearLayout>
+
+        <RatingBar
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/FunkyRed"
+            android:numStars="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="@string/my_device"
+            android:textColor="@color/FunkyRed"
+            android:textSize="20sp" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <RatingBar
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/FunkyGreen"
+            android:numStars="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="@string/up_next"
+            android:textColor="@color/FunkyGreen"
+            android:textSize="20sp" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+    </LinearLayout>
 </LinearLayout>

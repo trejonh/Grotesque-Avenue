@@ -115,7 +115,7 @@ namespace Horse.Server.Screens
         /// <param name="mobPlay">The player to add</param>
         internal void AddPlayer(NetworkMobilePlayer mobPlay)
         {
-            var roundedRect = new RoundedRectangle(new Vector2f(128.0f, 64.0f), 10f, 4) { FillColor = Color.Transparent, OutlineColor = AssetManager.LoadColor("FunkyPink")};
+            var roundedRect = new RoundedRectangle(new Vector2f(128.0f, 64.0f), 10f, 4) { FillColor = Color.Transparent, OutlineColor = AssetManager.LoadColor("FunkyRed")};
             var text = new Text()
             {
                 Color = Color.Black,

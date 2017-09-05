@@ -8,5 +8,6 @@
         public static readonly string Cmd = "COMM";
         public static readonly string Data = "DATA";
         public static readonly string Info = "INFO";
+        public static readonly string Err = "ERRO";
     }
 }

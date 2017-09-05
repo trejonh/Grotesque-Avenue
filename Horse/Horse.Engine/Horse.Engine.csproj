@@ -79,6 +79,12 @@
     <Content Include="Assets\audio\pills.wav" />
     <Content Include="Assets\audio\splashScreenSound.wav" />
     <Content Include="Assets\audio\themeMusic.wav" />
+    <Content Include="Assets\images\arrowLeft.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\images\arrowRight.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\images\bojackpointer.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

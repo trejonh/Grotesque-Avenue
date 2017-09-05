@@ -1,6 +1,9 @@
 package com.horse.core;
 
+import com.horse.utils.LogManager;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by trhous on 8/29/2017.
@@ -11,6 +14,8 @@ import java.util.ArrayList;
  */
 
 public class Player {
+
+    public static HashMap<String, Player> MobileNetworkPlayers;
     /**
      * Name of the player
      */
@@ -94,17 +99,20 @@ public class Player {
      * @return The players in the game
      */
     public static ArrayList<Player> getPlayersFromServer(){
-        ArrayList<Player> pList = new ArrayList<>();
+        if(MobileNetworkPlayers == null)
+            MobileNetworkPlayers = new HashMap<>();
         String players = "";
+        Message playerListMessage = null;
         for (Message message: ServerConnection.MessagesIn) {
             if(!message.Type.equals(MessageType.INFO))
                 continue;
             if(message.Message.contains("playerList[") == false)
                 continue;
+            playerListMessage = message;
             players = message.Message.substring(message.Message.indexOf('[')+1,message.Message.length()-2);
         }
         if(players.length() == 0)
-            return pList;
+            return new ArrayList<>(MobileNetworkPlayers.values());
         String[] indivPlayers = players.split("player: ");
         for (String inPlay: indivPlayers) {
             if(inPlay.length() == 0)
@@ -117,8 +125,12 @@ public class Player {
                 player.setVip(true);
             if(playerProps[3].equals("true"))
                 player.setNext(true);
-            pList.add(player);
+            MobileNetworkPlayers.put(player.getId(),player);
         }
-        return pList;
+        if(playerListMessage != null){
+            if(ServerConnection.MessagesIn.remove(playerListMessage) == false)
+                LogManager.getInstance().error("Could delete message");
+        }
+        return new ArrayList<>(MobileNetworkPlayers.values());
     }
 }

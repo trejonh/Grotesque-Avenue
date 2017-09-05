@@ -19,11 +19,7 @@ namespace Horse.Server.Core
         /// Listen for incoming connections
         /// </summary>
         private static bool _listen;
-
-        /// <summary>
-        /// The connected mobile clients
-        /// </summary>
-        private static List<TcpClient> _mobileClients;
+        
 
         /// <summary>
         /// The listener for tcp connections
@@ -49,6 +45,8 @@ namespace Horse.Server.Core
         /// Salt used for hashing the device id
         /// </summary>
         private static byte[] _salt;
+
+        private static bool _stopped;
 
         /// <summary>
         /// Initiate the connection checking thread
@@ -146,6 +144,9 @@ namespace Horse.Server.Core
                     case "getplayerlist":
                         SendPlayerList(client);
                         break;
+                    case "startgame":
+                        StartGame(client);
+                        break;
                     default:
                         LogManager.LogWarning("Command: "+cmd+" not found");
                         break;
@@ -159,6 +160,19 @@ namespace Horse.Server.Core
             {
                 LogManager.Log("Message from client: "+message.Replace(MessageType.Info,""));
             }
+        }
+
+        private void StartGame(TcpClient client)
+        {
+            if (MobilePlayers.Count < 2)
+            {
+                SendMessage(MessageType.Err+" Not enough players", client.GetStream());
+                LogManager.LogWarning("Not enough players to start");
+                return;
+            }
+            StopListening();
+            var renderWindow = ServerGameWindowMaster.GameWindow;
+            ServerGameWindowMaster.ChangeScreen(new GameSelectionScreen(ref renderWindow));
         }
 
         /// <summary>
@@ -193,12 +207,11 @@ namespace Horse.Server.Core
         /// </summary>
         public static void Listen()
         {
-            if (_listen)
+            if (_listen || _stopped)
                 return;
-            if (MobilePlayers != null && MobilePlayers.Count > 0 || _mobileClients != null && _mobileClients.Count > 0)
+            if (MobilePlayers != null && MobilePlayers.Count > 0)
                 CloseExistingConnections();
             MobilePlayers = new List<NetworkMobilePlayer>();
-            _mobileClients = new List<TcpClient>();
             if (_listener != null)
             {
                 _listener.Server.Close();
@@ -231,11 +244,6 @@ namespace Horse.Server.Core
                 if (player?.Client != null && player.Client.Connected)
                     player.Client.Close();
             }
-            foreach (var client in _mobileClients)
-            {
-                if (client != null && client.Connected)
-                    client.Close();
-            }
         }
 
         /// <summary>
@@ -244,6 +252,7 @@ namespace Horse.Server.Core
         public static void StopListening()
         {
             _listen = false;
+            _stopped = true;
             try
             {
                 _listener.Stop();
@@ -269,12 +278,13 @@ namespace Horse.Server.Core
         /// </summary>
         private static void StartAccept()
         {
-
-            if (_listener == null || _listener.Server.Connected == false)
-            {
-                LogManager.LogError("Error with listener");
+            if (_stopped)
                 return;
-            }
+            /*if (_listener == null)
+            {
+                LogManager.LogError("Error with listener, it is null");
+                return;
+            }*/
             if (_listen == false)
                 _listener.Start();
             _listener.BeginAcceptTcpClient(HandleAsyncConnection, _listener);
@@ -286,17 +296,25 @@ namespace Horse.Server.Core
         /// <param name="res"></param>
         private static void HandleAsyncConnection(IAsyncResult res)
         {
-            if (_listen == false && _mobileClients.Count >= 8)
+            if (_listen == false && MobilePlayers.Count >= 8)
                 return;
             StartAccept(); //listen for new connections again
-            if (_listener == null || _listener.Server.Connected == false)
+            /*if (_listener == null)
             {
-                LogManager.LogError("Error with listener");
+                LogManager.LogError("Error with listener ot is null");
+                return;
+            }*/
+            TcpClient client;
+            try
+            {
+                client = _listener.EndAcceptTcpClient(res);
+            }
+            catch (Exception ex)
+            {
+                LogManager.LogError(ex.Message +"<br/>"+ex.StackTrace);
                 return;
             }
-            var client = _listener.EndAcceptTcpClient(res);
-            _mobileClients.Add(client);
-            //proceed
+            Console.WriteLine("connected");
             var clientStream = client.GetStream();
             var sb = new StringBuilder();
             var continueToRead = true;

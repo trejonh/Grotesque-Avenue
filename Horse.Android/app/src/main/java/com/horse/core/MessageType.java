@@ -9,7 +9,8 @@ package com.horse.core;
  */
 
 public final class MessageType {
-    public static  String CMD = "COMM";
-    public static  String DATA = "DATA";
-    public static  String INFO = "INFO";
+    public static final String ERR = "ERRO";
+    public static final String CMD = "COMM";
+    public static final String DATA = "DATA";
+    public static final String INFO = "INFO";
 }

@@ -105,4 +105,34 @@
     <name>Lobby</name>
     <text>Lobby</text>
   </asset>
+  <asset>
+    <type>text</type>
+    <name>GameSelectionScreen</name>
+    <text>Select A Game</text>
+  </asset>
+  <asset>
+    <type>texture</type>
+    <name>ArrowLeft</name>
+    <location>\images\arrowLeft.png</location>
+  </asset>
+  <asset>
+    <type>texture</type>
+    <name>ArrowRight</name>
+    <location>\images\arrowRight.png</location>
+  </asset>
+  <asset>
+    <type>text</type>
+    <name>IsSelect</name>
+    <text>is selecting a game.</text>
+  </asset>
+  <asset>
+    <type>text</type>
+    <name>IsNext</name>
+    <text>is next.</text>
+  </asset>
+  <asset>
+    <type>text</type>
+    <name>FryThatEgg</name>
+    <text>Fry That Egg</text>
+  </asset>
 </assets>

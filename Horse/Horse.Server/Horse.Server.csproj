@@ -61,9 +61,11 @@
     <Compile Include="Core\NetworkMobilePlayer.cs" />
     <Compile Include="Core\ServerGameFlowMaster.cs" />
     <Compile Include="Core\ServerSocketManagerMaster.cs" />
+    <Compile Include="Games\FryThatEgg\FryThatEggMainScreen.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\ServerGameWindowMaster.cs" />
+    <Compile Include="Screens\GameSelectionScreen.cs" />
     <Compile Include="Screens\LobbyScreen.cs" />
     <Compile Include="Screens\MainMenu.cs" />
     <Compile Include="Screens\SplashScreen.cs" />
@@ -106,5 +108,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

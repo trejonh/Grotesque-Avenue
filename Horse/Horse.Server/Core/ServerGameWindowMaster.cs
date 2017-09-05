@@ -96,6 +96,7 @@ namespace Horse.Server.Core
         public static void ChangeScreen(Screen screen)
         {
             _previousScreen = CurrentScreen;
+            _previousScreen?.RemoveWindowKeyEventHandler();
             CurrentScreen = screen;
         }
 

@@ -8,6 +8,7 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -33,6 +34,7 @@ import java.util.TimerTask;
 public class LobbyScreenActivity extends HorseActivity {
     private final int MAX_ALLOWED_PLAYERS = 8;
     public static String MyHash;
+    private boolean _alreadyFoundVip =false;
     private static Timer _getPlayerList;
 
     @Override
@@ -62,7 +64,7 @@ public class LobbyScreenActivity extends HorseActivity {
         findViewById(R.id.instructionSet_title).setVisibility(View.VISIBLE);
         findViewById(R.id.lobby_scrollView).setVisibility(View.VISIBLE);
         final Button readBtn = (Button)findViewById(R.id.readInstructions);
-        readBtn.setOnClickListener(new View.OnClickListener() {
+        readBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 ServerConnection.sendTimedMessage(MessageType.CMD+" getplayerlist","getplayerlist",15);
@@ -82,17 +84,40 @@ public class LobbyScreenActivity extends HorseActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                playerAdapter.clear();
-                                playerAdapter.addAll(Player.getPlayersFromServer());
+                                ArrayList<Player> players = Player.getPlayersFromServer();
+                                if(players.size() > 0) {
+                                    playerAdapter.clear();
+                                    playerAdapter.addAll(players);
+                                }
+                                for(Player player: players){
+                                    if(_alreadyFoundVip)
+                                        break;
+                                    if(player.IsVip && player.Id.equals(MyHash)){
+                                        _alreadyFoundVip = true;
+                                        Button startGameButton = (Button)findViewById(R.id.launchGameButton);
+                                        startGameButton.setVisibility(View.VISIBLE);
+                                        startGameButton.setOnClickListener(new OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                if(Player.MobileNetworkPlayers != null && Player.MobileNetworkPlayers.size() >= 2) {
+                                                    ServerConnection.cancelTimedMessage("getplayerlist");
+                                                    _getPlayerList.cancel();
+                                                    ServerConnection.sendMessage(MessageType.CMD + " StartGame");
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
                             }
                         });
                     }
-                }, 0, 20);
+                }, 0, 5*1000);
             }
         });
     }
 
     /**
+     *
      * Wait for the 'OK' from the server that we are connected
      * and validated to play
      */
@@ -108,7 +133,7 @@ public class LobbyScreenActivity extends HorseActivity {
             });
             finish();
         }else{
-            MyHash = messageRecieved.substring(2);
+            MyHash = messageRecieved.substring(messageRecieved.indexOf("OK")+3);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

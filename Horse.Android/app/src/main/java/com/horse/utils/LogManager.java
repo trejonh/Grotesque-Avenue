@@ -67,11 +67,6 @@ public class LogManager {
 			Log.e("Logging", ex.getMessage());
 		}
 	    //open new
-	    this.mTag = tag;
-	    this.mLog = createWriter( logFilename );
-	    this.mLevel = level;
-		SharedPreferences settings = ((Context)HorseCache.getItem("ApplicationContext")).getSharedPreferences("AppSettings",0);
-	    this.mMaxLogs = settings.getInt("MAX_LOGS",10);
 		PackageManager m = ((Context)HorseCache.getItem("ApplicationContext")).getPackageManager();
 		String s = ((Context)HorseCache.getItem("ApplicationContext")).getPackageName();
 		try {
@@ -80,6 +75,11 @@ public class LogManager {
 		}catch (PackageManager.NameNotFoundException e) {
 			Log.w("Logger", "Error Package name not found ", e);
 		}
+	    this.mTag = tag;
+	    this.mLog = createWriter( logFilename );
+	    this.mLevel = level;
+		SharedPreferences settings = ((Context)HorseCache.getItem("ApplicationContext")).getSharedPreferences("AppSettings",0);
+	    this.mMaxLogs = settings.getInt("MAX_LOGS",10);
 
 	}
 
@@ -113,6 +113,8 @@ public class LogManager {
 	    try {
 	        String state = Environment.getExternalStorageState();
 	        if( state.equals(Environment.MEDIA_MOUNTED) ) {
+				if(appDir == null)
+					return null;
 	            File dir = new File( Environment.getExternalStorageDirectory(),appDir);
 	            if( !dir.exists() ) {
 	                Log.w(mTag, "Could not get log directory: " + dir.getAbsolutePath() );
@@ -331,6 +333,8 @@ public class LogManager {
 	 * @param parameters
 	 */
 	private void log( Level level, String message, Object... parameters ) {
+        if(mLog ==null)
+            return;
 		if(this.mLog.length()>= MAX_FILE_SIZE) {
             rotate( this.mLog );
             this.mLog = createWriter(LogManager.LOG_FILE_NAME );

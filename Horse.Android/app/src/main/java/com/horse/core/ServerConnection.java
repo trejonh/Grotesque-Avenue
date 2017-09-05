@@ -122,6 +122,8 @@ public class ServerConnection {
                 MessagesIn.add(new Message(message.substring(5),MessageType.DATA, new Date()));
             if(cmd.equals(MessageType.INFO))
                 MessagesIn.add(new Message(message.substring(5),MessageType.INFO, new Date()));
+            if(cmd.equals(MessageType.ERR))
+                MessagesIn.add(new Message(message.substring(5),MessageType.ERR, new Date()));
             return message.substring(cmd.length());
         }catch(IOException ex){
             LogManager.getInstance().error(ex);
