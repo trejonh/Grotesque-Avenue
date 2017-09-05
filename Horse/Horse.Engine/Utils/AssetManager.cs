@@ -26,6 +26,10 @@ namespace Horse.Engine.Utils
 
         private static readonly Dictionary<string, string> ColorAssets = new Dictionary<string, string>();
 
+        private static readonly Dictionary<string, Color> ColorCache = new Dictionary<string, Color>();
+
+        private static readonly Dictionary<string, Font> FontCache = new Dictionary<string, Font>();
+
         private static readonly string BaseFileLocation = Environment.CurrentDirectory + @"\Assets";
 
         private static readonly string AssetXmlFile = BaseFileLocation + @".\assets.xml";
@@ -203,7 +207,10 @@ namespace Horse.Engine.Utils
             Font font = null;
             try
             {
+                if (FontCache.TryGetValue(name, out font))
+                    return font;
                 font = new Font(FontAssets[name]);
+                FontCache.Add(name, font);
             }
             catch (Exception ex) when (ex is LoadingFailedException || ex is KeyNotFoundException)
             {
@@ -256,11 +263,14 @@ namespace Horse.Engine.Utils
             Color color = Color.Transparent;
             try
             {
+                if (ColorCache.TryGetValue(name, out color))
+                    return color;
                 var hexVal = ConvertFromString(ColorAssets[name]);
                 if (hexVal == null)
                     return color;
                 var mediaColor = (System.Windows.Media.Color)hexVal;
                 color = new Color(mediaColor.R, mediaColor.G, mediaColor.B, mediaColor.A);
+                ColorCache.Add(name, color);
             }
             catch (Exception ex) when (ex is LoadingFailedException || ex is KeyNotFoundException)
             {

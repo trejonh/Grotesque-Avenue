@@ -27,6 +27,7 @@ namespace Horse.Server.Core
         /// Determines who'se turn is next
         /// </summary>
         public bool IsNext { get; set; }
+        public bool IsCurrentlyPlaying { get; set; }
 
         /// <summary>
         /// The connected tcp client to communicate to the player

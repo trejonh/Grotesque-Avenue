@@ -94,6 +94,9 @@
     <Content Include="Assets\images\sfml-logo-small.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\sprites\blob.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="csfml-audio-2.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -125,7 +128,6 @@
   <ItemGroup>
     <Folder Include="Assets\maps\" />
     <Folder Include="Assets\misc\" />
-    <Folder Include="Assets\sprites\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\fonts\Aerofoil.ttf">

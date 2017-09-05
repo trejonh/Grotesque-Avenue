@@ -447,5 +447,20 @@ namespace Horse.Engine.Core
         {
             return _shapeItem != null;
         }
+
+        public Text GetText()
+        {
+            return _textItem;
+        }
+
+        public Shape GetShape()
+        {
+            return _shapeItem;
+        }
+
+        public Sprite GetSprite()
+        {
+            return _spriteItem;
+        }
     }
 }

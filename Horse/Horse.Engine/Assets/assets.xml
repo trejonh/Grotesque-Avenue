@@ -135,4 +135,19 @@
     <name>FryThatEgg</name>
     <text>Fry That Egg</text>
   </asset>
+  <asset>
+    <type>text</type>
+    <name>Loading</name>
+    <text>Loading...</text>
+  </asset>
+  <asset>
+    <type>text</type>
+    <name>ColorMePretty</name>
+    <text>Color Me Pretty</text>
+  </asset>
+  <asset>
+    <type>texture</type>
+    <name>PaintBlob</name>
+    <location>\sprites\blob.png</location>
+  </asset>
 </assets>

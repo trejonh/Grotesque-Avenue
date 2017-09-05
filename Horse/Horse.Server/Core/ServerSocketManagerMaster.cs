@@ -48,6 +48,8 @@ namespace Horse.Server.Core
 
         private static bool _stopped;
 
+        public static bool IsGameThreadControllingInput;
+
         /// <summary>
         /// Initiate the connection checking thread
         /// </summary>
@@ -101,6 +103,8 @@ namespace Horse.Server.Core
                             }
                             OnPlayerDisconnected(new EventArgs());
                         }
+                        if (IsGameThreadControllingInput)
+                            continue;
                         if (player.Client.Available <= 0) continue;
                         var clientStream = player.Client.GetStream();
                         while (clientStream.DataAvailable)
@@ -192,6 +196,7 @@ namespace Horse.Server.Core
                     sb.Append(player.DeviceId);
                     sb.Append(player.IsVip ? ",true" : ",false");
                     sb.Append(player.IsNext ? ",true" : ",false");
+                    sb.Append(player.IsCurrentlyPlaying ? ",true" : ",false");
                 }
                 sb.Append(" ]");
                 SendMessage(sb.ToString(), client.GetStream());
@@ -359,7 +364,10 @@ namespace Horse.Server.Core
             SendMessage(MessageType.Info+" OK " + Convert.ToBase64String(hashBytes), clientStream);
             var mobPlay = new NetworkMobilePlayer(client, clientDetails[0].Substring(1),Convert.ToBase64String(hashBytes));
             if (MobilePlayers.Count == 0)
+            {
                 mobPlay.IsVip = true;
+                mobPlay.IsCurrentlyPlaying = true;
+            }
             if (MobilePlayers.Count == 1)
                 mobPlay.IsNext = true;
             MobilePlayers.Add(mobPlay);
