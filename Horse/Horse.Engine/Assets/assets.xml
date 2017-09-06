@@ -150,4 +150,49 @@
     <name>PaintBlob</name>
     <location>\sprites\blob.png</location>
   </asset>
+  <asset>
+    <type>text</type>
+    <name>Black</name>
+    <text>Black</text>
+  </asset>
+  <asset>
+    <type>text</type>
+    <name>Red</name>
+    <text>Red</text>
+  </asset>
+  <asset>
+    <type>text</type>
+    <name>Green</name>
+    <text>Green</text>
+  </asset>
+  <asset>
+    <type>text</type>
+    <name>Blue</name>
+    <text>Blue</text>
+  </asset>
+  <asset>
+    <type>text</type>
+    <name>Magenta</name>
+    <text>Magenta</text>
+  </asset>
+  <asset>
+    <type>text</type>
+    <name>Yellow</name>
+    <text>Yellow</text>
+  </asset>
+  <asset>
+    <type>text</type>
+    <name>Cyan</name>
+    <text>Cyan</text>
+  </asset>
+  <asset>
+    <type>text</type>
+    <name>IsCurrentlyPlaying</name>
+    <text> is currently playing</text>
+  </asset>
+  <asset>
+    <type>texture</type>
+    <name>CMPBackground</name>
+    <location>\images\cmp.png</location>
+  </asset>
 </assets>

@@ -24,11 +24,11 @@ namespace Horse.Server.Screens
             arrowRight.SetShape(new CircleShape(10.0f) { FillColor = pink, OutlineColor = Color.Transparent, Position = new Vector2f(window.Size.X - 3 * 32.0f, window.Size.Y / 2.0f - 32) });
             AddScreenItem(arrowRight);
             AddScreenItem(arrowLeft);
-            var vip = new Text() { DisplayedString = ServerSocketManagerMaster.MobilePlayers[0].Name + " " + AssetManager.GetMessage("IsSelect"), CharacterSize = 60, Color = Color.Black, Font = bubble };
-            var next = new Text() { DisplayedString = ServerSocketManagerMaster.MobilePlayers[1].Name + " " + AssetManager.GetMessage("IsNext"), CharacterSize = 60, Color = Color.Black, Font = bubble };
+            var vip = new Text() { DisplayedString = ServerSocketManagerMaster.Players[0].Name + " " + AssetManager.GetMessage("IsSelect"), CharacterSize = 60, Color = Color.Black, Font = bubble };
+            var next = new Text() { DisplayedString = ServerSocketManagerMaster.Players[1].Name + " " + AssetManager.GetMessage("IsNext"), CharacterSize = 60, Color = Color.Black, Font = bubble };
             AddScreenItem(new ScreenItem(ref window, vip, ScreenItem.ScreenPositions.BottomLeft, null));
             AddScreenItem(new ScreenItem(ref window, next, ScreenItem.ScreenPositions.BottomRight, null));
-            foreach (var player in ServerSocketManagerMaster.MobilePlayers)
+            foreach (var player in ServerSocketManagerMaster.Players)
             {
                 ServerSocketManagerMaster.SendMessage(MessageType.Cmd+" selectagame", player.Client.GetStream());
             }

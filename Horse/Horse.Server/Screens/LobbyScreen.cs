@@ -55,7 +55,7 @@ namespace Horse.Server.Screens
                 if (item.GetType() == typeof(LobbyScreenItem))
                     ScreenItems.Remove(item);
             }
-            foreach (var player in ServerSocketManagerMaster.MobilePlayers)
+            foreach (var player in ServerSocketManagerMaster.Players)
             {
                 AddPlayer(player);
             }
@@ -124,7 +124,7 @@ namespace Horse.Server.Screens
                 DisplayedString = mobPlay.Name
             };
             var renderWindow = WinInstance;
-            var mobCount = ServerSocketManagerMaster.MobilePlayers.Count;
+            var mobCount = ServerSocketManagerMaster.Players.Count;
             if (mobCount % 2 == 1)
             {
                 var pos = new Vector2f(32.0f,128.0f*mobCount);

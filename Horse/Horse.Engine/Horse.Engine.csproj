@@ -88,6 +88,9 @@
     <Content Include="Assets\images\bojackpointer.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\images\cmp.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\images\houseLogo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

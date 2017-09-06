@@ -2,18 +2,26 @@
 using Horse.Server.Core;
 using SFML.Graphics;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Threading;
 
 namespace Horse.Server.Games
 {
     public abstract class GameScreen : Screen
     {
-        protected List<NetworkMobilePlayer> Players;
+        public enum ProcessedMessageType
+        {
+            Error,
+            Ok,
+            Command,
+            Data,
+            Other
+        }
         protected Thread GameThread;
         protected Thread LoadingThread;
-        protected GameScreen(ref RenderWindow window, ref List<NetworkMobilePlayer> players):base(ref window)
+        protected Sprite BgImage;
+        protected GameScreen(ref RenderWindow window):base(ref window)
         {
-            Players = players;
         }
 
         public void StopGameThread()
@@ -26,5 +34,7 @@ namespace Horse.Server.Games
         {
             LoadingThread?.Abort();
         }
+
+        protected abstract ProcessedMessageType ProcessMessage(TcpClient client, string message);
     }
 }

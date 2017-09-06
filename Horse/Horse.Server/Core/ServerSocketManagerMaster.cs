@@ -29,7 +29,7 @@ namespace Horse.Server.Core
         /// <summary>
         /// The connected mobile players
         /// </summary>
-        public static List<NetworkMobilePlayer> MobilePlayers;
+        public static List<NetworkMobilePlayer> Players { get { return _mobilePlayers; } private set { Players = value; } }
 
         /// <summary>
         /// Handler for when a client disconnects
@@ -49,6 +49,9 @@ namespace Horse.Server.Core
         private static bool _stopped;
 
         public static bool IsGameThreadControllingInput;
+
+        private static List<NetworkMobilePlayer> _mobilePlayers;
+
 
         /// <summary>
         /// Initiate the connection checking thread
@@ -72,12 +75,12 @@ namespace Horse.Server.Core
                 var sb = new StringBuilder();
                 while (ServerGameWindowMaster.GameWindow.IsOpen)
                 {
-                    if (MobilePlayers == null || MobilePlayers.Count == 0)
+                    if (_mobilePlayers == null || _mobilePlayers.Count == 0)
                         continue;
                     NetworkMobilePlayer[] tempArr;
-                    lock (MobilePlayers)
+                    lock (_mobilePlayers)
                     {
-                        tempArr = MobilePlayers.ToArray();
+                        tempArr = _mobilePlayers.ToArray();
                     }
                     foreach (var player in tempArr)
                     {
@@ -87,9 +90,9 @@ namespace Horse.Server.Core
                         }
                         if (player.Client == null)
                         {
-                            lock (MobilePlayers)
+                            lock (_mobilePlayers)
                             {
-                                MobilePlayers.Remove(player);
+                                _mobilePlayers.Remove(player);
                             }
                             OnPlayerDisconnected(new EventArgs());
                             continue;
@@ -97,9 +100,9 @@ namespace Horse.Server.Core
                         if (player.Client.Connected == false)
                         {
                             player.Client.Close();
-                            lock (MobilePlayers)
+                            lock (_mobilePlayers)
                             {
-                                MobilePlayers.Remove(player);
+                                _mobilePlayers.Remove(player);
                             }
                             OnPlayerDisconnected(new EventArgs());
                         }
@@ -168,7 +171,7 @@ namespace Horse.Server.Core
 
         private void StartGame(TcpClient client)
         {
-            if (MobilePlayers.Count < 2)
+            if (_mobilePlayers.Count < 2)
             {
                 SendMessage(MessageType.Err+" Not enough players", client.GetStream());
                 LogManager.LogWarning("Not enough players to start");
@@ -188,7 +191,7 @@ namespace Horse.Server.Core
             try
             {
                 var sb = new StringBuilder(MessageType.Info+" playerList[");
-                foreach (var player in MobilePlayers)
+                foreach (var player in _mobilePlayers)
                 {
                     sb.Append("player: ");
                     sb.Append(player.Name);
@@ -214,9 +217,9 @@ namespace Horse.Server.Core
         {
             if (_listen || _stopped)
                 return;
-            if (MobilePlayers != null && MobilePlayers.Count > 0)
+            if (_mobilePlayers != null && _mobilePlayers.Count > 0)
                 CloseExistingConnections();
-            MobilePlayers = new List<NetworkMobilePlayer>();
+            _mobilePlayers = new List<NetworkMobilePlayer>();
             if (_listener != null)
             {
                 _listener.Server.Close();
@@ -244,7 +247,7 @@ namespace Horse.Server.Core
         /// </summary>
         private static void CloseExistingConnections()
         {
-            foreach (var player in MobilePlayers)
+            foreach (var player in _mobilePlayers)
             {
                 if (player?.Client != null && player.Client.Connected)
                     player.Client.Close();
@@ -301,7 +304,7 @@ namespace Horse.Server.Core
         /// <param name="res"></param>
         private static void HandleAsyncConnection(IAsyncResult res)
         {
-            if (_listen == false && MobilePlayers.Count >= 8)
+            if (_listen == false && _mobilePlayers.Count >= 8)
                 return;
             StartAccept(); //listen for new connections again
             /*if (_listener == null)
@@ -363,14 +366,14 @@ namespace Horse.Server.Core
             LogManager.Log("Adding player : " + clientDetails[0].Substring(1) + " " + clientDetails[1]);
             SendMessage(MessageType.Info+" OK " + Convert.ToBase64String(hashBytes), clientStream);
             var mobPlay = new NetworkMobilePlayer(client, clientDetails[0].Substring(1),Convert.ToBase64String(hashBytes));
-            if (MobilePlayers.Count == 0)
+            if (_mobilePlayers.Count == 0)
             {
                 mobPlay.IsVip = true;
                 mobPlay.IsCurrentlyPlaying = true;
             }
-            if (MobilePlayers.Count == 1)
+            if (_mobilePlayers.Count == 1)
                 mobPlay.IsNext = true;
-            MobilePlayers.Add(mobPlay);
+            _mobilePlayers.Add(mobPlay);
             if (ServerGameWindowMaster.CurrentScreen.GetType() == typeof(LobbyScreen))
                 ((LobbyScreen)ServerGameWindowMaster.CurrentScreen).AddPlayer(mobPlay);
         }
