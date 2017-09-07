@@ -9,6 +9,7 @@ using SFML.System;
 using System.Linq;
 using System.Text;
 using System.Net.Sockets;
+using System.Collections.Generic;
 
 namespace Horse.Server.Games.ColorMePretty
 {
@@ -18,6 +19,14 @@ namespace Horse.Server.Games.ColorMePretty
         public CmpScreenItem CurrentPaintBlob;
         private bool _isLoaded;
         private readonly Color _nearGray;
+        private List<Color> _availableColors;
+        private List<string> _availableColorTexts;
+        private CmpScreenItem _turnCountDown;
+        private CmpScreenItem _roundCountDown;
+        private int _turnCD = 3;
+        private int _roundCD = 15;
+        private bool _turnCDStarted;
+        private bool _roundCDStarted;
         public CmpGameScreen(ref RenderWindow window) : base(ref window)
         {
             _nearGray = new Color(181,181,181,183);
@@ -49,6 +58,7 @@ namespace Horse.Server.Games.ColorMePretty
                 var playerQueue = DisplayPlayerQueue();
                 LoadPaint();
                 WaitForPlayersToReadInstructionsAysnc();
+                PrepareTimers();
                 ScreenItem toRmv = null;
                 foreach(ScreenItem scrnItem in ScreenItems)
                 {
@@ -73,6 +83,10 @@ namespace Horse.Server.Games.ColorMePretty
             {
                 LogManager.Log("Color me pretty finished loading");
             }
+        }
+
+        private void PrepareTimers()
+        {
         }
 
         private async void WaitForPlayersToReadInstructionsAysnc()
@@ -103,7 +117,8 @@ namespace Horse.Server.Games.ColorMePretty
                             break;
                     }
                     LogManager.Log(player.Name + " " + player.DeviceId + " sent:" + sb);
-                    ProcessMessage(player.Client, sb.Replace(" ENDTRANS", "").ToString());
+                    if (ProcessMessage(player.Client, sb.Replace(" ENDTRANS", "").ToString()).Type == ProcessedMessageType.StartGame)
+                        numRead++;
                     sb.Clear();
                 }
             }
@@ -139,10 +154,37 @@ namespace Horse.Server.Games.ColorMePretty
                     Position = new Vector2f(WinInstance.Size.X - blobSize.X / 2, WinInstance.Size.Y - blobSize.Y / 2)
                 };
             paintBlob.Position = outterBox.Position;
-            var text = new Text() { DisplayedString = "", Font = CmpFont, CharacterSize = 60, Position = new Vector2f(paintBlob.Position.X+blobSize.X/4, paintBlob.Position.Y + blobSize.Y/4)};
+            var text = new Text()
+            {
+                DisplayedString = "",
+                Font = CmpFont,
+                CharacterSize = 60,
+                Position = new Vector2f(paintBlob.Position.X + blobSize.X / 4, paintBlob.Position.Y + blobSize.Y / 4)
+            };
             CurrentPaintBlob.SetShape(outterBox);
             CurrentPaintBlob.SetText(text);
             CurrentPaintBlob.SetSprite(paintBlob);
+            _availableColors = new List<Color>() {
+                new Color(139,69,19), // Brown
+                new Color(128,0,128), // Purple
+                new Color(255,140,0), // Orange
+                Color.Black,
+                Color.Red,
+                Color.Blue,
+                Color.Green,
+                Color.Yellow
+            };
+
+            _availableColorTexts = new List<string>() {
+                AssetManager.GetMessage("Black"),
+                AssetManager.GetMessage("Blue"),
+                AssetManager.GetMessage("Green"),
+                AssetManager.GetMessage("Orange"),
+                AssetManager.GetMessage("Purple"),
+                AssetManager.GetMessage("Red"),
+                AssetManager.GetMessage("Yellow"),
+                AssetManager.GetMessage("Brown"),
+            };
         }
 
         public override void Draw()
@@ -166,12 +208,43 @@ namespace Horse.Server.Games.ColorMePretty
             throw new NotImplementedException();
         }
 
-        protected override ProcessedMessageType ProcessMessage(TcpClient client, string message)
+        protected override GameMessage ProcessMessage(TcpClient client, string message)
         {
             var sb = new StringBuilder(message);
             sb.Replace("$", "").Replace("\0", "");
             message = sb.ToString();
-            return 0;
+            if (message.Contains(MessageType.Cmd))
+            {
+                var cmd = message.Substring(message.IndexOf(MessageType.Cmd, StringComparison.Ordinal) + 4).Trim().ToLower();
+                switch (cmd)
+                {
+                    default:
+                        LogManager.LogWarning("Command: " + cmd + " not found");
+                        break;
+                }
+            }
+            else if (message.Contains(MessageType.Data))
+            {
+
+            }
+            else if (message.Contains(MessageType.Info))
+            {
+                var info = message.Substring(message.IndexOf(MessageType.Cmd, StringComparison.Ordinal) + 4).Trim().ToLower();
+                switch (info)
+                {
+                    case "readinstructions":
+                        return new GameMessage(ProcessedMessageType.StartGame,null);
+                    default:
+                        var player = ServerSocketManagerMaster.Players.Single(pl => pl.Client == client);
+                        LogManager.LogWarning("Info: " + info + " <br/> FROM: "+player?.Name);
+                        break;
+                }
+            }
+            else
+            {
+                LogManager.Log("Message from client: " + message.Replace(MessageType.Info, ""));
+            }
+            return new GameMessage(0,"");
         }
     }
 }

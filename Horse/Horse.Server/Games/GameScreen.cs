@@ -15,7 +15,20 @@ namespace Horse.Server.Games
             Ok,
             Command,
             Data,
+            StartGame,
+            Pause,
             Other
+        }
+
+        public struct GameMessage
+        {
+            public ProcessedMessageType Type { get; }
+            public string Data { get; }
+            public GameMessage(ProcessedMessageType type, string data)
+            {
+                Type = type;
+                Data = data;
+            }
         }
         protected Thread GameThread;
         protected Thread LoadingThread;
@@ -35,6 +48,6 @@ namespace Horse.Server.Games
             LoadingThread?.Abort();
         }
 
-        protected abstract ProcessedMessageType ProcessMessage(TcpClient client, string message);
+        protected abstract GameMessage ProcessMessage(TcpClient client, string message);
     }
 }

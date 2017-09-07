@@ -172,8 +172,8 @@
   </asset>
   <asset>
     <type>text</type>
-    <name>Magenta</name>
-    <text>Magenta</text>
+    <name>Orange</name>
+    <text>Orange</text>
   </asset>
   <asset>
     <type>text</type>
@@ -182,8 +182,13 @@
   </asset>
   <asset>
     <type>text</type>
-    <name>Cyan</name>
-    <text>Cyan</text>
+    <name>Purple</name>
+    <text>Purple</text>
+  </asset>
+  <asset>
+    <type>text</type>
+    <name>Brown</name>
+    <text>Brown</text>
   </asset>
   <asset>
     <type>text</type>
