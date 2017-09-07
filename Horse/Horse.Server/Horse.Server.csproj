@@ -61,8 +61,8 @@
     <Compile Include="Core\NetworkMobilePlayer.cs" />
     <Compile Include="Core\ServerGameFlowMaster.cs" />
     <Compile Include="Core\ServerSocketManagerMaster.cs" />
-    <Compile Include="Games\ColorMePretty\CMPGameScreen.cs" />
-    <Compile Include="Games\ColorMePretty\CMPScreenItem.cs" />
+    <Compile Include="Games\ColorMePretty\CmpGameScreen.cs" />
+    <Compile Include="Games\ColorMePretty\CmpScreenItem.cs" />
     <Compile Include="Games\GameScreen.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
