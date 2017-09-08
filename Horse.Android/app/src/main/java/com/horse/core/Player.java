@@ -15,7 +15,7 @@ import java.util.HashMap;
 
 public class Player {
 
-    public static HashMap<String, Player> MobileNetworkPlayers;
+    private static HashMap<String, Player> MobileNetworkPlayers;
     /**
      * Name of the player
      */
@@ -35,6 +35,8 @@ public class Player {
      * True if the player is next up to play
      */
     public boolean IsNext;
+
+    public boolean IsCurrentlyPlaying;
 
     /**
      * Create a new player
@@ -78,6 +80,8 @@ public class Player {
         return IsNext;
     }
 
+    public boolean isCurrentlyPlaying(){return IsCurrentlyPlaying;}
+
     /**
      * Set the vip status
      * @param vip True if the player is the leader
@@ -94,30 +98,30 @@ public class Player {
         IsNext = next;
     }
 
+    public  void setCurrentlyPlaying(boolean currentlyPlaying){ IsCurrentlyPlaying = currentlyPlaying;}
+
     /**
      * Retrieve all players currently in the game
      * @return The players in the game
      */
     public static ArrayList<Player> getPlayersFromServer(){
-        if(MobileNetworkPlayers == null)
-            MobileNetworkPlayers = new HashMap<>();
         String players = "";
         Message playerListMessage = null;
-        for (Message message: ServerConnection.MessagesIn) {
+        for (Message message: ServerConnection.GetMessages()) {
             if(!message.Type.equals(MessageType.INFO))
                 continue;
-            if(message.Message.contains("playerList[") == false)
+            if(!message.Message.contains("playerList["))
                 continue;
             playerListMessage = message;
             players = message.Message.substring(message.Message.indexOf('[')+1,message.Message.length()-2);
         }
         if(players.length() == 0)
-            return new ArrayList<>(MobileNetworkPlayers.values());
+            return new ArrayList<>(getMobileNetworkPlayers().values());
         String[] indivPlayers = players.split("player: ");
         for (String inPlay: indivPlayers) {
             if(inPlay.length() == 0)
                 continue;
-            if(inPlay.contains(",") == false)
+            if(!inPlay.contains(","))
                 continue;
             String[] playerProps = inPlay.split(",");
             Player player = new Player(playerProps[0],playerProps[1]);
@@ -125,12 +129,27 @@ public class Player {
                 player.setVip(true);
             if(playerProps[3].equals("true"))
                 player.setNext(true);
-            MobileNetworkPlayers.put(player.getId(),player);
+            if(playerProps[4].equals("true"))
+                player.setCurrentlyPlaying(true);
+            synchronized (getMobileNetworkPlayers()) {
+                getMobileNetworkPlayers().put(player.getId(), player);
+            }
         }
         if(playerListMessage != null){
-            if(ServerConnection.MessagesIn.remove(playerListMessage) == false)
-                LogManager.getInstance().error("Could delete message");
+            synchronized (ServerConnection.GetMessages()) {
+                if (!ServerConnection.GetMessages().remove(playerListMessage))
+                    LogManager.getInstance().error("Could not delete message");
+            }
         }
-        return new ArrayList<>(MobileNetworkPlayers.values());
+        return new ArrayList<>(getMobileNetworkPlayers().values());
+    }
+
+    public static HashMap<String, Player> getMobileNetworkPlayers(){
+        if(MobileNetworkPlayers == null){
+            synchronized (Player.class){
+                MobileNetworkPlayers = new HashMap<>();
+            }
+        }
+        return MobileNetworkPlayers;
     }
 }

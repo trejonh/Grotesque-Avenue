@@ -155,19 +155,27 @@ namespace Horse.Server.Core
             message = sb.ToString();
             if (message.Contains(MessageType.Cmd))
             {
-                var cmd = message.Substring(message.IndexOf(MessageType.Cmd, StringComparison.Ordinal) + 4).Trim()
-                    .ToLower();
-                switch (cmd)
+                var cmd = message.Substring(message.IndexOf(MessageType.Cmd, StringComparison.Ordinal) + 4)
+                                 .Trim()
+                                 .ToLower();
+                if (cmd.Contains("playgame:"))
                 {
-                    case "getplayerlist":
-                        SendPlayerList(client);
-                        break;
-                    case "startgame":
-                        StartGame(client);
-                        break;
-                    default:
-                        LogManager.LogWarning("Command: " + cmd + " not found");
-                        break;
+                    GameSelectionScreen.PlayGame(cmd.Substring(cmd.IndexOf(":")+1));
+                }
+                else
+                {
+                    switch (cmd)
+                    {
+                        case "getplayerlist":
+                            SendPlayerList(client);
+                            break;
+                        case "startgame":
+                            StartGame(client);
+                            break;
+                        default:
+                            LogManager.LogWarning("Command: " + cmd + " not found");
+                            break;
+                    }
                 }
             }
             else if (message.Contains(MessageType.Data))
@@ -189,8 +197,7 @@ namespace Horse.Server.Core
                 return;
             }
             StopListening();
-            var renderWindow = ServerGameWindowMaster.GameWindow;
-            ServerGameWindowMaster.ChangeScreen(new GameSelectionScreen(ref renderWindow));
+            ServerGameWindowMaster.ChangeScreen(GameSelectionScreen.GetInstance());
         }
 
         /// <summary>
@@ -449,7 +456,12 @@ namespace Horse.Server.Core
                     case "startgame":
                         break;
                     default:
-                        LogManager.LogWarning("Command: " + message + " not found");
+                        lock (_mobilePlayers)
+                        {
+                            foreach (var player in _mobilePlayers) {
+                                SendMessage(MessageType.Cmd+" "+message, player.Client.GetStream());
+                            }
+                        }
                         break;
                 }
             }

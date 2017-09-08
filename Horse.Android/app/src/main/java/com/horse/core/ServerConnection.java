@@ -45,7 +45,7 @@ public class ServerConnection {
     /**
      * Message in queue
      */
-    public static Queue<Message> MessagesIn;
+    private static Queue<Message> MessagesIn;
     private static Timer _readMessageTimer;
 
     /**
@@ -57,7 +57,6 @@ public class ServerConnection {
         _inet = inet;
         DisplayName = name;
         ServerConnectionTasks = new HashMap<>();
-        MessagesIn = new LinkedList<>();
     }
 
     /**
@@ -116,14 +115,16 @@ public class ServerConnection {
             }
             String message = sb.toString().replace(" ENDTRANS","");
             String cmd = message.substring(0,4);
-            if(cmd.equals(MessageType.CMD))
-                MessagesIn.add(new Message(message.substring(5),MessageType.CMD, new Date()));
-            if(cmd.equals(MessageType.DATA))
-                MessagesIn.add(new Message(message.substring(5),MessageType.DATA, new Date()));
-            if(cmd.equals(MessageType.INFO))
-                MessagesIn.add(new Message(message.substring(5),MessageType.INFO, new Date()));
-            if(cmd.equals(MessageType.ERR))
-                MessagesIn.add(new Message(message.substring(5),MessageType.ERR, new Date()));
+            synchronized (GetMessages()) {
+                if (cmd.equals(MessageType.CMD))
+                    GetMessages().add(new Message(message.substring(5), MessageType.CMD, new Date()));
+                if (cmd.equals(MessageType.DATA))
+                    GetMessages().add(new Message(message.substring(5), MessageType.DATA, new Date()));
+                if (cmd.equals(MessageType.INFO))
+                    GetMessages().add(new Message(message.substring(5), MessageType.INFO, new Date()));
+                if (cmd.equals(MessageType.ERR))
+                    GetMessages().add(new Message(message.substring(5), MessageType.ERR, new Date()));
+            }
             return message.substring(cmd.length());
         }catch(IOException ex){
             LogManager.getInstance().error(ex);
@@ -181,6 +182,15 @@ public class ServerConnection {
         Timer taskToCancel = ServerConnectionTasks.get(name);
         if(taskToCancel != null)
             taskToCancel.cancel();
+    }
+
+    public static Queue<Message> GetMessages(){
+        if(MessagesIn == null){
+            synchronized (ServerConnection.class){
+                MessagesIn = new LinkedList<>();
+            }
+        }
+        return MessagesIn;
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.horse.screens;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.app.Activity;
@@ -19,6 +20,7 @@ import com.horse.core.MessageType;
 import com.horse.core.Player;
 import com.horse.core.PlayerAdapter;
 import com.horse.core.ServerConnection;
+import com.horse.utils.HorseCache;
 import com.horse.utils.LogManager;
 
 import java.net.InetAddress;
@@ -33,7 +35,7 @@ import java.util.TimerTask;
  */
 public class LobbyScreenActivity extends HorseActivity {
     private final int MAX_ALLOWED_PLAYERS = 8;
-    public static String MyHash;
+    private String MyHash;
     private boolean _alreadyFoundVip =false;
     private static Timer _getPlayerList;
 
@@ -99,10 +101,11 @@ public class LobbyScreenActivity extends HorseActivity {
                                         startGameButton.setOnClickListener(new OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                if(Player.MobileNetworkPlayers != null && Player.MobileNetworkPlayers.size() >= 2) {
+                                                if(Player.getMobileNetworkPlayers() != null && Player.getMobileNetworkPlayers().size() >= 2) {
                                                     ServerConnection.cancelTimedMessage("getplayerlist");
                                                     _getPlayerList.cancel();
                                                     ServerConnection.sendMessage(MessageType.CMD + " StartGame");
+                                                    LobbyScreenActivity.this.startActivity(new Intent(LobbyScreenActivity.this, SelectAGameScreenActivity.class));
                                                 }
                                             }
                                         });
@@ -134,6 +137,7 @@ public class LobbyScreenActivity extends HorseActivity {
             finish();
         }else{
             MyHash = messageRecieved.substring(messageRecieved.indexOf("OK")+3);
+            HorseCache.addItem("MyDeviceId",MyHash);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

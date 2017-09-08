@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.horse.R;
 import com.horse.screens.LobbyScreenActivity;
+import com.horse.utils.HorseCache;
 
 import java.util.ArrayList;
 
@@ -44,7 +45,7 @@ public class PlayerAdapter extends ArrayAdapter<Player> {
             vip.setBackgroundColor(Color.parseColor("#ffe33d"));
         if(player.isNext())
             vip.setBackgroundColor(Color.parseColor("#C0F252"));
-        if(player.getId().equals(LobbyScreenActivity.MyHash))
+        if(player.getId().equals(HorseCache.getItem("MyDeviceId")))
             vip.setBackgroundColor(Color.parseColor("#ef0041"));
         // Return the completed view to render on screen
         return convertView;
