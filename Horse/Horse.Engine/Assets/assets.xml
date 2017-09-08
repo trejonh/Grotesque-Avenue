@@ -200,4 +200,14 @@
     <name>CMPBackground</name>
     <location>\images\cmp.png</location>
   </asset>
+  <asset>
+    <type>text</type>
+    <name>Go</name>
+    <text>GO!</text>
+  </asset>
+  <asset>
+    <type>text</type>
+    <name>Stop</name>
+    <text>Stop</text>
+  </asset>
 </assets>

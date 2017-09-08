@@ -13,13 +13,13 @@ namespace Horse.Server.Core
     /// <summary>
     /// Master socket manager
     /// </summary>
-    public  class ServerSocketManagerMaster
+    public class ServerSocketManagerMaster
     {
         /// <summary>
         /// Listen for incoming connections
         /// </summary>
         private static bool _listen;
-        
+
 
         /// <summary>
         /// The listener for tcp connections
@@ -29,7 +29,16 @@ namespace Horse.Server.Core
         /// <summary>
         /// The connected mobile players
         /// </summary>
-        public static List<NetworkMobilePlayer> Players { get { return _mobilePlayers; } private set { Players = value; } }
+        public static List<NetworkMobilePlayer> Players
+        {
+            get
+            {
+                lock (_mobilePlayers)
+                {
+                    return _mobilePlayers;
+                }
+            }
+        }
 
         /// <summary>
         /// Handler for when a client disconnects
@@ -60,7 +69,7 @@ namespace Horse.Server.Core
         {
             new RNGCryptoServiceProvider().GetBytes(_salt = new byte[16]);
             _checkConnectionThread = new Thread(PollMobileClients)
-            { Priority = ThreadPriority.Lowest , IsBackground = true, Name = "Client Connection Checker"};
+                {Priority = ThreadPriority.Lowest, IsBackground = true, Name = "Client Connection Checker"};
             _checkConnectionThread.Start();
         }
 
@@ -123,7 +132,7 @@ namespace Horse.Server.Core
                                 break;
                         }
                         LogManager.Log(player.Name + " " + player.DeviceId + " sent:" + sb);
-                        ProcessMessage(player.Client,sb.Replace(" ENDTRANS","").ToString());
+                        ProcessMessage(player.Client, sb.Replace(" ENDTRANS", "").ToString());
                         sb.Clear();
                     }
                 }
@@ -146,8 +155,10 @@ namespace Horse.Server.Core
             message = sb.ToString();
             if (message.Contains(MessageType.Cmd))
             {
-                var cmd = message.Substring(message.IndexOf(MessageType.Cmd, StringComparison.Ordinal)+4).Trim().ToLower();
-                switch (cmd) {
+                var cmd = message.Substring(message.IndexOf(MessageType.Cmd, StringComparison.Ordinal) + 4).Trim()
+                    .ToLower();
+                switch (cmd)
+                {
                     case "getplayerlist":
                         SendPlayerList(client);
                         break;
@@ -155,7 +166,7 @@ namespace Horse.Server.Core
                         StartGame(client);
                         break;
                     default:
-                        LogManager.LogWarning("Command: "+cmd+" not found");
+                        LogManager.LogWarning("Command: " + cmd + " not found");
                         break;
                 }
             }
@@ -165,7 +176,7 @@ namespace Horse.Server.Core
             }
             else
             {
-                LogManager.Log("Message from client: "+message.Replace(MessageType.Info,""));
+                LogManager.Log("Message from client: " + message.Replace(MessageType.Info, ""));
             }
         }
 
@@ -173,7 +184,7 @@ namespace Horse.Server.Core
         {
             if (_mobilePlayers.Count < 2)
             {
-                SendMessage(MessageType.Err+" Not enough players", client.GetStream());
+                SendMessage(MessageType.Err + " Not enough players", client.GetStream());
                 LogManager.LogWarning("Not enough players to start");
                 return;
             }
@@ -186,11 +197,11 @@ namespace Horse.Server.Core
         /// Send the list of currently connected players to the client
         /// </summary>
         /// <param name="client">The client to send the list to</param>
-        private void SendPlayerList(TcpClient client)
+        private static void SendPlayerList(TcpClient client)
         {
             try
             {
-                var sb = new StringBuilder(MessageType.Info+" playerList[");
+                var sb = new StringBuilder(MessageType.Info + " playerList[");
                 foreach (var player in _mobilePlayers)
                 {
                     sb.Append("player: ");
@@ -267,7 +278,7 @@ namespace Horse.Server.Core
             }
             catch (SocketException ex)
             {
-                LogManager.LogError("Listener stop exception. error code: "+ex.ErrorCode);
+                LogManager.LogError("Listener stop exception. error code: " + ex.ErrorCode);
             }
         }
 
@@ -319,14 +330,15 @@ namespace Horse.Server.Core
             }
             catch (Exception ex)
             {
-                LogManager.LogError(ex.Message +"<br/>"+ex.StackTrace);
+                LogManager.LogError(ex.Message + "<br/>" + ex.StackTrace);
                 return;
             }
             Console.WriteLine("connected");
             var clientStream = client.GetStream();
             var sb = new StringBuilder();
             var continueToRead = true;
-            while (continueToRead){
+            while (continueToRead)
+            {
                 var bytes = new byte[client.ReceiveBufferSize];
 
                 // Read can return anything from 0 to numBytesToRead. 
@@ -339,7 +351,7 @@ namespace Horse.Server.Core
                     continueToRead = false;
             }
 
-            CreatePlayer(client, sb.Replace(" ENDTRANS","").ToString());
+            CreatePlayer(client, sb.Replace(" ENDTRANS", "").ToString());
 
         }
 
@@ -351,7 +363,7 @@ namespace Horse.Server.Core
         private static void CreatePlayer(TcpClient client, string message)
         {
             var clientDetails = message.Split(',');
-            if(clientDetails.Length != 2)
+            if (clientDetails.Length != 2)
             {
                 LogManager.LogError("Invalid data sent from mobile client, closing connection");
                 client.Close();
@@ -364,8 +376,9 @@ namespace Horse.Server.Core
             var clientStream = client.GetStream();
 
             LogManager.Log("Adding player : " + clientDetails[0].Substring(1) + " " + clientDetails[1]);
-            SendMessage(MessageType.Info+" OK " + Convert.ToBase64String(hashBytes), clientStream);
-            var mobPlay = new NetworkMobilePlayer(client, clientDetails[0].Substring(1),Convert.ToBase64String(hashBytes));
+            SendMessage(MessageType.Info + " OK " + Convert.ToBase64String(hashBytes), clientStream);
+            var mobPlay = new NetworkMobilePlayer(client, clientDetails[0].Substring(1),
+                Convert.ToBase64String(hashBytes));
             if (_mobilePlayers.Count == 0)
             {
                 mobPlay.IsVip = true;
@@ -375,7 +388,7 @@ namespace Horse.Server.Core
                 mobPlay.IsNext = true;
             _mobilePlayers.Add(mobPlay);
             if (ServerGameWindowMaster.CurrentScreen.GetType() == typeof(LobbyScreen))
-                ((LobbyScreen)ServerGameWindowMaster.CurrentScreen).AddPlayer(mobPlay);
+                ((LobbyScreen) ServerGameWindowMaster.CurrentScreen).AddPlayer(mobPlay);
         }
 
         /// <summary>
@@ -383,7 +396,7 @@ namespace Horse.Server.Core
         /// </summary>
         /// <param name="message">The message to send</param>
         /// <param name="stream">Stream inwhich to send the message on</param>
-        public static void SendMessage(string message,  NetworkStream stream)
+        public static void SendMessage(string message, NetworkStream stream)
         {
             if (!stream.CanWrite) return;
             var bytesToWrite = Encoding.UTF8.GetBytes(message + " ENDTRANS");
@@ -391,5 +404,60 @@ namespace Horse.Server.Core
             Console.WriteLine("sent");
             LogManager.Log("Sent message: " + message);
         }
+
+        public static void MoveNextPlayerFlag()
+        {
+            lock (_mobilePlayers)
+            {
+                foreach (var t in _mobilePlayers)
+                {
+                    if (t.IsCurrentlyPlaying)
+                    {
+                        t.IsCurrentlyPlaying = false;
+                    }
+                }
+                for (var i = 0; i < _mobilePlayers.Count; i++)
+                {
+                    if (_mobilePlayers[i].IsNext == false) continue;
+                    _mobilePlayers[i].IsCurrentlyPlaying = true;
+                    _mobilePlayers[i].IsNext = false;
+                    if (i + 1 >= _mobilePlayers.Count)
+                    {
+                        _mobilePlayers[0].IsCurrentlyPlaying = false;
+                        _mobilePlayers[0].IsNext = true;
+                        break;
+                    }
+                    _mobilePlayers[i + 1].IsCurrentlyPlaying = false;
+                    _mobilePlayers[i + 1].IsNext = true;
+                    break;
+                }
+            }
+        }
+        public static void SendAll(string messageType, string message)
+        {
+            if (messageType.Equals(MessageType.Cmd))
+            {
+                switch (message)
+                {
+                    case "getplayerlist":
+                        lock (_mobilePlayers)
+                        {
+                            foreach (var player in _mobilePlayers)
+                                SendPlayerList(player.Client);
+                        }
+                        break;
+                    case "startgame":
+                        break;
+                    default:
+                        LogManager.LogWarning("Command: " + message + " not found");
+                        break;
+                }
+            }
+            else if (messageType.Equals(MessageType.Data))
+            {
+
+            }
+        }
+
     }
 }
