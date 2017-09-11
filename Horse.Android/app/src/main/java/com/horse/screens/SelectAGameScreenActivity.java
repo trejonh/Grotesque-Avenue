@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.horse.R;
@@ -35,7 +37,16 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
             finish();
         }else {
             if(!myPlayer.IsCurrentlyPlaying){
+                Player picker = null;
+                for(Player p : Player.getMobileNetworkPlayers().values()){
+                    if(p.isCurrentlyPlaying()){
+                        picker = p;
+                        break;
+                    }
+                }
                 findViewById(R.id.waitingForPlayer).setVisibility(View.VISIBLE);
+                if(picker != null)
+                    ((TextView)findViewById(R.id.waitingForPlayer)).setText("Waiting for "+picker.Name+" to pick a game.");
                 findViewById(R.id.waitingForPlayerProgressBar).setVisibility(View.VISIBLE);
                 findViewById(R.id.gameListView).setVisibility(View.GONE);
                 findViewById(R.id.loading).setVisibility(View.GONE);

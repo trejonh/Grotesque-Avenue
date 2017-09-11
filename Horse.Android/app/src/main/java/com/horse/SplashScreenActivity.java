@@ -36,10 +36,10 @@ public class SplashScreenActivity extends AppCompatActivity {
         HorseCache.addItem("ApplicationContext",getApplicationContext());
         HandlerThread ht = new HandlerThread("AndroidFileLogger.Horse");
         ht.start();
-        FormatStrategy formatStrategy = CsvFormatStrategy.newBuilder()
+        FormatStrategy formatStrategy = PrettyFormatStrategy.newBuilder()
                 .logStrategy(new DiskLogStrategy( new HorseLogHandler(ht.getLooper())))
-                .dateFormat(new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS", Locale.US))
-                .date(new Date())
+                .methodCount(5)
+                .methodOffset(7)
                 .build();
 
         Logger.addLogAdapter(new DiskLogAdapter(formatStrategy));

@@ -79,6 +79,7 @@ public class ServerConnection {
             }
         }
         synchronized (MessagesOut){
+            Logger.i("Adding message to out queue: ", message);
             MessagesOut.add(message +" ENDTRANS");
         }
     }
@@ -124,9 +125,10 @@ public class ServerConnection {
                 if (cmd.equals(MessageType.ERR))
                     getMessages().add(new Message(message.substring(5), MessageType.ERR, new Date()));
             }
+            Logger.i("Received the following message: ", message);
             return message.substring(cmd.length());
         }catch(IOException ex){
-            Logger.e(ex.toString());
+            Logger.e(ex, ex.toString());
         }
         return "";
     }
@@ -190,7 +192,7 @@ public class ServerConnection {
             Ready = false;
         }catch(IOException  ex) {
             //ex
-            Logger.e(ex.toString());
+            Logger.e(ex, ex.toString());
         }
     }
 
@@ -202,6 +204,7 @@ public class ServerConnection {
      */
     public static void sendTimedMessage(final String message, String name, int seconds){
         Timer timer = new Timer();
+        Logger.i("Sending time message: ", name, message);
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -218,6 +221,7 @@ public class ServerConnection {
      * @param name Name of the message to stop sending
      */
     public static void cancelTimedMessage(String name){
+        Logger.i("Canceling message: ",name);
         Timer taskToCancel = ServerConnectionTasks.get(name);
         if(taskToCancel != null)
             taskToCancel.cancel();
@@ -244,7 +248,7 @@ public class ServerConnection {
                 if(message == null)
                     break;
                 try {
-
+                    Logger.i("Attempting to send messages to server: ", message);
                     _out.writeUTF(message);
                 } catch (IOException e) {
                     Logger.e(e.toString());
@@ -299,7 +303,7 @@ public class ServerConnection {
                 }, 1000,250);
             }catch (IOException ex){
                 //log it
-                Logger.e(ex.toString());
+                Logger.e(ex,ex.toString());
             }
         }
     }

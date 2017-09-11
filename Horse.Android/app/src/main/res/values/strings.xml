@@ -35,4 +35,5 @@
     <string name="do_you_wish_to_send_the_log_file">Do you wish to send the log file?</string>
     <string name="yes">Yes</string>
     <string name="cancel">Cancel</string>
+    <string name="waiting_for_player_to_pick_a_game">Waiting for player to pick a game.</string>
 </resources>

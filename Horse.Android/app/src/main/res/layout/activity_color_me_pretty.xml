@@ -18,21 +18,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/ready"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:gravity="center_horizontal|center_vertical"/>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/cmp_gameControls"
         android:orientation="vertical"
-        android:layout_gravity="center"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:gravity="center_horizontal|center_vertical"
         android:visibility="invisible">
         <GridLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:rowCount="8"
             android:columnCount="2"
             android:orientation="vertical"
-            android:layout_marginTop="100dp">
+            android:layout_gravity="center_horizontal|center_vertical">
             <!-- row 1 -->
             <Button
                 android:id="@+id/redBtn"
