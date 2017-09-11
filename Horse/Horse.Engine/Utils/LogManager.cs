@@ -55,7 +55,7 @@ namespace Horse.Engine.Utils
                 if (_closed)
                     return;
                 const string eleO = "<error class=\'text-danger\'>";
-                const string eleC = "</error>";
+                var eleC = " <br/>"+DateTime.Now+"</error>";
                 _log.WriteLine(eleO + error + eleC);
             }
         }
@@ -71,7 +71,7 @@ namespace Horse.Engine.Utils
                 if (_closed)
                     return;
                 const string eleO = "<warning class=\'text-warning\'>";
-                const string eleC = "</warning>";
+                var eleC = " <br/>" + DateTime.Now + "</warning>";
                 _log.WriteLine(eleO + warning + eleC);
             }
         }
@@ -87,7 +87,7 @@ namespace Horse.Engine.Utils
                 if (_closed)
                     return;
                 const string eleO = "<info class=\'text-info\'>";
-                const string eleC = "</info>";
+                var eleC = " <br/>" + DateTime.Now + "</info>";
                 _log.WriteLine(eleO + log + eleC);
             }
         }

@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using Horse.Server.Helpers;
 
 namespace Horse.Server.Core
 {
@@ -132,7 +133,10 @@ namespace Horse.Server.Core
                                 break;
                         }
                         LogManager.Log(player.Name + " " + player.DeviceId + " sent:" + sb);
-                        ProcessMessage(player.Client, sb.Replace(" ENDTRANS", "").ToString());
+                        sb.Replace("$", "").Replace("\0", "").Replace("\u001d", "");
+                        var messages = StringHelper.ReplaceAndToArray(sb.ToString(), "ENDTRANS");
+                        foreach (var message in messages)
+                            ProcessMessage(player.Client, message);
                         sb.Clear();
                     }
                 }
@@ -150,9 +154,6 @@ namespace Horse.Server.Core
         /// <param name="message">The sent message</param>
         private void ProcessMessage(TcpClient client, string message)
         {
-            StringBuilder sb = new StringBuilder(message);
-            sb.Replace("$", "").Replace("\0", "");
-            message = sb.ToString();
             if (message.Contains(MessageType.Cmd))
             {
                 var cmd = message.Substring(message.IndexOf(MessageType.Cmd, StringComparison.Ordinal) + 4)
@@ -160,7 +161,7 @@ namespace Horse.Server.Core
                                  .ToLower();
                 if (cmd.Contains("playgame:"))
                 {
-                    GameSelectionScreen.PlayGame(cmd.Substring(cmd.IndexOf(":")+1));
+                    GameSelectionScreen.PlayGame(cmd.Substring(cmd.IndexOf(":", StringComparison.Ordinal)+1));
                 }
                 else
                 {
@@ -353,12 +354,16 @@ namespace Horse.Server.Core
                 clientStream.Read(bytes, 0, client.ReceiveBufferSize);
                 var str = Encoding.UTF8.GetString(bytes);
                 sb.Append(str);
-                Console.WriteLine("received: {0}", str);
                 if (str.Contains("ENDTRANS") || sb.ToString().Contains("ENDTRANS"))
                     continueToRead = false;
             }
-
-            CreatePlayer(client, sb.Replace(" ENDTRANS", "").ToString());
+            Console.WriteLine("Received: {0}", sb);
+            LogManager.Log("Received: "+sb);
+            sb.Replace("$", "").Replace("\0", "").Replace("\u001d","");
+            var messages = StringHelper.ReplaceAndToArray(sb.ToString(), "ENDTRANS");
+            foreach (var message in messages)
+                CreatePlayer(client, message);
+            //CreatePlayer(client, sb.Replace(" ENDTRANS", "").ToString());
 
         }
 
@@ -382,9 +387,9 @@ namespace Horse.Server.Core
             Array.Copy(hash, 0, hashBytes, 16, 20);
             var clientStream = client.GetStream();
 
-            LogManager.Log("Adding player : " + clientDetails[0].Substring(1) + " " + clientDetails[1]);
+            LogManager.Log("Adding player : " + clientDetails[0] + " " + clientDetails[1]);
             SendMessage(MessageType.Info + " OK " + Convert.ToBase64String(hashBytes), clientStream);
-            var mobPlay = new NetworkMobilePlayer(client, clientDetails[0].Substring(1),
+            var mobPlay = new NetworkMobilePlayer(client, clientDetails[0],
                 Convert.ToBase64String(hashBytes));
             if (_mobilePlayers.Count == 0)
             {

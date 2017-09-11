@@ -1,5 +1,7 @@
 package com.horse.utils;
 
+import com.orhanobut.logger.Logger;
+
 import java.util.HashMap;
 
 /**
@@ -42,7 +44,7 @@ public class HorseCache {
     public static Object getItem(String name){
         Object obj =getInstance().get(name);
         if(obj == null)
-            LogManager.getInstance().warn(name + " does not exist in the cache");
+            Logger.w(name + " does not exist in the cache");
         return obj;
     }
 }

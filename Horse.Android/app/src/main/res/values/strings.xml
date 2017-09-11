@@ -25,4 +25,14 @@
     <string name="my_device">My Device</string>
     <string name="startGame">Start Game</string>
     <string name="title_activity_select_agame_screen">Select A Game</string>
+    <string name="cmp_details">"Color Me Pretty"</string>
+    <string name="title_activity_color_me_pretty">ColorMePretty</string>
+    <string name="loading">Loading...</string>
+    <string name="cmp_title">Color Me Pretty</string>
+    <string name="ready">Ready</string>
+    <string name="title_activity_send_log">SendLog</string>
+    <string name="fatal_error">Fatal Error</string>
+    <string name="do_you_wish_to_send_the_log_file">Do you wish to send the log file?</string>
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
 </resources>

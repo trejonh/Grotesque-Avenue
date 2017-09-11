@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.app.Activity;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -16,12 +15,13 @@ import android.widget.Toast;
 
 import com.horse.R;
 import com.horse.core.HorseActivity;
+import com.horse.core.Message;
 import com.horse.core.MessageType;
 import com.horse.core.Player;
 import com.horse.core.PlayerAdapter;
 import com.horse.core.ServerConnection;
 import com.horse.utils.HorseCache;
-import com.horse.utils.LogManager;
+import com.orhanobut.logger.Logger;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -34,10 +34,10 @@ import java.util.TimerTask;
  * A lobby screen to display the users connected to the server
  */
 public class LobbyScreenActivity extends HorseActivity {
-    private final int MAX_ALLOWED_PLAYERS = 8;
     private String MyHash;
-    private boolean _alreadyFoundVip =false;
+    private boolean _alreadyFoundVip = false;
     private static Timer _getPlayerList;
+    private boolean _amVip = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,8 +94,10 @@ public class LobbyScreenActivity extends HorseActivity {
                                 for(Player player: players){
                                     if(_alreadyFoundVip)
                                         break;
-                                    if(player.IsVip && player.Id.equals(MyHash)){
+                                    if(player.IsVip)
                                         _alreadyFoundVip = true;
+                                    if(player.IsVip && player.Id.equals(MyHash)){
+                                        _amVip = true;
                                         Button startGameButton = (Button)findViewById(R.id.launchGameButton);
                                         startGameButton.setVisibility(View.VISIBLE);
                                         startGameButton.setOnClickListener(new OnClickListener() {
@@ -103,12 +105,20 @@ public class LobbyScreenActivity extends HorseActivity {
                                             public void onClick(View v) {
                                                 if(Player.getMobileNetworkPlayers() != null && Player.getMobileNetworkPlayers().size() >= 2) {
                                                     ServerConnection.cancelTimedMessage("getplayerlist");
-                                                    _getPlayerList.cancel();
                                                     ServerConnection.sendMessage(MessageType.CMD + " StartGame");
                                                     LobbyScreenActivity.this.startActivity(new Intent(LobbyScreenActivity.this, SelectAGameScreenActivity.class));
+                                                    _getPlayerList.cancel();
                                                 }
                                             }
                                         });
+                                    }
+                                }
+                                if(!_amVip){
+                                    Message message = ServerConnection.readMessage(MessageType.CMD);
+                                    if(message != null && message.Message.contains("selectagame")){
+                                        ServerConnection.cancelTimedMessage("getplayerlist");
+                                        LobbyScreenActivity.this.startActivity(new Intent(LobbyScreenActivity.this, SelectAGameScreenActivity.class));
+                                        _getPlayerList.cancel();
                                     }
                                 }
                             }
@@ -125,19 +135,27 @@ public class LobbyScreenActivity extends HorseActivity {
      * and validated to play
      */
     private void receiveOk() {
-        String messageRecieved = ServerConnection.readMessage();
-        if(!messageRecieved.contains("OK")){
+        Message messageReceived = null;
+        long startTime = System.currentTimeMillis();
+        //wait for 10 seconds
+        while((System.currentTimeMillis()-startTime)/1000 < 10){
+            messageReceived = ServerConnection.readMessage(MessageType.INFO);
+            if(messageReceived == null) continue;
+            if(messageReceived.Message.contains("OK")) break;
+        }
+        if(messageReceived == null || !messageReceived.Message.contains("OK")){
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     Toast.makeText(LobbyScreenActivity.this,"Failed to connect, try again",Toast.LENGTH_LONG).show();
-                    LogManager.getInstance().warn("Failed to connect to address:" , getIntent().getExtras().get("InetAddr").toString());
+                    Logger.w("Failed to connect to address:" , getIntent().getExtras().get("InetAddr").toString());
                 }
             });
             finish();
         }else{
-            MyHash = messageRecieved.substring(messageRecieved.indexOf("OK")+3);
+            MyHash = messageReceived.Message.substring(messageReceived.Message.indexOf("OK")+3);
             HorseCache.addItem("MyDeviceId",MyHash);
+            ServerConnection.removeMessage(messageReceived);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

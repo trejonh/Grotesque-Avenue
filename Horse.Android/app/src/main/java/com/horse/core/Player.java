@@ -1,6 +1,6 @@
 package com.horse.core;
 
-import com.horse.utils.LogManager;
+import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -107,7 +107,7 @@ public class Player {
     public static ArrayList<Player> getPlayersFromServer(){
         String players = "";
         Message playerListMessage = null;
-        for (Message message: ServerConnection.GetMessages()) {
+        for (Message message: ServerConnection.getMessages()) {
             if(!message.Type.equals(MessageType.INFO))
                 continue;
             if(!message.Message.contains("playerList["))
@@ -136,9 +136,9 @@ public class Player {
             }
         }
         if(playerListMessage != null){
-            synchronized (ServerConnection.GetMessages()) {
-                if (!ServerConnection.GetMessages().remove(playerListMessage))
-                    LogManager.getInstance().error("Could not delete message");
+            synchronized (ServerConnection.getMessages()) {
+                if (!ServerConnection.getMessages().remove(playerListMessage))
+                    Logger.e("Could not delete message");
             }
         }
         return new ArrayList<>(getMobileNetworkPlayers().values());

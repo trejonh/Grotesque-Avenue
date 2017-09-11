@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Net.Sockets;
 using System.Collections.Generic;
-using System.Windows.Forms;
+using Horse.Server.Helpers;
 using KeyEventArgs = SFML.Window.KeyEventArgs;
 
 namespace Horse.Server.Games.ColorMePretty
@@ -37,6 +37,7 @@ namespace Horse.Server.Games.ColorMePretty
         private List<PlayerGameRecord> _playerGameRecords;
         private const float MaxAllowedDispTime = 4.5f;
         private bool _timesUp;
+        private int _numPlayersCompleted;
         public CmpGameScreen(ref RenderWindow window) : base(ref window)
         {
             _nearGray = new Color(181,181,181,183);
@@ -321,11 +322,13 @@ namespace Horse.Server.Games.ColorMePretty
                         _turnDispTime = 0.0f;
                     }
                 }
-                if (_dispRoundCd && _dispTurnCd == false)
+                if (_dispRoundCd && _dispTurnCd == false && _timesUp == false)
                 {
                     if(_roundCdStarted == false)
                         StartRoundTimer();
                     _roundCountDown.Draw();
+                    if (_roundCountDown.GetText().DisplayedString == AssetManager.GetMessage("Go") && _timesUp == false)
+                        _timesUp = true;
                 }
                 CurrentPaintBlob.Draw();
             }
@@ -351,11 +354,17 @@ namespace Horse.Server.Games.ColorMePretty
                     if(GameStarted == false)continue;
                     if (_timesUp)
                     {
-                        _timesUp = false;
                         ServerSocketManagerMaster.MoveNextPlayerFlag();
                         DisplayPlayerQueue();
                         ServerSocketManagerMaster.SendAll(MessageType.Cmd, "getplayerlist");
+                        WaitForReadySignalAsync();
+                        _dispTurnCd = true;
+                        _dispRoundCd = false;
+                        _timesUp = false;
+                        ScrambleBlob();
+                        _numPlayersCompleted++;
                     }
+                    if(_dispTurnCd) continue;
                     var currPlayer = ServerSocketManagerMaster.Players.Single(pl => pl.IsCurrentlyPlaying);
                     var playerRecord =
                         _playerGameRecords.Single(rec => rec.Name.Equals(currPlayer.Name) &&
@@ -382,40 +391,46 @@ namespace Horse.Server.Games.ColorMePretty
                             break;
                     }
                     LogManager.Log(currPlayer.Name + " " + currPlayer.DeviceId + " sent:" + sb);
-                    var message = ProcessMessage(currPlayer.Client, sb.Replace(" ENDTRANS", "").ToString());
-                    switch (message.Type)
-                    {
-                        case ProcessedMessageType.Error:
-                            LogManager.LogError("An error ha occured with the current client");
-                            break;
-                        case ProcessedMessageType.Ok:
-                            break;
-                        case ProcessedMessageType.Command:
-                            break;
-                        case ProcessedMessageType.Data:
-                            if (CurrentPaintBlob.GetText().DisplayedString.ToLower().Equals(message.Data))
-                            {
-                                //award points/keep track of total right
-                                //play happy sound
-                                //now mix up blob color/text
-                                playerRecord.Score++;
-                                ScrambleBlob();
-                            }
-                            else
-                            {
-                                //play incorrect sound and keep same blob up
-                            }
-                            break;
-                        case ProcessedMessageType.StartGame:
-                            IsPaused = false;
-                            break;
-                        case ProcessedMessageType.Pause:
-                            IsPaused = true;
-                            break;
-                        case ProcessedMessageType.Other:
-                            break;
-                    }
+                    sb.Replace("$", "").Replace("\0", "").Replace("\u001d", "");
+                    var messages = StringHelper.ReplaceAndToArray(sb.ToString(), "ENDTRANS");
                     sb.Clear();
+                    foreach (var mess in messages)
+                    {
+                        var message = ProcessMessage(currPlayer.Client, mess);
+                        switch (message.Type)
+                        {
+                            case ProcessedMessageType.Error:
+                                LogManager.LogError("An error ha occured with the current client");
+                                break;
+                            case ProcessedMessageType.Ok:
+                                break;
+                            case ProcessedMessageType.Command:
+                                break;
+                            case ProcessedMessageType.Data:
+                                if (CurrentPaintBlob.GetText().DisplayedString.ToLower().Equals(message.Data))
+                                {
+                                    //award points/keep track of total right
+                                    //play happy sound
+                                    //now mix up blob color/text
+                                    playerRecord.Score++;
+                                    ScrambleBlob();
+                                }
+                                else
+                                {
+                                    //play incorrect sound and keep same blob up
+                                }
+                                break;
+                            case ProcessedMessageType.StartGame:
+                                IsPaused = false;
+                                break;
+                            case ProcessedMessageType.Pause:
+                                IsPaused = true;
+                                break;
+                            case ProcessedMessageType.Other:
+                                break;
+                        }
+
+                    }
                 }
             }
             catch (ThreadAbortException)
@@ -425,6 +440,38 @@ namespace Horse.Server.Games.ColorMePretty
             finally
             {
                 LogManager.Log("Safely exiting cmp game thread");
+            }
+        }
+
+        private async void WaitForReadySignalAsync()
+        {
+            var currPlayer = ServerSocketManagerMaster.Players.Single(pl => pl.IsCurrentlyPlaying);
+            if (currPlayer.Client == null || currPlayer.Client.Connected == false)
+            {
+                LogManager.LogError(currPlayer.Name + "(" + currPlayer.DeviceId + ") is not connected to the game anymore");
+                return;
+            }
+            var clientStream = currPlayer.Client.GetStream();
+            ServerSocketManagerMaster.SendMessage(MessageType.Cmd+" sendreadysignal", clientStream);
+            var sb = new StringBuilder();
+            while (true)
+            {
+                var bytes = new byte[currPlayer.Client.ReceiveBufferSize];
+
+                // Read can return anything from 0 to numBytesToRead. 
+                // This method blocks until at least one byte is read.
+                await clientStream.ReadAsync(bytes, 0, currPlayer.Client.ReceiveBufferSize);
+                var str = Encoding.UTF8.GetString(bytes);
+                sb.Append(str);
+                if (sb.ToString().Contains("ENDTRANS"))
+                    break;
+            }
+            var messages = StringHelper.ReplaceAndToArray(sb.ToString(), "ENDTRANS");
+            foreach (var message in messages)
+            {
+                var mess = ProcessMessage(currPlayer.Client, message);
+                if (mess.Type == ProcessedMessageType.Command && mess.Data.Equals("ready"))
+                    break;
             }
         }
 
@@ -438,13 +485,15 @@ namespace Horse.Server.Games.ColorMePretty
         protected override GameMessage ProcessMessage(TcpClient client, string message)
         {
             var sb = new StringBuilder(message);
-            sb.Replace("$", "").Replace("\0", "");
+            sb.Replace("$", "").Replace("\0", "").Replace("\u001d", "");
             message = sb.ToString();
             if (message.Contains(MessageType.Cmd))
             {
                 var cmd = message.Substring(message.IndexOf(MessageType.Cmd, StringComparison.Ordinal) + 4).Trim().ToLower();
                 switch (cmd)
                 {
+                    case "ready":
+                        return new GameMessage(ProcessedMessageType.Command, "ready");
                     default:
                         LogManager.LogWarning("Command: " + cmd + " not found");
                         break;

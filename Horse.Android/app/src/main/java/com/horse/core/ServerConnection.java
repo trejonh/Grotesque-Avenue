@@ -1,9 +1,8 @@
 package com.horse.core;
 
 import android.os.AsyncTask;
-import android.os.Handler;
 
-import com.horse.utils.LogManager;
+import com.orhanobut.logger.Logger;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -46,7 +45,9 @@ public class ServerConnection {
      * Message in queue
      */
     private static Queue<Message> MessagesIn;
+    private static Queue<String> MessagesOut;
     private static Timer _readMessageTimer;
+    private static Timer _sendMessageTimer;
 
     /**
      * Sets up our connection parameters
@@ -72,15 +73,13 @@ public class ServerConnection {
      * @param message The message to send
      */
     public static void sendMessage(String message){
-        if(_out == null || _serverConnectionSocket.isClosed())
-            return;
-        try{
-            synchronized (_out) {
-                _out.writeUTF(message + " ENDTRANS");
+        if(MessagesOut == null){
+            synchronized (ServerConnection.class) {
+                MessagesOut = new LinkedList<>();
             }
-        }catch(IOException ex){
-            //log it
-            LogManager.getInstance().error(ex);
+        }
+        synchronized (MessagesOut){
+            MessagesOut.add(message +" ENDTRANS");
         }
     }
 
@@ -109,27 +108,65 @@ public class ServerConnection {
                     endReached = true;
                 else if(!sb.toString().contains("ENDTRANS") && (System.currentTimeMillis()-startTime)/1000 >= 5){
                     //taking too long to retrieve message exiting early
-                    LogManager.getInstance().warn("Message was taking to long to receive: ", sb.toString());
+                    Logger.w("Message was taking to long to receive: ", sb.toString());
                     return "FAILED";
                 }
             }
             String message = sb.toString().replace(" ENDTRANS","");
             String cmd = message.substring(0,4);
-            synchronized (GetMessages()) {
+            synchronized (getMessages()) {
                 if (cmd.equals(MessageType.CMD))
-                    GetMessages().add(new Message(message.substring(5), MessageType.CMD, new Date()));
+                    getMessages().add(new Message(message.substring(5), MessageType.CMD, new Date()));
                 if (cmd.equals(MessageType.DATA))
-                    GetMessages().add(new Message(message.substring(5), MessageType.DATA, new Date()));
+                    getMessages().add(new Message(message.substring(5), MessageType.DATA, new Date()));
                 if (cmd.equals(MessageType.INFO))
-                    GetMessages().add(new Message(message.substring(5), MessageType.INFO, new Date()));
+                    getMessages().add(new Message(message.substring(5), MessageType.INFO, new Date()));
                 if (cmd.equals(MessageType.ERR))
-                    GetMessages().add(new Message(message.substring(5), MessageType.ERR, new Date()));
+                    getMessages().add(new Message(message.substring(5), MessageType.ERR, new Date()));
             }
             return message.substring(cmd.length());
         }catch(IOException ex){
-            LogManager.getInstance().error(ex);
+            Logger.e(ex.toString());
         }
         return "";
+    }
+
+    public static Message readMessage(String messageType){
+        if(MessagesIn == null || MessagesIn.size() == 0)
+            return null;
+        Message message = null;
+        synchronized (getMessages()){
+            for (Message mess: getMessages()){
+                if(mess.Type.equals(messageType)){
+                    message = mess;
+                    break;
+                }
+            }
+        }
+        return message;
+    }
+
+    public static Message readMessage(String messageType, String data){
+        if(MessagesIn == null || MessagesIn.size() == 0)
+            return null;
+        Message message = null;
+        synchronized (getMessages()){
+            for (Message mess: getMessages()){
+                if(mess.Type.equals(messageType) && mess.Message.contains(data)){
+                    message = mess;
+                    break;
+                }
+            }
+        }
+        return message;
+    }
+
+    public static void removeMessage(Message message){
+        if(message == null) return;
+        synchronized (getMessages()){
+            if(!getMessages().remove(message))
+                Logger.e("Failed to remove message");
+        }
     }
 
     /**
@@ -145,13 +182,15 @@ public class ServerConnection {
             }
             if(_readMessageTimer != null)
                 _readMessageTimer.cancel();
+            if(_sendMessageTimer != null)
+                _sendMessageTimer.cancel();
             _in.close();
             _out.close();
             _serverConnectionSocket.close();
             Ready = false;
         }catch(IOException  ex) {
             //ex
-            LogManager.getInstance().error(ex);
+            Logger.e(ex.toString());
         }
     }
 
@@ -184,13 +223,34 @@ public class ServerConnection {
             taskToCancel.cancel();
     }
 
-    public static Queue<Message> GetMessages(){
+    public static Queue<Message> getMessages(){
         if(MessagesIn == null){
             synchronized (ServerConnection.class){
                 MessagesIn = new LinkedList<>();
             }
         }
         return MessagesIn;
+    }
+
+    private static void sendMessagesOut(){
+        if(MessagesOut == null || MessagesOut.size() == 0)
+            return;
+        if(_out == null || _serverConnectionSocket.isClosed() || !_serverConnectionSocket.isConnected())
+            return;
+        synchronized (MessagesOut){
+            String message;
+            for(;;){
+                message = MessagesOut.poll();
+                if(message == null)
+                    break;
+                try {
+
+                    _out.writeUTF(message);
+                } catch (IOException e) {
+                    Logger.e(e.toString());
+                }
+            }
+        }
     }
 
     /**
@@ -230,9 +290,16 @@ public class ServerConnection {
                         readMessage();
                     }
                 }, 1000,1000);
+                _sendMessageTimer = new Timer();
+                _sendMessageTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        sendMessagesOut();
+                    }
+                }, 1000,250);
             }catch (IOException ex){
                 //log it
-                LogManager.getInstance().error(ex);
+                Logger.e(ex.toString());
             }
         }
     }

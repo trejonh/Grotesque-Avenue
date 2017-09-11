@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.horse.R;
 import com.horse.core.HorseActivity;
+import com.orhanobut.logger.Logger;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -29,6 +30,8 @@ import static android.content.DialogInterface.BUTTON_POSITIVE;
 public class WelcomeScreenActivity extends HorseActivity implements View.OnClickListener, DialogInterface.OnClickListener {
     private InetAddress inetAddress;
     private String name;
+    private boolean _good;
+    private boolean _stop;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,7 +96,7 @@ public class WelcomeScreenActivity extends HorseActivity implements View.OnClick
     }
 
     @Override
-    public void onClick(DialogInterface dialog, int which) {
+    public void onClick(final DialogInterface dialog, int which) {
         switch (which){
             case BUTTON_NEGATIVE:
                 dialog.dismiss();
@@ -106,16 +109,14 @@ public class WelcomeScreenActivity extends HorseActivity implements View.OnClick
                     break;
                 }
                 String ip = ((EditText)((AlertDialog)dialog).findViewById(R.id.serverAddress)).getText().toString();
-                try {
-                    if(ip == null || ip.length() == 0 || (inetAddress = InetAddress.getByName(ip)) ==  null){
-                        Toast.makeText(this,"Bad Server address",Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                        break;
-                    }
-                } catch (UnknownHostException e) {
+                if(ip == null || ip.length() == 0){
                     Toast.makeText(this,"Bad Server address",Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
-                    break;
+                }
+
+                if(!checkInetAddr(ip)) {
+                    Toast.makeText(this, "Bad Server address", Toast.LENGTH_SHORT).show();
+                    return;
                 }
                 name = displayName;
                 dialog.dismiss();
@@ -125,5 +126,30 @@ public class WelcomeScreenActivity extends HorseActivity implements View.OnClick
                 startActivity(intent);
                 break;
         }
+    }
+
+    private boolean checkInetAddr(final String ip) {
+        _good = false;
+        _stop = false;
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    if((inetAddress = InetAddress.getByName(ip)) !=  null)
+                        _good = true;
+                }catch (Exception ex){
+                    Logger.e(ex,ex.toString());
+                    _good = false;
+                }
+                finally {
+                    _stop = true;
+                }
+            }
+        });
+        t.start();
+        while(_stop == false){
+            //wait
+        }
+        return _good;
     }
 }

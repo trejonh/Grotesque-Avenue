@@ -3,21 +3,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.horse.screens.SelectAGameScreenActivity">
+    tools:context="com.horse.screens.SelectAGameScreenActivity"
+    android:background="@color/FunkyDarkBlue">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <TextView
-            android:id="@+id/waitingForPlayer"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="invisible"/>
-        <ProgressBar
-            android:id="@+id/waitingForPlayerProgressBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="invisible"/>
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/waitingForPlayer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"/>
+            <TextView
+                android:id="@+id/loading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:text="@string/loading"/>
+            <ProgressBar
+                android:id="@+id/waitingForPlayerProgressBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"/>
+        </LinearLayout>
         <ListView
             android:id="@+id/gameListView"
             android:visibility="invisible"

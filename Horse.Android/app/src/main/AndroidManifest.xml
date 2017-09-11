@@ -4,6 +4,9 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -11,7 +14,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/horse_launcher"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen">
+        android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen"
+        android:name=".core.HorseApplication">
         <activity
             android:name=".SplashScreenActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -32,7 +36,19 @@
             android:label="@string/title_activity_lobby_screen" />
         <activity
             android:name=".screens.SelectAGameScreenActivity"
-            android:label="@string/title_activity_select_agame_screen"></activity>
+            android:label="@string/title_activity_select_agame_screen" />
+        <activity
+            android:name=".screens.gameScreens.ColorMePretty"
+            android:label="@string/title_activity_color_me_pretty" />
+        <activity
+            android:name=".core.SendLog"
+            android:label="@string/title_activity_send_log"
+            android:textAppearance="@android:style/TextAppearance.Large"
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter>
+                <action android:name="com.horse.SEND_LOG" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter></activity>
     </application>
 
 </manifest>

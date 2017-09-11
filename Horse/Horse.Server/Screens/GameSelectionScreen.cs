@@ -13,8 +13,8 @@ namespace Horse.Server.Screens
     {
         private bool _isInitialSelect;
         private static GameSelectionScreen _gss;
-        private static object locker = new object();
-        private bool _initialized;
+        private static readonly object locker = new object();
+        private readonly bool _initialized;
         private GameSelectionScreen(ref RenderWindow window, bool isInit = true) : base(ref window)
         {
             _isInitialSelect = isInit;
@@ -64,6 +64,7 @@ namespace Horse.Server.Screens
                     GetInstance().RemoveWindowKeyEventHandler();
                     var win = ServerGameWindowMaster.GameWindow;
                     ServerGameWindowMaster.ChangeScreen(new CmpGameScreen(ref win));
+                    ServerSocketManagerMaster.SendAll(MessageType.Cmd,"gotoscreen: cmp");
                     break;
             }
         }

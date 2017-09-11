@@ -1,5 +1,7 @@
 package com.horse.screens;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -11,23 +13,23 @@ import com.horse.R;
 import com.horse.core.Game;
 import com.horse.core.GameAdapter;
 import com.horse.core.HorseActivity;
+import com.horse.core.Message;
 import com.horse.core.MessageType;
 import com.horse.core.Player;
 import com.horse.core.ServerConnection;
+import com.horse.screens.gameScreens.ColorMePretty;
 import com.horse.utils.HorseCache;
-import com.horse.utils.LogManager;
-
-import java.util.ArrayList;
+import com.orhanobut.logger.Logger;
 
 public class SelectAGameScreenActivity extends HorseActivity implements AdapterView.OnItemClickListener {
-
+    private ListView gameList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_agame_screen);
         Player myPlayer = Player.getMobileNetworkPlayers().get(HorseCache.getItem("MyDeviceId"));
         if(myPlayer == null){
-            LogManager.getInstance().error("My player does not exist in this game");
+           Logger.e("My player does not exist in this game");
             Toast.makeText(this, "You are  no longer in the game, try again", Toast.LENGTH_LONG).show();
             startActivity(new Intent(this, WelcomeScreenActivity.class));
             finish();
@@ -36,9 +38,10 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
                 findViewById(R.id.waitingForPlayer).setVisibility(View.VISIBLE);
                 findViewById(R.id.waitingForPlayerProgressBar).setVisibility(View.VISIBLE);
                 findViewById(R.id.gameListView).setVisibility(View.GONE);
+                findViewById(R.id.loading).setVisibility(View.GONE);
+                waitForSelection();
             }else{
                 findViewById(R.id.waitingForPlayer).setVisibility(View.GONE);
-                findViewById(R.id.waitingForPlayerProgressBar).setVisibility(View.GONE);
                 loadGames();
                 findViewById(R.id.gameListView).setVisibility(View.VISIBLE);
             }
@@ -49,9 +52,45 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
 
     private void loadGames() {
         GameAdapter gameAdapter = new GameAdapter(this, Game.getGameList());
-        ListView lv = (ListView)findViewById(R.id.gameListView);
-        lv.setAdapter(gameAdapter);
-        lv.setOnItemClickListener(this);
+        gameList = (ListView)findViewById(R.id.gameListView);
+        gameList.setAdapter(gameAdapter);
+        gameList.setOnItemClickListener(this);
+    }
+
+    private void waitForSelection(){
+        Thread waitForSelection = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean continueToWait = true;
+                Message toRmv = null;
+                String screen= "";
+                while(continueToWait){
+                    for(Message message: ServerConnection.getMessages()){
+                        if(!message.Type.equals(MessageType.CMD)) continue;
+                        if(!message.Message.contains("gotoscreen")) continue;
+                        screen = message.Message.substring(message.Message.indexOf(":")+1);
+                        toRmv = message;
+                        continueToWait = false;
+                        break;
+                    }
+                }
+                synchronized (ServerConnection.getMessages()){
+                    if (!ServerConnection.getMessages().remove(toRmv))
+                       Logger.e("Could not delete message");
+                }
+                switch (screen){
+                    case "cmp":
+                        ServerConnection.cancelTimedMessage("getplayerlist");
+                        startActivity(new Intent(SelectAGameScreenActivity.this, ColorMePretty.class));
+                        finish();
+                        break;
+                    default:
+                        Logger.i(screen+" is not a valid screen to navigate to");
+                        break;
+                }
+            }
+        });
+        waitForSelection.start();
     }
 
     @Override
@@ -68,12 +107,35 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();;
+        super.onBackPressed();
         ServerConnection.closeConnection();
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+        final Game selectedGame = (Game)gameList.getAdapter().getItem(position);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(selectedGame.Title);
+        builder.setMessage(selectedGame.DetailedInfo);
+        builder.setPositiveButton("Play", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                findViewById(R.id.gameListView).setVisibility(View.GONE);
+                findViewById(R.id.loading).setVisibility(View.VISIBLE);
+                findViewById(R.id.waitingForPlayerProgressBar).setVisibility(View.VISIBLE);
+                dialog.dismiss();
+                ServerConnection.sendMessage(MessageType.CMD+" playgame: "+selectedGame.ShortName);
+                Toast.makeText(SelectAGameScreenActivity.this, MessageType.CMD+" playgame: "+selectedGame.ShortName, Toast.LENGTH_LONG).show();
+                waitForSelection();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                return;
+            }
+        });
+        builder.show();
     }
 }
