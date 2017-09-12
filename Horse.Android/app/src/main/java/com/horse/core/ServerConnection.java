@@ -84,7 +84,7 @@ public class ServerConnection {
             }
         }
         synchronized (MessagesOut){
-            Logger.i("Adding message to out queue: ", message);
+            Logger.i("Adding message to out queue: "+ message);
             MessagesOut.add(message +" ENDTRANS");
         }
     }
@@ -94,8 +94,10 @@ public class ServerConnection {
      * @return The message received
      */
     public static String readMessage(){
-        if(_in == null || _serverConnectionSocket.isClosed())
+        if(_in == null || _serverConnectionSocket.isClosed()) {
+            Logger.w("Connection to server socket is terminated");
             return "";
+        }
         try{
             boolean endReached = false;
             byte[] messageByte = new byte[256];
@@ -114,7 +116,7 @@ public class ServerConnection {
                     endReached = true;
                 else if(!sb.toString().contains("ENDTRANS") && (System.currentTimeMillis()-startTime)/1000 >= 5){
                     //taking too long to retrieve message exiting early
-                    Logger.w("Message was taking to long to receive: ", sb.toString());
+                    Logger.w("Message was taking to long to receive: "+sb);
                     return "FAILED";
                 }
             }
@@ -130,7 +132,7 @@ public class ServerConnection {
                 if (cmd.equals(MessageType.ERR))
                     getMessages().add(new Message(message.substring(5), MessageType.ERR, new Date()));
             }
-            Logger.i("Received the following message: ", message);
+            Logger.i("Received the following message: "+ message);
             return message.substring(cmd.length());
         }catch(IOException ex){
             Logger.e(ex, ex.toString());
@@ -226,7 +228,7 @@ public class ServerConnection {
      * @param name Name of the message to stop sending
      */
     public static void cancelTimedMessage(String name){
-        Logger.i("Canceling message: ",name);
+        Logger.i("Canceling message: "+name);
         Timer taskToCancel = ServerConnectionTasks.get(name);
         if(taskToCancel != null)
             taskToCancel.cancel();
@@ -242,18 +244,24 @@ public class ServerConnection {
     }
 
     private static void sendMessagesOut(){
-        if(MessagesOut == null || MessagesOut.size() == 0)
+        if(MessagesOut == null || MessagesOut.size() == 0){
+            Logger.i("No messages to send");
             return;
-        if(_out == null || _serverConnectionSocket.isClosed() || !_serverConnectionSocket.isConnected())
+        }
+        if(_out == null || _serverConnectionSocket.isClosed() || !_serverConnectionSocket.isConnected()) {
+            Logger.w("The connection to the server is closed");
             return;
+        }
         synchronized (MessagesOut){
             String message;
             for(;;){
                 message = MessagesOut.poll();
-                if(message == null)
+                if(message == null) {
+                    Logger.i("Sent all messages");
                     break;
+                }
                 try {
-                    Logger.i("Attempting to send messages to server: ", message);
+                    Logger.i("Attempting to send messages to server: "+message);
                     _out.writeUTF(message);
                 } catch (IOException e) {
                     Logger.e(e.toString());
@@ -317,7 +325,7 @@ public class ServerConnection {
                     public void run() {
                         sendMessagesOut();
                     }
-                }, 1000,250);
+                }, 500,500);
             }catch (IOException ex){
                 //log it
                 Logger.e(ex,ex.toString());

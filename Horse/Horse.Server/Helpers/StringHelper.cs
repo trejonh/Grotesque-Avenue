@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using Horse.Engine.Utils;
 namespace Horse.Server.Helpers
 {
     public sealed class StringHelper
     {
         public static string[] ReplaceAndToArray(string original, string targetToReplace)
         {
+            LogManager.Log("replacing: "+targetToReplace+" in string "+original);
             if (!original.Contains(targetToReplace))
                 return new[] {original};
             var toReturn = new List<string>();

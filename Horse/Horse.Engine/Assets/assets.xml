@@ -210,4 +210,17 @@
     <name>Stop</name>
     <text>Stop</text>
   </asset>
+  <asset>
+    <type>text</type>
+    <name>FatalError</name>
+    <text>Fatal Error</text>
+  </asset>
+  <asset>
+    <type>text</type>
+    <name>FatalErrorDescription</name>
+    <text>
+      \tThe system has suffered a fatal crash,you like to send an email of\n 
+      the log before shutting down the application?
+    </text>
+  </asset>
 </assets>
