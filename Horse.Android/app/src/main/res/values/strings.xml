@@ -36,4 +36,5 @@
     <string name="yes">Yes</string>
     <string name="cancel">Cancel</string>
     <string name="waiting_for_player_to_pick_a_game">Waiting for player to pick a game.</string>
+    <string name="select_a_game">Select a game.</string>
 </resources>

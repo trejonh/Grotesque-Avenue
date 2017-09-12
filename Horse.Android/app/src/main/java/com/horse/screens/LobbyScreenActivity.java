@@ -23,7 +23,6 @@ import com.horse.core.ServerConnection;
 import com.horse.utils.HorseCache;
 import com.orhanobut.logger.Logger;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -38,6 +37,7 @@ public class LobbyScreenActivity extends HorseActivity {
     private boolean _alreadyFoundVip = false;
     private static Timer _getPlayerList;
     private boolean _amVip = false;
+    public static boolean Failure;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +45,21 @@ public class LobbyScreenActivity extends HorseActivity {
         setContentView(R.layout.activity_lobby_screen);
         checkPermissions();
         String displayName = getIntent().getStringExtra("DisplayName");
-        InetAddress inet = (InetAddress) getIntent().getExtras().get("InetAddr");
+        String inet = getIntent().getStringExtra("InetAddr");
+        HorseCache.addItem("CurrentScreenActivity",this);
+        Failure = false;
         new ServerConnection(inet,displayName);
         ServerConnection.executeServerConnection();
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while(ServerConnection.Ready == false){/*wait*/}
+                while(ServerConnection.Ready == false){
+                    if(Failure)
+                        break;
+                }
+                if(Failure){
+                    return;
+                }
                 sendInitialMessage();
                 receiveOk();
             }

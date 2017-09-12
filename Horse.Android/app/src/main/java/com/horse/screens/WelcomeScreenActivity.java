@@ -28,10 +28,7 @@ import static android.content.DialogInterface.BUTTON_POSITIVE;
  * A welcome screen for users to get to lobby
  */
 public class WelcomeScreenActivity extends HorseActivity implements View.OnClickListener, DialogInterface.OnClickListener {
-    private InetAddress inetAddress;
     private String name;
-    private boolean _good;
-    private boolean _stop;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,55 +41,10 @@ public class WelcomeScreenActivity extends HorseActivity implements View.OnClick
     public void onClick(View v) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Connect to game server");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder.setView(R.layout.connect_to_game_server);
-            builder.setPositiveButton("OK", this);
-            builder.setNegativeButton("Cancel",this);
-            builder.show();
-        }else {
-            final EditText nameField = new EditText(this);
-            final EditText serverAddress = new EditText(this);
-            nameField.setHint("Display Name");
-            serverAddress.setHint("Server Address: 0.0.0.0");
-            AlertDialog.Builder obsBuilder = new AlertDialog.Builder(this);
-            obsBuilder.setView(nameField);
-            obsBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                        String displayName = ((EditText)((AlertDialog)dialog).findViewById(R.id.displayName)).getText().toString();
-                        if(displayName.length() < 3){
-                            Toast.makeText(WelcomeScreenActivity.this,"Chosen display name is too short",Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                            return;
-                        }
-                        name = displayName;
-                    dialog.dismiss();
-                }
-            });
-            obsBuilder.setNegativeButton("Cancel", this);
-            obsBuilder.show();
-            builder.setView(serverAddress);
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    String ip = ((EditText)((AlertDialog)dialog).findViewById(R.id.serverAddress)).getText().toString();
-                    try {
-                        if(ip == null || ip.length() == 0 || (inetAddress = InetAddress.getByName(ip)) ==  null){
-                            Toast.makeText(WelcomeScreenActivity.this,"Bad Server address",Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                            return;
-                        }
-                    } catch (UnknownHostException e) {
-                        Toast.makeText(WelcomeScreenActivity.this,"Bad Server address",Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                        return;
-                    }
-
-                }
-            });
-            builder.setNegativeButton("Cancel",this);
-            builder.show();
-        }
+        builder.setView(R.layout.connect_to_game_server);
+        builder.setPositiveButton("OK", this);
+        builder.setNegativeButton("Cancel",this);
+        builder.show();
     }
 
     @Override
@@ -113,43 +65,13 @@ public class WelcomeScreenActivity extends HorseActivity implements View.OnClick
                     Toast.makeText(this,"Bad Server address",Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                 }
-
-                if(!checkInetAddr(ip)) {
-                    Toast.makeText(this, "Bad Server address", Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 name = displayName;
                 dialog.dismiss();
                 Intent intent = new Intent(this, LobbyScreenActivity.class);
                 intent.putExtra("DisplayName",name);
-                intent.putExtra("InetAddr",inetAddress);
+                intent.putExtra("InetAddr",ip);
                 startActivity(intent);
                 break;
         }
-    }
-
-    private boolean checkInetAddr(final String ip) {
-        _good = false;
-        _stop = false;
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    if((inetAddress = InetAddress.getByName(ip)) !=  null)
-                        _good = true;
-                }catch (Exception ex){
-                    Logger.e(ex,ex.toString());
-                    _good = false;
-                }
-                finally {
-                    _stop = true;
-                }
-            }
-        });
-        t.start();
-        while(_stop == false){
-            //wait
-        }
-        return _good;
     }
 }

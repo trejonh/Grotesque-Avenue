@@ -32,6 +32,7 @@ public class SendLog extends Activity implements View.OnClickListener {
                 sendLogFile();
                 break;
             case R.id.cancelLogBtn:
+                finish();
                 return;
         }
     }
@@ -45,6 +46,7 @@ public class SendLog extends Activity implements View.OnClickListener {
         intent.putExtra (Intent.EXTRA_STREAM, Uri.parse ((String)HorseCache.getItem("LogFile")));
         intent.putExtra (Intent.EXTRA_TEXT, "Log file attached.");
         this.startActivity(intent);
+        finish();
     }
 
 }

@@ -1,7 +1,11 @@
 package com.horse.core;
 
+import android.app.Activity;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
+import com.horse.screens.LobbyScreenActivity;
+import com.horse.utils.HorseCache;
 import com.orhanobut.logger.Logger;
 
 import java.io.DataInputStream;
@@ -27,7 +31,8 @@ import java.util.TimerTask;
  * Is used to send and retrieve messages to the server.
  */
 public class ServerConnection {
-    private static InetAddress _inet;
+    private static String _inet;
+    private static InetAddress _inetAddr;
     /**
      * The name displayed to the server
      */
@@ -54,7 +59,7 @@ public class ServerConnection {
      * @param inet The ip address of the server
      * @param name The name to display to the server
      */
-    public ServerConnection(InetAddress inet, String name){
+    public ServerConnection(String inet, String name){
         _inet = inet;
         DisplayName = name;
         ServerConnectionTasks = new HashMap<>();
@@ -269,11 +274,23 @@ public class ServerConnection {
             if(_serverConnectionSocket != null && _serverConnectionSocket.isClosed() == false)
                 return null;
             try {
-                _serverConnectionSocket = new Socket(_inet, _port);
+                _inetAddr = InetAddress.getByName(_inet);
+                if(_inetAddr == null)
+                    throw new Exception("Bad server address");
+                _serverConnectionSocket = new Socket(_inetAddr, _port);
                 _serverConnectionSocket.setKeepAlive(true);
             }
-            catch (IOException ex){
+            catch (Exception ex){
                 //log it
+                Logger.e(ex,ex.toString());
+                ((Activity)HorseCache.getItem("CurrentScreenActivity")).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText((Activity)HorseCache.getItem("CurrentScreenActivity"), "Failed to connect to server try again.", Toast.LENGTH_LONG).show();
+                        LobbyScreenActivity.Failure = true;
+                        ((Activity) HorseCache.getItem("CurrentScreenActivity")).finish();
+                    }
+                });
             }
             return null;
         }

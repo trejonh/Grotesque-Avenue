@@ -307,11 +307,6 @@ namespace Horse.Server.Core
         {
             if (_stopped)
                 return;
-            /*if (_listener == null)
-            {
-                LogManager.LogError("Error with listener, it is null");
-                return;
-            }*/
             if (_listen == false)
                 _listener.Start();
             _listener.BeginAcceptTcpClient(HandleAsyncConnection, _listener);
@@ -326,11 +321,6 @@ namespace Horse.Server.Core
             if (_listen == false && _mobilePlayers.Count >= 8)
                 return;
             StartAccept(); //listen for new connections again
-            /*if (_listener == null)
-            {
-                LogManager.LogError("Error with listener ot is null");
-                return;
-            }*/
             TcpClient client;
             try
             {

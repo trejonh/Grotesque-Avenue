@@ -50,11 +50,14 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
                 findViewById(R.id.waitingForPlayerProgressBar).setVisibility(View.VISIBLE);
                 findViewById(R.id.gameListView).setVisibility(View.GONE);
                 findViewById(R.id.loading).setVisibility(View.GONE);
+                findViewById(R.id.loadingProgressbar).setVisibility(View.GONE);
                 waitForSelection();
             }else{
                 findViewById(R.id.waitingForPlayer).setVisibility(View.GONE);
                 loadGames();
-                findViewById(R.id.gameListView).setVisibility(View.VISIBLE);
+                findViewById(R.id.selectAGameViews).setVisibility(View.VISIBLE);
+                findViewById(R.id.loading).setVisibility(View.INVISIBLE);
+                findViewById(R.id.loadingProgressbar).setVisibility(View.INVISIBLE);
             }
             ServerConnection.sendTimedMessage(MessageType.CMD+" getplayerlist","getplayerlist",1);
         }
@@ -76,13 +79,15 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
                 Message toRmv = null;
                 String screen= "";
                 while(continueToWait){
-                    for(Message message: ServerConnection.getMessages()){
-                        if(!message.Type.equals(MessageType.CMD)) continue;
-                        if(!message.Message.contains("gotoscreen")) continue;
-                        screen = message.Message.substring(message.Message.indexOf(":")+1);
-                        toRmv = message;
-                        continueToWait = false;
-                        break;
+                    synchronized (ServerConnection.getMessages()) {
+                        for (Message message : ServerConnection.getMessages()) {
+                            if (!message.Type.equals(MessageType.CMD)) continue;
+                            if (!message.Message.contains("gotoscreen")) continue;
+                            screen = message.Message.substring(message.Message.indexOf(":") + 1);
+                            toRmv = message;
+                            continueToWait = false;
+                            break;
+                        }
                     }
                 }
                 synchronized (ServerConnection.getMessages()){
@@ -131,12 +136,12 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
         builder.setPositiveButton("Play", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                findViewById(R.id.gameListView).setVisibility(View.GONE);
-                findViewById(R.id.loading).setVisibility(View.VISIBLE);
-                findViewById(R.id.waitingForPlayerProgressBar).setVisibility(View.VISIBLE);
+                findViewById(R.id.selectAGameViews).setVisibility(View.GONE);
                 dialog.dismiss();
                 ServerConnection.sendMessage(MessageType.CMD+" playgame: "+selectedGame.ShortName);
                 Toast.makeText(SelectAGameScreenActivity.this, MessageType.CMD+" playgame: "+selectedGame.ShortName, Toast.LENGTH_LONG).show();
+                findViewById(R.id.loading).setVisibility(View.VISIBLE);
+                findViewById(R.id.loadingProgressbar).setVisibility(View.VISIBLE);
                 waitForSelection();
             }
         });
