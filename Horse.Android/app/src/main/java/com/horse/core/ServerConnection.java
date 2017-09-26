@@ -52,7 +52,8 @@ public class ServerConnection {
     private static Queue<Message> MessagesIn;
     private static Queue<String> MessagesOut;
     private static Timer _readMessageTimer;
-    private static Timer _sendMessageTimer;
+    private static Thread _sendMessageTimer;
+    private static boolean _keepSending;
 
     /**
      * Sets up our connection parameters
@@ -78,6 +79,7 @@ public class ServerConnection {
      * @param message The message to send
      */
     public static void sendMessage(String message){
+        message += " ENDTRANS";
         if(MessagesOut == null){
             synchronized (ServerConnection.class) {
                 MessagesOut = new LinkedList<>();
@@ -85,7 +87,7 @@ public class ServerConnection {
         }
         synchronized (MessagesOut){
             Logger.i(String.format("Adding message to out queue: %s",message));
-            MessagesOut.add(message +" ENDTRANS");
+            MessagesOut.add(message);
         }
     }
 
@@ -151,6 +153,8 @@ public class ServerConnection {
                     break;
                 }
             }
+            if(message != null)
+                getMessages().remove(message);
         }
         return message;
     }
@@ -166,6 +170,8 @@ public class ServerConnection {
                     break;
                 }
             }
+            if(message != null)
+                getMessages().remove(message);
         }
         return message;
     }
@@ -173,6 +179,8 @@ public class ServerConnection {
     public static void removeMessage(Message message){
         if(message == null) return;
         synchronized (getMessages()){
+            if(!getMessages().contains(message))
+                return;
             if(!getMessages().remove(message))
                 Logger.e("Failed to remove message");
         }
@@ -192,7 +200,7 @@ public class ServerConnection {
             if(_readMessageTimer != null)
                 _readMessageTimer.cancel();
             if(_sendMessageTimer != null)
-                _sendMessageTimer.cancel();
+                _keepSending = false;
             _in.close();
             _out.close();
             _serverConnectionSocket.close();
@@ -244,27 +252,29 @@ public class ServerConnection {
     }
 
     private static void sendMessagesOut(){
-        if(MessagesOut == null || MessagesOut.size() == 0){
-            Logger.i("No messages to send");
-            return;
-        }
-        if(_out == null || _serverConnectionSocket.isClosed() || !_serverConnectionSocket.isConnected()) {
-            Logger.w("The connection to the server is closed");
-            return;
-        }
-        synchronized (MessagesOut){
-            String message;
-            for(;;){
-                message = MessagesOut.poll();
-                if(message == null || message.trim().length() == 0) {
-                    Logger.i("Sent all messages");
-                    break;
-                }
-                try {
-                    Logger.i(String.format("Attempting to send messages to server: %s",message));
-                    _out.writeUTF(message);
-                } catch (IOException e) {
-                    Logger.e(e.toString());
+        while(_keepSending) {
+            if (MessagesOut == null || MessagesOut.size() == 0) {
+                Logger.i("No messages to send");
+                continue;
+            }
+            if (_out == null || _serverConnectionSocket.isClosed() || !_serverConnectionSocket.isConnected()) {
+                Logger.w("The connection to the server is closed");
+                continue;
+            }
+            synchronized (MessagesOut) {
+                String message;
+                for (; ; ) {
+                    message = MessagesOut.poll();
+                    if (message == null || message.trim().length() == 0) {
+                        Logger.i("Sent all messages");
+                        break;
+                    }
+                    try {
+                        Logger.i(String.format("Attempting to send messages to server: %s", message));
+                        _out.writeUTF(message);
+                    } catch (IOException e) {
+                        Logger.e(e.toString());
+                    }
                 }
             }
         }
@@ -319,13 +329,21 @@ public class ServerConnection {
                         readMessage();
                     }
                 }, 1000,1000);
-                _sendMessageTimer = new Timer();
+                _keepSending = true;
+                _sendMessageTimer = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        sendMessagesOut();
+                    }
+                });
+                _sendMessageTimer.start();
+                /* new Timer();
                 _sendMessageTimer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         sendMessagesOut();
                     }
-                }, 500,500);
+                }, 500,500);*/
             }catch (IOException ex){
                 //log it
                 Logger.e(ex,ex.toString());

@@ -99,25 +99,25 @@ public class LobbyScreenActivity extends HorseActivity {
                                     playerAdapter.clear();
                                     playerAdapter.addAll(players);
                                 }
-                                for(Player player: players){
-                                    if(_alreadyFoundVip)
-                                        break;
-                                    if(player.IsVip)
-                                        _alreadyFoundVip = true;
-                                    if(player.IsVip && player.Id.equals(MyHash)){
-                                        _amVip = true;
-                                        Button startGameButton = (Button)findViewById(R.id.launchGameButton);
-                                        startGameButton.setVisibility(View.VISIBLE);
-                                        startGameButton.setOnClickListener(new OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                if(Player.getMobileNetworkPlayers() != null && Player.getMobileNetworkPlayers().size() >= 2) {
-                                                    ServerConnection.cancelTimedMessage("getplayerlist");
-                                                    ServerConnection.sendMessage(MessageType.CMD + " StartGame");
-                                                    LobbyScreenActivity.this.startActivity(new Intent(LobbyScreenActivity.this, SelectAGameScreenActivity.class));
+                                if(!_alreadyFoundVip) {
+                                    for (Player player : players) {
+                                        if (player.IsVip)
+                                            _alreadyFoundVip = true;
+                                        if (player.IsVip && player.Id.equals(MyHash)) {
+                                            _amVip = true;
+                                            Button startGameButton = (Button) findViewById(R.id.launchGameButton);
+                                            startGameButton.setVisibility(View.VISIBLE);
+                                            startGameButton.setOnClickListener(new OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    if (Player.getMobileNetworkPlayers() != null && Player.getMobileNetworkPlayers().size() >= 2) {
+                                                        ServerConnection.cancelTimedMessage("getplayerlist");
+                                                        ServerConnection.sendMessage(MessageType.CMD + " StartGame");
+                                                        LobbyScreenActivity.this.startActivity(new Intent(LobbyScreenActivity.this, SelectAGameScreenActivity.class));
+                                                    }
                                                 }
-                                            }
-                                        });
+                                            });
+                                        }
                                     }
                                 }
                                 if(!_amVip){
