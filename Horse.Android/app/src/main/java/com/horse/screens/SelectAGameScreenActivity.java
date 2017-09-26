@@ -28,6 +28,10 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(LobbyScreenActivity._getPlayerList!=null){
+            LobbyScreenActivity._getPlayerList.cancel();
+            LobbyScreenActivity._getPlayerList = null;
+        }
         setContentView(R.layout.activity_select_agame_screen);
         Player myPlayer = Player.getMobileNetworkPlayers().get(HorseCache.getItem("MyDeviceId"));
         if(myPlayer == null){

@@ -4,15 +4,17 @@ using Horse.Server.Core;
 
 namespace Horse.Server
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(UncaughtExceptionHandler);
+            AppDomain.CurrentDomain.UnhandledException += UncaughtExceptionHandler;
             LogManager.InitLogFile();
             AssetManager.LoadAssets();
             new ServerGameFlowMaster().BeginFlow();
+          //  LogManager.EmailLogs();
             LogManager.CloseLog();
+            Environment.Exit(0);
         }
 
         private static void UncaughtExceptionHandler(object sender, UnhandledExceptionEventArgs e)
@@ -22,6 +24,7 @@ namespace Horse.Server
             LogManager.LogError(ex.Message);
             LogManager.LogError(ex.StackTrace);
             LogManager.CloseLog();
+            Environment.Exit(0);
         }
     }
 }

@@ -85,6 +85,8 @@ namespace Horse.Server.Games.ColorMePretty
             finally
             {
                 LogManager.Log("Color me pretty finished loading");
+                ServerSocketManagerMaster.IsGameThreadControllingInput = true;
+                GameThread.Start();
             }
         }
 

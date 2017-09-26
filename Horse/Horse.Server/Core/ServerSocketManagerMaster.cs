@@ -85,6 +85,8 @@ namespace Horse.Server.Core
                 var sb = new StringBuilder();
                 while (ServerGameWindowMaster.GameWindow.IsOpen)
                 {
+                    if (IsGameThreadControllingInput)
+                        continue;
                     if (_mobilePlayers == null || _mobilePlayers.Count == 0)
                         continue;
                     NetworkMobilePlayer[] tempArr;
@@ -116,8 +118,6 @@ namespace Horse.Server.Core
                             }
                             OnPlayerDisconnected(new EventArgs());
                         }
-                        if (IsGameThreadControllingInput)
-                            continue;
                         if (player.Client.Available <= 0) continue;
                         var clientStream = player.Client.GetStream();
                         while (clientStream.DataAvailable)
@@ -247,7 +247,7 @@ namespace Horse.Server.Core
             _listener = new TcpListener(IPAddress.Any, 54000);
             _listener.Start();
             _listen = true;
-            Console.WriteLine("Listening...");
+            Console.WriteLine(@"listening");
             StartAccept();
         }
 
@@ -266,6 +266,8 @@ namespace Horse.Server.Core
         /// </summary>
         private static void CloseExistingConnections()
         {
+            if (_mobilePlayers == null)
+                return;
             foreach (var player in _mobilePlayers)
             {
                 if (player?.Client != null && player.Client.Connected)
@@ -282,7 +284,7 @@ namespace Horse.Server.Core
             _stopped = true;
             try
             {
-                _listener.Stop();
+                _listener?.Stop();
             }
             catch (SocketException ex)
             {
@@ -331,7 +333,7 @@ namespace Horse.Server.Core
                 LogManager.LogError(ex.Message + "<br/>" + ex.StackTrace);
                 return;
             }
-            Console.WriteLine("connected");
+            Console.WriteLine(@"connected");
             var clientStream = client.GetStream();
             var sb = new StringBuilder();
             var continueToRead = true;
@@ -347,13 +349,11 @@ namespace Horse.Server.Core
                 if (str.Contains("ENDTRANS") || sb.ToString().Contains("ENDTRANS"))
                     continueToRead = false;
             }
-            Console.WriteLine("Received: {0}", sb);
+            Console.WriteLine(@"Received: {0}", sb);
             LogManager.Log("Received: "+sb);
             sb.Replace("$", "").Replace("\0", "").Replace("\u001d","");
             var messages = StringHelper.ReplaceAndToArray(sb.ToString(), "ENDTRANS");
-            foreach (var message in messages)
-                CreatePlayer(client, message);
-            //CreatePlayer(client, sb.Replace(" ENDTRANS", "").ToString());
+            CreatePlayer(client, messages[0]);
 
         }
 
@@ -403,7 +403,7 @@ namespace Horse.Server.Core
             if (!stream.CanWrite) return;
             var bytesToWrite = Encoding.UTF8.GetBytes(message + " ENDTRANS");
             stream.Write(bytesToWrite, 0, bytesToWrite.Length);
-            Console.WriteLine("sent");
+            Console.WriteLine(@"connected");
             LogManager.Log("Sent message: " + message);
         }
 

@@ -13,7 +13,7 @@ namespace Horse.Server.Screens
     {
         private bool _isInitialSelect;
         private static GameSelectionScreen _gss;
-        private static readonly object locker = new object();
+        private static readonly object Locker = new object();
         private readonly bool _initialized;
         private GameSelectionScreen(ref RenderWindow window, bool isInit = true) : base(ref window)
         {
@@ -32,12 +32,10 @@ namespace Horse.Server.Screens
 
         public static GameSelectionScreen GetInstance()
         {
-            if(_gss == null)
-            {
-                var win = ServerGameWindowMaster.GameWindow;
-                lock (locker) {
-                    _gss = new GameSelectionScreen(ref win);
-                }
+            if (_gss != null) return _gss;
+            var win = ServerGameWindowMaster.GameWindow;
+            lock (Locker) {
+                _gss = new GameSelectionScreen(ref win);
             }
             return _gss;
         }
@@ -65,6 +63,10 @@ namespace Horse.Server.Screens
                     var win = ServerGameWindowMaster.GameWindow;
                     ServerGameWindowMaster.ChangeScreen(new CmpGameScreen(ref win));
                     ServerSocketManagerMaster.SendAll(MessageType.Cmd,"gotoscreen: cmp");
+                    break;
+                default:
+                    Console.WriteLine(gameTitle+@" is not available");
+                    LogManager.LogWarning(gameTitle+" is not a game that is available to play");
                     break;
             }
         }

@@ -37,7 +37,7 @@ namespace Horse.Engine.Utils
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.senderAddr = new System.Windows.Forms.TextBox();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this._emailBody = new System.Windows.Forms.RichTextBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
@@ -52,7 +52,7 @@ namespace Horse.Engine.Utils
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.richTextBox1, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this._emailBody, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel3, 0, 3);
             this.tableLayoutPanel1.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel1.Location = new System.Drawing.Point(12, 12);
@@ -145,16 +145,16 @@ namespace Horse.Engine.Utils
             this.senderAddr.TabIndex = 3;
             this.senderAddr.Text = "foo@bar.com";
             // 
-            // richTextBox1
+            // _emailBody
             // 
-            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.richTextBox1.Enabled = false;
-            this.richTextBox1.Font = new System.Drawing.Font("Arial Narrow", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBox1.Location = new System.Drawing.Point(3, 202);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(456, 250);
-            this.richTextBox1.TabIndex = 2;
-            this.richTextBox1.Text = "Fatal Error occurred see attached log.\nTo provide the most valuable information a" +
+            this._emailBody.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._emailBody.Enabled = false;
+            this._emailBody.Font = new System.Drawing.Font("Arial Narrow", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this._emailBody.Location = new System.Drawing.Point(3, 202);
+            this._emailBody.Name = "_emailBody";
+            this._emailBody.Size = new System.Drawing.Size(456, 250);
+            this._emailBody.TabIndex = 2;
+            this._emailBody.Text = "Fatal Error occurred see attached log.\nTo provide the most valuable information a" +
     "lso send the mobile logs from the clients to trejon_house@yahoo.com";
             // 
             // tableLayoutPanel3
@@ -207,7 +207,7 @@ namespace Horse.Engine.Utils
             this.ClientSize = new System.Drawing.Size(486, 531);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "EmailForm";
-            this.Text = "EmailForm";
+            this.Text = "Fatal Error";
             this.Load += new System.EventHandler(this.EmailForm_Load);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
@@ -226,7 +226,7 @@ namespace Horse.Engine.Utils
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox senderAddr;
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.RichTextBox _emailBody;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;

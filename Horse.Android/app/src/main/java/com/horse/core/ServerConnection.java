@@ -84,7 +84,7 @@ public class ServerConnection {
             }
         }
         synchronized (MessagesOut){
-            Logger.i("Adding message to out queue: "+ message);
+            Logger.i(String.format("Adding message to out queue: %s",message));
             MessagesOut.add(message +" ENDTRANS");
         }
     }
@@ -116,7 +116,7 @@ public class ServerConnection {
                     endReached = true;
                 else if(!sb.toString().contains("ENDTRANS") && (System.currentTimeMillis()-startTime)/1000 >= 5){
                     //taking too long to retrieve message exiting early
-                    Logger.w("Message was taking to long to receive: "+sb);
+                    Logger.w(String.format("Message was taking to long to receive: %s",sb));
                     return "FAILED";
                 }
             }
@@ -132,7 +132,7 @@ public class ServerConnection {
                 if (cmd.equals(MessageType.ERR))
                     getMessages().add(new Message(message.substring(5), MessageType.ERR, new Date()));
             }
-            Logger.i("Received the following message: "+ message);
+            Logger.i(String.format("Received the following message: %s", message));
             return message.substring(cmd.length());
         }catch(IOException ex){
             Logger.e(ex, ex.toString());
@@ -256,12 +256,12 @@ public class ServerConnection {
             String message;
             for(;;){
                 message = MessagesOut.poll();
-                if(message == null) {
+                if(message == null || message.trim().length() == 0) {
                     Logger.i("Sent all messages");
                     break;
                 }
                 try {
-                    Logger.i("Attempting to send messages to server: "+message);
+                    Logger.i(String.format("Attempting to send messages to server: %s",message));
                     _out.writeUTF(message);
                 } catch (IOException e) {
                     Logger.e(e.toString());

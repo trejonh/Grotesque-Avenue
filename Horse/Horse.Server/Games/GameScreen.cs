@@ -36,7 +36,7 @@ namespace Horse.Server.Games
         public bool IsPaused { get; protected set; }
         protected GameScreen(ref RenderWindow window):base(ref window)
         {
-            GameThread = new Thread(GameFlow){Priority = ThreadPriority.AboveNormal, Name = "Thread for individual game glow", IsBackground = true};
+            GameThread = new Thread(GameFlow){Priority = ThreadPriority.AboveNormal, Name = "Thread for individual game flow", IsBackground = true};
         }
 
         public void StopGameThread()

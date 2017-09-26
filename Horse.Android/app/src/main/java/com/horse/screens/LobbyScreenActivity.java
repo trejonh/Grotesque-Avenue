@@ -35,7 +35,7 @@ import java.util.TimerTask;
 public class LobbyScreenActivity extends HorseActivity {
     private String MyHash;
     private boolean _alreadyFoundVip = false;
-    private static Timer _getPlayerList;
+    public static Timer _getPlayerList;
     private boolean _amVip = false;
     public static boolean Failure;
 
@@ -115,7 +115,6 @@ public class LobbyScreenActivity extends HorseActivity {
                                                     ServerConnection.cancelTimedMessage("getplayerlist");
                                                     ServerConnection.sendMessage(MessageType.CMD + " StartGame");
                                                     LobbyScreenActivity.this.startActivity(new Intent(LobbyScreenActivity.this, SelectAGameScreenActivity.class));
-                                                    _getPlayerList.cancel();
                                                 }
                                             }
                                         });
@@ -126,7 +125,6 @@ public class LobbyScreenActivity extends HorseActivity {
                                     if(message != null && message.Message.contains("selectagame")){
                                         ServerConnection.cancelTimedMessage("getplayerlist");
                                         LobbyScreenActivity.this.startActivity(new Intent(LobbyScreenActivity.this, SelectAGameScreenActivity.class));
-                                        _getPlayerList.cancel();
                                     }
                                 }
                             }

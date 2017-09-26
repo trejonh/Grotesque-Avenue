@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Compression;
 
 namespace Horse.Engine.Utils
 {
@@ -104,6 +105,25 @@ namespace Horse.Engine.Utils
                 _log.Write(_close);
                 _log.Close();
                 _closed = true;
+            }
+        }
+
+        public static void EmailLogs()
+        {
+            CloseLog();
+            var zipFile = Environment.CurrentDirectory + @".\logs.zip";
+            while (File.Exists(zipFile))
+                File.Delete(zipFile);
+            try
+            {
+                ZipFile.CreateFromDirectory(BaseFileLocation, zipFile, CompressionLevel.Optimal, false);
+                EmailForm.SendEmail(zipFile);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(@"connected");
+                Console.WriteLine(ex.Message);
+                Console.ReadLine();
             }
         }
     }
