@@ -26,6 +26,7 @@ public class HorseApplication extends Application {
 
     public void handleUncaughtException (Thread thread, Throwable e)
     {
+        ServerConnection.closeConnection();
         e.printStackTrace();
         Logger.e(e, e.toString());
         Intent intent = new Intent();

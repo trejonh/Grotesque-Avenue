@@ -52,8 +52,7 @@ public class ServerConnection {
     private static Queue<Message> MessagesIn;
     private static Queue<String> MessagesOut;
     private static Timer _readMessageTimer;
-    private static Thread _sendMessageTimer;
-    private static boolean _keepSending;
+    private static Timer _sendMessageTimer;
 
     /**
      * Sets up our connection parameters
@@ -200,7 +199,7 @@ public class ServerConnection {
             if(_readMessageTimer != null)
                 _readMessageTimer.cancel();
             if(_sendMessageTimer != null)
-                _keepSending = false;
+                _sendMessageTimer.cancel();
             _in.close();
             _out.close();
             _serverConnectionSocket.close();
@@ -252,29 +251,29 @@ public class ServerConnection {
     }
 
     private static void sendMessagesOut(){
-        while(_keepSending) {
-            if (MessagesOut == null || MessagesOut.size() == 0) {
-                Logger.i("No messages to send");
-                continue;
-            }
-            if (_out == null || _serverConnectionSocket.isClosed() || !_serverConnectionSocket.isConnected()) {
-                Logger.w("The connection to the server is closed");
-                continue;
-            }
-            synchronized (MessagesOut) {
-                String message;
-                for (; ; ) {
-                    message = MessagesOut.poll();
-                    if (message == null || message.trim().length() == 0) {
-                        Logger.i("Sent all messages");
-                        break;
-                    }
-                    try {
-                        Logger.i(String.format("Attempting to send messages to server: %s", message));
-                        _out.writeUTF(message);
-                    } catch (IOException e) {
-                        Logger.e(e.toString());
-                    }
+        if (MessagesOut == null || MessagesOut.size() == 0) {
+            Logger.i("No messages to send");
+            return;
+        }
+        if (_out == null || _serverConnectionSocket.isClosed() || !_serverConnectionSocket.isConnected()) {
+            Logger.w("The connection to the server is closed");
+            return;
+        }
+        synchronized (MessagesOut) {
+            String message;
+            for (; ; ) {
+                message = MessagesOut.poll();
+                if (message == null || message.trim().length() == 0) {
+                    Logger.i("Sent all messages");
+                    break;
+                }
+                try {
+                    Logger.i(String.format("Attempting to send messages to server: %s", message));
+                    _out.writeUTF(message);
+                    _out.flush();
+                    Logger.i(String.format("Sent message %s", message));
+                } catch (IOException e) {
+                    Logger.e(e.toString());
                 }
             }
         }
@@ -329,21 +328,13 @@ public class ServerConnection {
                         readMessage();
                     }
                 }, 1000,1000);
-                _keepSending = true;
-                _sendMessageTimer = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        sendMessagesOut();
-                    }
-                });
-                _sendMessageTimer.start();
-                /* new Timer();
+                _sendMessageTimer =  new Timer();
                 _sendMessageTimer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         sendMessagesOut();
                     }
-                }, 500,500);*/
+                }, 500,500);
             }catch (IOException ex){
                 //log it
                 Logger.e(ex,ex.toString());

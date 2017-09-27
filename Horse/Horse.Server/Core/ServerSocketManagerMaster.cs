@@ -230,7 +230,7 @@ namespace Horse.Server.Core
         }
 
         /// <summary>
-        /// List for incoming connections
+        /// Listen for incoming connections
         /// </summary>
         public static void Listen()
         {
@@ -239,11 +239,6 @@ namespace Horse.Server.Core
             if (_mobilePlayers != null && _mobilePlayers.Count > 0)
                 CloseExistingConnections();
             _mobilePlayers = new List<NetworkMobilePlayer>();
-            if (_listener != null)
-            {
-                _listener.Server.Close();
-                _listener.Stop();
-            }
             _listener = new TcpListener(IPAddress.Any, 54000);
             _listener.Start();
             _listen = true;
@@ -282,14 +277,15 @@ namespace Horse.Server.Core
         {
             _listen = false;
             _stopped = true;
-            try
+            LogManager.LogWarning("Stopped Listening, but lisener still open");
+           /* try
             {
                 _listener?.Stop();
             }
             catch (SocketException ex)
             {
                 LogManager.LogError("Listener stop exception. error code: " + ex.ErrorCode);
-            }
+            }*/
         }
 
         /// <summary>
@@ -299,6 +295,11 @@ namespace Horse.Server.Core
         {
             CloseExistingConnections();
             StopListening();
+            if (_listener != null)
+            {
+                _listener.Server.Close();
+                _listener.Stop();
+            }
             _checkConnectionThread?.Abort();
         }
 
@@ -320,7 +321,7 @@ namespace Horse.Server.Core
         /// <param name="res"></param>
         private static void HandleAsyncConnection(IAsyncResult res)
         {
-            if (_listen == false && _mobilePlayers.Count >= 8)
+            if (_listen == false || _mobilePlayers.Count >= 8)
                 return;
             StartAccept(); //listen for new connections again
             TcpClient client;
@@ -349,7 +350,6 @@ namespace Horse.Server.Core
                 if (str.Contains("ENDTRANS") || sb.ToString().Contains("ENDTRANS"))
                     continueToRead = false;
             }
-            Console.WriteLine(@"Received: {0}", sb);
             LogManager.Log("Received: "+sb);
             sb.Replace("$", "").Replace("\0", "").Replace("\u001d","");
             var messages = StringHelper.ReplaceAndToArray(sb.ToString(), "ENDTRANS");
@@ -369,6 +369,7 @@ namespace Horse.Server.Core
             {
                 LogManager.LogError("Invalid data sent from mobile client, closing connection");
                 client.Close();
+                return;
             }
             var pbkdf2 = new Rfc2898DeriveBytes(clientDetails[1], _salt, 1000);
             var hash = pbkdf2.GetBytes(20);
@@ -403,7 +404,6 @@ namespace Horse.Server.Core
             if (!stream.CanWrite) return;
             var bytesToWrite = Encoding.UTF8.GetBytes(message + " ENDTRANS");
             stream.Write(bytesToWrite, 0, bytesToWrite.Length);
-            Console.WriteLine(@"connected");
             LogManager.Log("Sent message: " + message);
         }
 

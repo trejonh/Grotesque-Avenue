@@ -25,6 +25,7 @@ import com.orhanobut.logger.Logger;
 
 public class SelectAGameScreenActivity extends HorseActivity implements AdapterView.OnItemClickListener {
     private ListView gameList;
+    private Player myPlayer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +34,7 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
             LobbyScreenActivity._getPlayerList = null;
         }
         setContentView(R.layout.activity_select_agame_screen);
-        Player myPlayer = Player.getMobileNetworkPlayers().get(HorseCache.getItem("MyDeviceId"));
+        myPlayer = Player.getMobileNetworkPlayers().get(HorseCache.getItem("MyDeviceId"));
         if(myPlayer == null){
            Logger.e("My player does not exist in this game");
             Toast.makeText(this, "You are  no longer in the game, try again", Toast.LENGTH_LONG).show();
@@ -63,7 +64,6 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
                 findViewById(R.id.loading).setVisibility(View.INVISIBLE);
                 findViewById(R.id.loadingProgressbar).setVisibility(View.INVISIBLE);
             }
-            ServerConnection.sendTimedMessage(MessageType.CMD+" getplayerlist","getplayerlist",1);
         }
 
     }
@@ -94,13 +94,49 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
                         }
                     }
                 }
-                synchronized (ServerConnection.getMessages()){
-                    if (!ServerConnection.getMessages().remove(toRmv))
-                       Logger.e("Could not delete message");
-                }
+                ServerConnection.removeMessage(toRmv);
                 switch (screen){
                     case "cmp":
-                        ServerConnection.cancelTimedMessage("getplayerlist");
+                        startActivity(new Intent(SelectAGameScreenActivity.this, ColorMePretty.class));
+                        finish();
+                        break;
+                    default:
+                        Logger.i(screen+" is not a valid screen to navigate to");
+                        break;
+                }
+            }
+        });
+        waitForSelection.start();
+    }
+
+    private void waitForSelection(final String messageToSend){
+        Thread waitForSelection = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean continueToWait = true;
+                Message toRmv = null;
+                String screen= "";
+                while(continueToWait){
+                    synchronized (ServerConnection.getMessages()) {
+                        for (Message message : ServerConnection.getMessages()) {
+                            if (!message.Type.equals(MessageType.CMD)) continue;
+                            if (!message.Message.contains("gotoscreen")) continue;
+                            screen = message.Message.substring(message.Message.indexOf(":") + 1);
+                            toRmv = message;
+                            continueToWait = false;
+                            break;
+                        }
+                    }
+                    if(continueToWait){
+                        ServerConnection.sendMessage(messageToSend);
+                        long currTime = System.currentTimeMillis();
+                        //wait for 4 seconds before checking for response
+                        while(System.currentTimeMillis()-currTime <= 4000){}
+                    }
+                }
+                ServerConnection.removeMessage(toRmv);
+                switch (screen){
+                    case "cmp":
                         startActivity(new Intent(SelectAGameScreenActivity.this, ColorMePretty.class));
                         finish();
                         break;
@@ -116,19 +152,16 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
     @Override
     protected void onStop(){
         super.onStop();
-        ServerConnection.closeConnection();
     }
 
     @Override
     protected  void onDestroy(){
         super.onDestroy();
-        ServerConnection.closeConnection();
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        ServerConnection.closeConnection();
     }
 
     @Override
@@ -146,7 +179,7 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
                 dialog.dismiss();
                 findViewById(R.id.loading).setVisibility(View.VISIBLE);
                 findViewById(R.id.loadingProgressbar).setVisibility(View.VISIBLE);
-                waitForSelection();
+                waitForSelection(MessageType.CMD+" playgame: "+selectedGame.ShortName);
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

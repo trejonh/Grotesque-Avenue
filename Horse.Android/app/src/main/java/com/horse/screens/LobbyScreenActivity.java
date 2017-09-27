@@ -209,13 +209,11 @@ public class LobbyScreenActivity extends HorseActivity {
     @Override
     protected void onStop(){
         super.onStop();
-        ServerConnection.closeConnection();
     }
 
     @Override
     protected  void onDestroy(){
         super.onDestroy();
-        ServerConnection.closeConnection();
     }
 
     @Override
