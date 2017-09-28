@@ -25,7 +25,6 @@ namespace Horse.Server.Games.ColorMePretty
         private List<string> _availableColorTexts;
         private CmpScreenItem _turnCountDown;
         private CmpScreenItem _roundCountDown;
-        private CmpScreenItem _readBtn;
         private System.Timers.Timer _turnTimer;
         private System.Timers.Timer _roundTimer;
         private int _turnCd;
@@ -39,6 +38,9 @@ namespace Horse.Server.Games.ColorMePretty
         private const float MaxAllowedDispTime = 4.5f;
         private bool _timesUp;
         private int _numPlayersCompleted;
+        private ScreenItem titleScrnItem;
+        private NetworkMobilePlayer PlayerCurrentlyPlaying;
+        private PlayerGameRecord CurrentPlayerGameRecord;
         public CmpGameScreen(ref RenderWindow window) : base(ref window)
         {
             _nearGray = new Color(181,181,181,183);
@@ -51,21 +53,17 @@ namespace Horse.Server.Games.ColorMePretty
             CmpFont = AssetManager.LoadFont("KissMeOrNot");
             var loading = new Text() { DisplayedString = AssetManager.GetMessage("Loading"), Font = CmpFont, CharacterSize = 120, Color = Color.Black };
             var loadingSrcnItem = new ScreenItem(ref window, loading, ScreenItem.ScreenPositions.Center, null);
-            var lBox = new RectangleShape(new Vector2f(240.0f, 120.0f)) { Position = loadingSrcnItem.Position, OutlineColor = Color.Transparent, FillColor = _nearGray};
+            var lBox = new RectangleShape(new Vector2f(480.0f, 120.0f)) { Position = loadingSrcnItem.Position, OutlineColor = Color.Transparent, FillColor = _nearGray};
+            loading.Position = new Vector2f(loadingSrcnItem.Position.X + 5, loadingSrcnItem.Position.Y);
             loadingSrcnItem.SetShape(lBox);
             AddScreenItem(loadingSrcnItem);
             var title = new Text() { DisplayedString = AssetManager.GetMessage("ColorMePretty"), Font = CmpFont, CharacterSize = 120, Color = Color.Black };
-            var titleScrnItem = new ScreenItem(ref window, title, ScreenItem.ScreenPositions.Top, null);
-            var tBox = new RectangleShape(new Vector2f(360, 120.0f)) { Position = titleScrnItem.Position, OutlineColor = Color.Transparent, FillColor = _nearGray };
+            titleScrnItem = new ScreenItem(ref window, title, ScreenItem.ScreenPositions.Top, null);
+            var tBox = new RectangleShape(new Vector2f(600, 120.0f)) { Position = titleScrnItem.Position, OutlineColor = Color.Transparent, FillColor = _nearGray };
             titleScrnItem.SetShape(tBox);
             AddScreenItem(titleScrnItem);
             LoadingThread = new Thread(Load) { Priority = ThreadPriority.Normal, IsBackground = true, Name = "CMPLoadingThread"};
             LoadingThread.Start();
-            var readyTxt = new Text { Position = loading.Position , Font = CmpFont, Color = Color.Black, CharacterSize = 60, DisplayedString = AssetManager.GetMessage("Ready")};
-            var rBox = new RectangleShape(){Size = lBox.Size, FillColor = _nearGray, OutlineColor = Color.Transparent, Position = readyTxt.Position};
-            _readBtn = new CmpScreenItem(ref window);
-            _readBtn.SetShape(rBox);
-            _readBtn.SetText(readyTxt);
         }
 
         private void Load()
@@ -74,21 +72,10 @@ namespace Horse.Server.Games.ColorMePretty
             {
                 var playerQueue = DisplayPlayerQueue();
                 LoadPaint();
-                try
-                {
-                    WaitForPlayersToReadInstructionsAysnc();
-                }catch(Exception ex)
-                {
-                    LogManager.LogError(ex.Message);
-                    LogManager.LogError(ex.StackTrace);
-                    throw new Exception("Fatal Error");
-                }
                 PrepareGameRecords();
                 PrepareTimers();
-                var toRmv = ScreenItems.Where(scrnItem => scrnItem.GetText() != null)
-                                       .FirstOrDefault(scrnItem => scrnItem.GetText().DisplayedString.Equals(AssetManager.GetMessage("Loading")));
-                if(toRmv != null)
-                    ScreenItems.Remove(toRmv);
+                ScreenItems.Clear();
+                AddScreenItem(titleScrnItem);
                 _isLoaded = true;
                 AddScreenItem(playerQueue);
             }
@@ -100,11 +87,14 @@ namespace Horse.Server.Games.ColorMePretty
             {
                 LogManager.Log("Color me pretty finished loading");
                 ServerSocketManagerMaster.IsGameThreadControllingInput = true;
-                AddScreenItem(_readBtn);
                 WaitForReadySignalAsync();
+                PlayerCurrentlyPlaying = ServerSocketManagerMaster.Players.Single(pl => pl.IsCurrentlyPlaying);
+                CurrentPlayerGameRecord = _playerGameRecords.Single(rec => rec.Name.Equals(PlayerCurrentlyPlaying.Name) &&
+                                             rec.DeviceId.Equals(PlayerCurrentlyPlaying.DeviceId));
+
+                _dispTurnCd = true;
                 GameStarted = true;
                 GameThread.Start();
-                ScreenItems.Remove(_readBtn);
             }
         }
 
@@ -139,7 +129,7 @@ namespace Horse.Server.Games.ColorMePretty
                     var circle = new CircleShape(30.0f){OutlineColor = Color.Transparent, FillColor = _nearGray};
                     var text = new Text(){DisplayedString = ""+_turnCd, CharacterSize = 30, Font = CmpFont, Color = Color.Black};
                     var renderWindow = WinInstance;
-                    _turnCountDown = new CmpScreenItem(ref renderWindow, circle, ScreenItem.ScreenPositions.Center, null);
+                    _turnCountDown = new CmpScreenItem(ref renderWindow, circle, ScreenItem.ScreenPositions.Bottom, null);
                     text.Position = _turnCountDown.Position;
                     _turnCountDown.SetText(text);
                 }
@@ -205,40 +195,6 @@ namespace Horse.Server.Games.ColorMePretty
             }
             _roundCdStarted = true;
         }
-        private async void WaitForPlayersToReadInstructionsAysnc()
-        {
-            var numRead = 0;
-            while(numRead < ServerSocketManagerMaster.Players.Count)
-            {
-                foreach(var player in ServerSocketManagerMaster.Players)
-                {
-                    if (player.Client == null)
-                        continue;
-                    if (player.Client.Connected == false)
-                        continue;
-                    var clientStream = player.Client.GetStream();
-                    if (clientStream.DataAvailable == false)
-                        continue;
-                    var sb = new StringBuilder();
-                    while (clientStream.DataAvailable)
-                    {
-                        var bytes = new byte[player.Client.ReceiveBufferSize];
-
-                        // Read can return anything from 0 to numBytesToRead. 
-                        // This method blocks until at least one byte is read.
-                        await clientStream.ReadAsync(bytes, 0, player.Client.ReceiveBufferSize);
-                        var str = Encoding.UTF8.GetString(bytes);
-                        sb.Append(str);
-                        if (sb.ToString().Contains("ENDTRANS"))
-                            break;
-                    }
-                    LogManager.Log(player.Name + " " + player.DeviceId + " sent:" + sb);
-                    if (ProcessMessage(player.Client, sb.Replace(" ENDTRANS", "").ToString()).Type == ProcessedMessageType.StartGame)
-                        numRead++;
-                    sb.Clear();
-                }
-            }
-        }
 
         private ScreenItem DisplayPlayerQueue()
         {
@@ -249,7 +205,7 @@ namespace Horse.Server.Games.ColorMePretty
             sb.Append(nextPlayer.Name).Append(" ").Append(AssetManager.GetMessage("IsNext")).AppendLine();
             if (_playerQueue == null)
             {
-                var box = new RectangleShape(new Vector2f(240.0f, 480.0f))
+                var box = new RectangleShape(new Vector2f(480.0f, 180.0f))
                 {
                     OutlineColor = Color.Transparent,
                     FillColor = _nearGray
@@ -257,13 +213,14 @@ namespace Horse.Server.Games.ColorMePretty
                 var text = new Text
                 {
                     DisplayedString = sb.ToString(),
-                    CharacterSize = 120,
+                    CharacterSize = 60,
                     Color = Color.Black,
                     Font = CmpFont
                 };
-                var position = new Vector2f(32.0f, WinInstance.Size.Y - (box.Size.Y * 1.25f));
+                var position = new Vector2f(32.0f, WinInstance.Size.Y - (box.Size.Y * 1.05f));
                 var win = WinInstance;
                 _playerQueue = new CmpScreenItem(ref win, box, position, null);
+                text.Position = position;
                 _playerQueue.SetText(text);
             }
             else
@@ -278,23 +235,17 @@ namespace Horse.Server.Games.ColorMePretty
             var win = WinInstance;
             CurrentPaintBlob = new CmpScreenItem(ref win);
             var paintBlob = AssetManager.LoadSprite("PaintBlob");
+            paintBlob.Scale = new Vector2f(0.75f, 0.75f);
             var blobSize = paintBlob.Texture.Size;
-            var outterBox =
-                new RectangleShape(new Vector2f(blobSize.X, blobSize.Y))
-                {
-                    OutlineColor = Color.Transparent,
-                    FillColor = Color.White,
-                    Position = new Vector2f(WinInstance.Size.X - blobSize.X / 2, WinInstance.Size.Y - blobSize.Y / 2)
-                };
-            paintBlob.Position = outterBox.Position;
+            blobSize = new Vector2u((uint)(blobSize.X * 0.75f), (uint)(blobSize.Y * 0.75f));
+            paintBlob.Position = new Vector2f(WinInstance.Size.X / 2 - blobSize.X / 3, WinInstance.Size.Y / 2 - blobSize.Y / 3.5f);
             var text = new Text
             {
                 DisplayedString = "",
                 Font = CmpFont,
                 CharacterSize = 60,
-                Position = new Vector2f(paintBlob.Position.X + blobSize.X / 4.0f, paintBlob.Position.Y + blobSize.Y / 4.0f)
+                Position = new Vector2f(paintBlob.Position.X + (blobSize.X / 3f), paintBlob.Position.Y + blobSize.Y / 3.5f)
             };
-            CurrentPaintBlob.SetShape(outterBox);
             CurrentPaintBlob.SetText(text);
             CurrentPaintBlob.SetSprite(paintBlob);
             _availableColors = new List<Color> {
@@ -347,10 +298,10 @@ namespace Horse.Server.Games.ColorMePretty
                     if(_roundCdStarted == false)
                         StartRoundTimer();
                     _roundCountDown.Draw();
-                    if (_roundCountDown.GetText().DisplayedString == AssetManager.GetMessage("Go") && _timesUp == false)
+                    CurrentPaintBlob.Draw();
+                    if (_roundCountDown.GetText().DisplayedString == AssetManager.GetMessage("Stop") && _timesUp == false)
                         _timesUp = true;
                 }
-                CurrentPaintBlob.Draw();
             }
             base.Draw();
         }
@@ -380,45 +331,55 @@ namespace Horse.Server.Games.ColorMePretty
                         DisplayPlayerQueue();
                         ServerSocketManagerMaster.SendAll(MessageType.Cmd, "getplayerlist");
                         WaitForReadySignalAsync();
+                        PlayerCurrentlyPlaying = ServerSocketManagerMaster.Players.Single(pl => pl.IsCurrentlyPlaying);
+                        CurrentPlayerGameRecord = _playerGameRecords.Single(rec => rec.Name.Equals(PlayerCurrentlyPlaying.Name) &&
+                                                     rec.DeviceId.Equals(PlayerCurrentlyPlaying.DeviceId));
                         _dispTurnCd = true;
                         _dispRoundCd = false;
                         _timesUp = false;
                         ScrambleBlob();
                         _numPlayersCompleted++;
+                        LogManager.Log(_numPlayersCompleted+" of "+ServerSocketManagerMaster.Players.Count+" have played CMP");
                     }
                     if(_dispTurnCd) continue;
-                    var currPlayer = ServerSocketManagerMaster.Players.Single(pl => pl.IsCurrentlyPlaying);
-                    var playerRecord =
-                        _playerGameRecords.Single(rec => rec.Name.Equals(currPlayer.Name) &&
-                                                         rec.DeviceId.Equals(currPlayer.DeviceId));
-                    if (currPlayer.Client == null || currPlayer.Client.Connected == false)
+                    if (PlayerCurrentlyPlaying.Client == null || PlayerCurrentlyPlaying.Client.Connected == false)
                     {
-                        LogManager.LogError(currPlayer.Name + "("+currPlayer.DeviceId+") is not connected to the game anymore");
+                        LogManager.LogError(PlayerCurrentlyPlaying.Name + "("+ PlayerCurrentlyPlaying.DeviceId+") is not connected to the game anymore");
                         continue;
                     }
-                    var clientStream = currPlayer.Client.GetStream();
-                    if(clientStream.DataAvailable == false)
-                        continue;
                     var sb = new StringBuilder();
-                    while (clientStream.DataAvailable)
+                    try
                     {
-                        var bytes = new byte[currPlayer.Client.ReceiveBufferSize];
+                        var clientStream = PlayerCurrentlyPlaying.Client.GetStream();
+                        if (clientStream.DataAvailable == false)
+                            continue;
+                        while (clientStream.DataAvailable)
+                        {
+                            var bytes = new byte[PlayerCurrentlyPlaying.Client.ReceiveBufferSize];
 
-                        // Read can return anything from 0 to numBytesToRead. 
-                        // This method blocks until at least one byte is read.
-                        await clientStream.ReadAsync(bytes, 0, currPlayer.Client.ReceiveBufferSize);
-                        var str = Encoding.UTF8.GetString(bytes);
-                        sb.Append(str);
-                        if (sb.ToString().Contains("ENDTRANS"))
-                            break;
+                            // Read can return anything from 0 to numBytesToRead. 
+                            // This method blocks until at least one byte is read.
+                            await clientStream.ReadAsync(bytes, 0, PlayerCurrentlyPlaying.Client.ReceiveBufferSize);
+                            var str = Encoding.UTF8.GetString(bytes);
+                            sb.Append(str);
+                            if (sb.ToString().Contains("ENDTRANS"))
+                                break;
+                        }
                     }
-                    LogManager.Log(currPlayer.Name + " " + currPlayer.DeviceId + " sent:" + sb);
+                    catch (Exception ex)
+                    {
+                        LogManager.LogError("Uncorrectable exception thrown, "+ PlayerCurrentlyPlaying.Name+" may have disconnected. Exiting game.");
+                        LogManager.LogError(ex.Message);
+                        LogManager.LogError(ex.StackTrace);
+                        ServerGameFlowMaster.QuitGame();
+                    }
+                    LogManager.Log(PlayerCurrentlyPlaying.Name + " " + PlayerCurrentlyPlaying.DeviceId + " sent:" + sb);
                     sb.Replace("$", "").Replace("\0", "").Replace("\u001d", "");
                     var messages = StringHelper.ReplaceAndToArray(sb.ToString(), "ENDTRANS");
                     sb.Clear();
                     foreach (var mess in messages)
                     {
-                        var message = ProcessMessage(currPlayer.Client, mess);
+                        var message = ProcessMessage(PlayerCurrentlyPlaying.Client, mess);
                         switch (message.Type)
                         {
                             case ProcessedMessageType.Error:
@@ -434,7 +395,7 @@ namespace Horse.Server.Games.ColorMePretty
                                     //award points/keep track of total right
                                     //play happy sound
                                     //now mix up blob color/text
-                                    playerRecord.Score++;
+                                    CurrentPlayerGameRecord.Score++;
                                     ScrambleBlob();
                                 }
                                 else
@@ -450,14 +411,17 @@ namespace Horse.Server.Games.ColorMePretty
                                 break;
                             case ProcessedMessageType.Other:
                                 break;
+                            default:
+                                LogManager.LogWarning(mess + " is not a valid message");
+                                break;
                         }
 
                     }
                 }
             }
-            catch (Exception ex)
+            catch (ThreadAbortException)
             {
-                LogManager.LogWarning("Exiting CMP game flow thread early due to: "+ex.Message);
+                LogManager.LogWarning("Exiting CMP game flow thread early due to: thread abortion");
             }
             finally
             {
@@ -500,7 +464,7 @@ namespace Horse.Server.Games.ColorMePretty
         private void ScrambleBlob()
         {
             var rand = new Random(ServerGameWindowMaster.FrameDelta.AsMilliseconds());
-            CurrentPaintBlob.GetShape().FillColor = _availableColors[rand.Next(0, _availableColors.Count)];
+            CurrentPaintBlob.GetSprite().Color = _availableColors[rand.Next(0, _availableColors.Count)];
             CurrentPaintBlob.GetText().DisplayedString = _availableColorTexts[rand.Next(0, _availableColorTexts.Count)];
         }
 
