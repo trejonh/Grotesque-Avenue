@@ -161,7 +161,7 @@ namespace Horse.Server.Core
                                  .ToLower();
                 if (cmd.Contains("playgame:"))
                 {
-                    GameSelectionScreen.PlayGame(cmd.Substring(cmd.IndexOf(":", StringComparison.Ordinal)+1));
+                    GameSelectionScreen.PlayGame(cmd.Substring(cmd.IndexOf(":", StringComparison.Ordinal)+2));
                 }
                 else
                 {
@@ -277,15 +277,14 @@ namespace Horse.Server.Core
         {
             _listen = false;
             _stopped = true;
-            LogManager.LogWarning("Stopped Listening, but lisener still open");
-           /* try
+            try
             {
                 _listener?.Stop();
             }
             catch (SocketException ex)
             {
                 LogManager.LogError("Listener stop exception. error code: " + ex.ErrorCode);
-            }*/
+            }
         }
 
         /// <summary>

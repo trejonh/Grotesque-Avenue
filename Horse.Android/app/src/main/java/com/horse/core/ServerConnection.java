@@ -334,7 +334,7 @@ public class ServerConnection {
                     public void run() {
                         sendMessagesOut();
                     }
-                }, 500,500);
+                }, 500,250);
             }catch (IOException ex){
                 //log it
                 Logger.e(ex,ex.toString());

@@ -223,4 +223,11 @@
       the log before shutting down the application?
     </text>
   </asset>
+  <asset>
+    <type>text</type>
+    <name>Ready</name>
+    <text>
+      Click Ready!
+    </text>
+  </asset>
 </assets>

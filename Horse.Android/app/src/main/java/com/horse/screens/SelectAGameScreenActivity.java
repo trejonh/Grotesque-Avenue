@@ -121,7 +121,7 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
                         for (Message message : ServerConnection.getMessages()) {
                             if (!message.Type.equals(MessageType.CMD)) continue;
                             if (!message.Message.contains("gotoscreen")) continue;
-                            screen = message.Message.substring(message.Message.indexOf(":") + 1);
+                            screen = message.Message.substring(message.Message.indexOf(":") + 2);
                             toRmv = message;
                             continueToWait = false;
                             break;
@@ -147,21 +147,6 @@ public class SelectAGameScreenActivity extends HorseActivity implements AdapterV
             }
         });
         waitForSelection.start();
-    }
-
-    @Override
-    protected void onStop(){
-        super.onStop();
-    }
-
-    @Override
-    protected  void onDestroy(){
-        super.onDestroy();
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
     }
 
     @Override

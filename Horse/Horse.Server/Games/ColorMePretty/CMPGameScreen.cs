@@ -25,6 +25,7 @@ namespace Horse.Server.Games.ColorMePretty
         private List<string> _availableColorTexts;
         private CmpScreenItem _turnCountDown;
         private CmpScreenItem _roundCountDown;
+        private CmpScreenItem _readBtn;
         private System.Timers.Timer _turnTimer;
         private System.Timers.Timer _roundTimer;
         private int _turnCd;
@@ -50,16 +51,21 @@ namespace Horse.Server.Games.ColorMePretty
             CmpFont = AssetManager.LoadFont("KissMeOrNot");
             var loading = new Text() { DisplayedString = AssetManager.GetMessage("Loading"), Font = CmpFont, CharacterSize = 120, Color = Color.Black };
             var loadingSrcnItem = new ScreenItem(ref window, loading, ScreenItem.ScreenPositions.Center, null);
-            var lBox = new RectangleShape(new Vector2f(120.0f, 60.0f)) { Position = loadingSrcnItem.Position, OutlineColor = Color.Transparent, FillColor = _nearGray};
+            var lBox = new RectangleShape(new Vector2f(240.0f, 120.0f)) { Position = loadingSrcnItem.Position, OutlineColor = Color.Transparent, FillColor = _nearGray};
             loadingSrcnItem.SetShape(lBox);
             AddScreenItem(loadingSrcnItem);
             var title = new Text() { DisplayedString = AssetManager.GetMessage("ColorMePretty"), Font = CmpFont, CharacterSize = 120, Color = Color.Black };
             var titleScrnItem = new ScreenItem(ref window, title, ScreenItem.ScreenPositions.Top, null);
-            var tBox = new RectangleShape(new Vector2f(120.0f, 60.0f)) { Position = titleScrnItem.Position, OutlineColor = Color.Transparent, FillColor = _nearGray };
+            var tBox = new RectangleShape(new Vector2f(360, 120.0f)) { Position = titleScrnItem.Position, OutlineColor = Color.Transparent, FillColor = _nearGray };
             titleScrnItem.SetShape(tBox);
             AddScreenItem(titleScrnItem);
             LoadingThread = new Thread(Load) { Priority = ThreadPriority.Normal, IsBackground = true, Name = "CMPLoadingThread"};
             LoadingThread.Start();
+            var readyTxt = new Text { Position = loading.Position , Font = CmpFont, Color = Color.Black, CharacterSize = 60, DisplayedString = AssetManager.GetMessage("Ready")};
+            var rBox = new RectangleShape(){Size = lBox.Size, FillColor = _nearGray, OutlineColor = Color.Transparent, Position = readyTxt.Position};
+            _readBtn = new CmpScreenItem(ref window);
+            _readBtn.SetShape(rBox);
+            _readBtn.SetText(readyTxt);
         }
 
         private void Load()
@@ -68,7 +74,15 @@ namespace Horse.Server.Games.ColorMePretty
             {
                 var playerQueue = DisplayPlayerQueue();
                 LoadPaint();
-                WaitForPlayersToReadInstructionsAysnc();
+                try
+                {
+                    WaitForPlayersToReadInstructionsAysnc();
+                }catch(Exception ex)
+                {
+                    LogManager.LogError(ex.Message);
+                    LogManager.LogError(ex.StackTrace);
+                    throw new Exception("Fatal Error");
+                }
                 PrepareGameRecords();
                 PrepareTimers();
                 var toRmv = ScreenItems.Where(scrnItem => scrnItem.GetText() != null)
@@ -86,7 +100,11 @@ namespace Horse.Server.Games.ColorMePretty
             {
                 LogManager.Log("Color me pretty finished loading");
                 ServerSocketManagerMaster.IsGameThreadControllingInput = true;
+                AddScreenItem(_readBtn);
+                WaitForReadySignalAsync();
+                GameStarted = true;
                 GameThread.Start();
+                ScreenItems.Remove(_readBtn);
             }
         }
 
@@ -231,12 +249,12 @@ namespace Horse.Server.Games.ColorMePretty
             sb.Append(nextPlayer.Name).Append(" ").Append(AssetManager.GetMessage("IsNext")).AppendLine();
             if (_playerQueue == null)
             {
-                var box = new RectangleShape(new Vector2f(240.0f, 120.0f))
+                var box = new RectangleShape(new Vector2f(240.0f, 480.0f))
                 {
                     OutlineColor = Color.Transparent,
                     FillColor = _nearGray
                 };
-                var text = new Text()
+                var text = new Text
                 {
                     DisplayedString = sb.ToString(),
                     CharacterSize = 120,
@@ -269,7 +287,7 @@ namespace Horse.Server.Games.ColorMePretty
                     Position = new Vector2f(WinInstance.Size.X - blobSize.X / 2, WinInstance.Size.Y - blobSize.Y / 2)
                 };
             paintBlob.Position = outterBox.Position;
-            var text = new Text()
+            var text = new Text
             {
                 DisplayedString = "",
                 Font = CmpFont,
@@ -356,6 +374,8 @@ namespace Horse.Server.Games.ColorMePretty
                     if(GameStarted == false)continue;
                     if (_timesUp)
                     {
+                        ServerSocketManagerMaster.SendMessage(MessageType.Info+" gameover",
+                            ServerSocketManagerMaster.Players.Single(pl=>pl.IsCurrentlyPlaying).Client.GetStream());
                         ServerSocketManagerMaster.MoveNextPlayerFlag();
                         DisplayPlayerQueue();
                         ServerSocketManagerMaster.SendAll(MessageType.Cmd, "getplayerlist");
@@ -435,9 +455,9 @@ namespace Horse.Server.Games.ColorMePretty
                     }
                 }
             }
-            catch (ThreadAbortException)
+            catch (Exception ex)
             {
-                LogManager.LogWarning("Exiting CMP game flow thread early due to abortion");
+                LogManager.LogWarning("Exiting CMP game flow thread early due to: "+ex.Message);
             }
             finally
             {
