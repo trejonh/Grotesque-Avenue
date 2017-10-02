@@ -21,22 +21,22 @@ namespace Horse.Server.Core
         /// </summary>
         private Screen _splashScreen;
 
-        /// <summary>
-        /// Referencce to the main menu
-        /// </summary>
-        private Screen _mainMenu;
         public static ServerSocketManagerMaster ServerSocket;
         public ServerGameFlowMaster()
         {
             ServerGameWindowMaster.InitGameWindow();
+            while (!ServerGameWindowMaster.CreatedWindow)
+            {
+                //wait
+            }
             var win = ServerGameWindowMaster.GameWindow;
             _splashScreen = new SplashScreen(ref win);
             ServerGameWindowMaster.ChangeScreen(_splashScreen);
             _flowTimer = new Timer(1000) { AutoReset = false, Enabled = true};
             _flowTimer.Elapsed +=  (sender, e) => {
                 _splashScreen.RemoveWindowKeyEventHandler();
-                _mainMenu = new MainMenu(ref win);
-                ServerGameWindowMaster.ChangeScreen(_mainMenu);
+                Screen mainMenu = new MainMenu(ref win);
+                ServerGameWindowMaster.ChangeScreen(mainMenu);
             };
             _flowTimer.Start();
         }
@@ -52,7 +52,7 @@ namespace Horse.Server.Core
             {
                 while (ServerGameWindowMaster.GameWindow.IsOpen)
                 {
-                    ServerGameWindowMaster.GameWindow.DispatchEvents();
+                    //ServerGameWindowMaster.GameWindow.DispatchEvents();
                 }
             }
             catch (Exception ex)

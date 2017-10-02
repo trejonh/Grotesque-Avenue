@@ -87,7 +87,7 @@ namespace Horse.Server.Games.ColorMePretty
             {
                 LogManager.Log("Color me pretty finished loading");
                 ServerSocketManagerMaster.IsGameThreadControllingInput = true;
-                WaitForReadySignalAsync();
+                WaitForReadySignal();
                 PlayerCurrentlyPlaying = ServerSocketManagerMaster.Players.Single(pl => pl.IsCurrentlyPlaying);
                 CurrentPlayerGameRecord = _playerGameRecords.Single(rec => rec.Name.Equals(PlayerCurrentlyPlaying.Name) &&
                                              rec.DeviceId.Equals(PlayerCurrentlyPlaying.DeviceId));
@@ -330,7 +330,7 @@ namespace Horse.Server.Games.ColorMePretty
                         ServerSocketManagerMaster.MoveNextPlayerFlag();
                         DisplayPlayerQueue();
                         ServerSocketManagerMaster.SendAll(MessageType.Cmd, "getplayerlist");
-                        WaitForReadySignalAsync();
+                        WaitForReadySignal();
                         PlayerCurrentlyPlaying = ServerSocketManagerMaster.Players.Single(pl => pl.IsCurrentlyPlaying);
                         CurrentPlayerGameRecord = _playerGameRecords.Single(rec => rec.Name.Equals(PlayerCurrentlyPlaying.Name) &&
                                                      rec.DeviceId.Equals(PlayerCurrentlyPlaying.DeviceId));
@@ -429,9 +429,10 @@ namespace Horse.Server.Games.ColorMePretty
             }
         }
 
-        private async void WaitForReadySignalAsync()
+        private void WaitForReadySignal()
         {
             var currPlayer = ServerSocketManagerMaster.Players.Single(pl => pl.IsCurrentlyPlaying);
+            Console.WriteLine(@"Current player is {0}", currPlayer.Name);
             if (currPlayer.Client == null || currPlayer.Client.Connected == false)
             {
                 LogManager.LogError(currPlayer.Name + "(" + currPlayer.DeviceId + ") is not connected to the game anymore");
@@ -446,10 +447,10 @@ namespace Horse.Server.Games.ColorMePretty
 
                 // Read can return anything from 0 to numBytesToRead. 
                 // This method blocks until at least one byte is read.
-                await clientStream.ReadAsync(bytes, 0, currPlayer.Client.ReceiveBufferSize);
+                clientStream.Read(bytes, 0, currPlayer.Client.ReceiveBufferSize);
                 var str = Encoding.UTF8.GetString(bytes);
                 sb.Append(str);
-                if (sb.ToString().Contains("ENDTRANS"))
+                if (str.Contains("ENDTRANS"))
                     break;
             }
             var messages = StringHelper.ReplaceAndToArray(sb.ToString(), "ENDTRANS");

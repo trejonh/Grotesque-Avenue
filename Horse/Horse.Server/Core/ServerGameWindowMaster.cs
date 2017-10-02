@@ -39,26 +39,13 @@ namespace Horse.Server.Core
         /// </summary>
         private static Clock _serverClock;
 
+        public static bool CreatedWindow;
+
         /// <summary>
         /// Initialize the game window and start the drawing thread
         /// </summary>
         public static void InitGameWindow()
         {
-            var resolution = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
-            var width = (uint)resolution.Width;
-            var height = (uint)resolution.Height;
-            var title = AssetManager.GetMessage("GameTitle");
-            new GameWindow(width,height,title, true);
-            GameWindow = Engine.Core.GameWindow.GameRenderWindow;
-            GameWindow.SetVerticalSyncEnabled(true);
-            _serverClock = new Clock();
-            if (GameWindow == null)
-            {
-                LogManager.LogError("The game window is null, cannot continue");
-                return;
-            }
-            GameWindow.SetActive(false);
-            GameWindow.Closed += WindowClosed;
             var ts = new ThreadStart(Draw);
             _mainDrawingThread = new Thread(ts) { IsBackground = false, Priority = ThreadPriority.Highest };
             _mainDrawingThread.Start();
@@ -71,9 +58,11 @@ namespace Horse.Server.Core
         {
             try
             {
+                CreateGameWindow();
                 GameWindow.SetMouseCursorVisible(false);
                 while (GameWindow.IsOpen)
                 {
+                    GameWindow.DispatchEvents();
                     if(_serverClock != null)
                         FrameDelta = _serverClock.Restart();
                     CurrentScreen?.Draw();
@@ -87,6 +76,27 @@ namespace Horse.Server.Core
             {
                 GameWindow.Close();
             }
+        }
+
+        private static void CreateGameWindow()
+        {
+            var resolution = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
+            var width = (uint)resolution.Width;
+            var height = (uint)resolution.Height;
+            var title = AssetManager.GetMessage("GameTitle");
+            new GameWindow(width, height, title, true);
+            GameWindow = Engine.Core.GameWindow.GameRenderWindow;
+            GameWindow.SetVerticalSyncEnabled(true);
+            _serverClock = new Clock();
+            if (GameWindow == null)
+            {
+                LogManager.LogError("The game window is null, cannot continue");
+                ServerGameFlowMaster.QuitGame();
+                return;
+            }
+            GameWindow.SetActive(false);
+            GameWindow.Closed += WindowClosed;
+            CreatedWindow = true;
         }
 
         /// <summary>

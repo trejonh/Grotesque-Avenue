@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿using System.Runtime.Remoting.Messaging;
+using SFML.Graphics;
 using SFML.Window;
 
 namespace Horse.Engine.Core
@@ -24,6 +25,13 @@ namespace Horse.Engine.Core
         {
             GameRenderWindow = debug == false ? new RenderWindow(new VideoMode(width,height),title,Styles.Fullscreen)
                     : new RenderWindow(new VideoMode(width, height), title, Styles.Close);
+        }
+
+        public static RenderWindow GetGameWindow(uint width, uint height, string title, bool debug)
+        {
+            if (GameRenderWindow == null)
+                new GameWindow(width,height, title,debug);
+            return GameRenderWindow;
         }
     }
 }
