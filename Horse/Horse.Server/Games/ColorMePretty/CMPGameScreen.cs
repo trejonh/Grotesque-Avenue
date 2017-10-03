@@ -129,7 +129,7 @@ namespace Horse.Server.Games.ColorMePretty
                     var circle = new CircleShape(30.0f){OutlineColor = Color.Transparent, FillColor = _nearGray};
                     var text = new Text(){DisplayedString = ""+_turnCd, CharacterSize = 30, Font = CmpFont, Color = Color.Black};
                     var renderWindow = WinInstance;
-                    _turnCountDown = new CmpScreenItem(ref renderWindow, circle, ScreenItem.ScreenPositions.Bottom, null);
+                    _turnCountDown = new CmpScreenItem(ref renderWindow, circle, ScreenItem.ScreenPositions.Center, null);
                     text.Position = _turnCountDown.Position;
                     _turnCountDown.SetText(text);
                 }
@@ -278,7 +278,7 @@ namespace Horse.Server.Games.ColorMePretty
             WinInstance.Draw(BgImage);
             if (_isLoaded)
             {
-                if (_dispTurnCd && _dispRoundCd == false)
+                /*if (_dispTurnCd)
                 {
                     if (_turnCdStarted == false)
                         StartTurnTimer();
@@ -301,7 +301,7 @@ namespace Horse.Server.Games.ColorMePretty
                     CurrentPaintBlob.Draw();
                     if (_roundCountDown.GetText().DisplayedString == AssetManager.GetMessage("Stop") && _timesUp == false)
                         _timesUp = true;
-                }
+                }*/
             }
             base.Draw();
         }
@@ -320,6 +320,7 @@ namespace Horse.Server.Games.ColorMePretty
         {
             try
             {
+                LoadingThread.Abort();
                 while (true)
                 {
                     if(GameStarted == false)continue;
@@ -341,7 +342,15 @@ namespace Horse.Server.Games.ColorMePretty
                         _numPlayersCompleted++;
                         LogManager.Log(_numPlayersCompleted+" of "+ServerSocketManagerMaster.Players.Count+" have played CMP");
                     }
-                    if(_dispTurnCd) continue;
+                    if (_dispTurnCd)
+                    {
+                        DisplayTurnCountDown();
+                        continue;
+                    }
+                    if (_dispRoundCd)
+                    {
+                        DisplayRoundCountDown();
+                    }
                     if (PlayerCurrentlyPlaying.Client == null || PlayerCurrentlyPlaying.Client.Connected == false)
                     {
                         LogManager.LogError(PlayerCurrentlyPlaying.Name + "("+ PlayerCurrentlyPlaying.DeviceId+") is not connected to the game anymore");
@@ -426,6 +435,33 @@ namespace Horse.Server.Games.ColorMePretty
             finally
             {
                 LogManager.Log("Safely exiting cmp game thread");
+            }
+        }
+
+        private void DisplayRoundCountDown()
+        {
+            if (_timesUp) return;
+                if (_roundCdStarted == false)
+                    StartRoundTimer();
+                _roundCountDown.Draw();
+                CurrentPaintBlob.Draw();
+                if (_roundCountDown.GetText().DisplayedString == AssetManager.GetMessage("Stop") && _timesUp == false)
+                    _timesUp = true;
+        }
+
+        private void DisplayTurnCountDown()
+        {
+            if (_turnCdStarted == false)
+                StartTurnTimer();
+            _turnCountDown.Draw();
+            _turnDispTime += ServerGameWindowMaster.FrameDelta.AsSeconds();
+            if (_turnDispTime >= MaxAllowedDispTime)
+            {
+                _dispTurnCd = false;
+                _dispRoundCd = true;
+                _turnCdStarted = false;
+                _turnTimer.Stop();
+                _turnDispTime = 0.0f;
             }
         }
 

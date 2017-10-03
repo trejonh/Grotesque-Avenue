@@ -61,8 +61,8 @@ namespace Horse.Server.Screens
                 case "cmp":
                     GetInstance().RemoveWindowKeyEventHandler();
                     var win = ServerGameWindowMaster.GameWindow;
+                    ServerSocketManagerMaster.SendAll(MessageType.Cmd, "gotoscreen: cmp");
                     ServerGameWindowMaster.ChangeScreen(new CmpGameScreen(ref win));
-                    ServerSocketManagerMaster.SendAll(MessageType.Cmd,"gotoscreen: cmp");
                     break;
                 default:
                     Console.WriteLine(gameTitle+@" is not available");
