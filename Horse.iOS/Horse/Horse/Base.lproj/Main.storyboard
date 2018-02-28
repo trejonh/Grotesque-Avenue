@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Horse" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kPV-VR-o4W">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="H.O.R.S.E" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TDK-SA-eHf">
+                                        <rect key="frame" x="0.0" y="44" width="375" height="46"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="38"/>
+                                        <color key="textColor" red="0.93225606087792867" green="0.23643343271904349" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="crazyhorse.png" adjustsImageSizeForAccessibilityContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PAE-fL-ZJS">
+                                        <rect key="frame" x="127" y="300" width="120" height="67"/>
+                                    </imageView>
+                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Player Name" adjustsFontForContentSizeCategory="YES" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="eAK-4e-0QN">
+                                        <rect key="frame" x="126" y="398" width="123" height="30"/>
+                                        <nil key="textColor"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="alphabet" returnKeyType="done" textContentType="username"/>
+                                    </textField>
+                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Server name/address" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="2tR-N4-0NV">
+                                        <rect key="frame" x="90" y="458" width="194" height="30"/>
+                                        <nil key="textColor"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <textInputTraits key="textInputTraits" autocorrectionType="no" returnKeyType="done"/>
+                                    </textField>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" reversesTitleShadowWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="w6Q-Yd-U7n">
+                                        <rect key="frame" x="0.0" y="508" width="375" height="30"/>
+                                        <color key="backgroundColor" red="0.067628408500000001" green="1" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="30" id="Vdl-pG-oI9"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <color key="tintColor" red="0.93225606090000002" green="0.2364334327" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <state key="normal" title="Join Game">
+                                            <color key="titleColor" red="0.93225606090000002" green="0.2364334327" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="titleShadowColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="joinGame:" destination="BYZ-38-t0r" eventType="touchDown" id="9hf-HA-thf"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="w6Q-Yd-U7n" firstAttribute="bottom" secondItem="kPV-VR-o4W" secondAttribute="bottom" constant="-44" id="33Z-fn-7pr"/>
+                                    <constraint firstItem="TDK-SA-eHf" firstAttribute="width" secondItem="kPV-VR-o4W" secondAttribute="width" id="4FJ-xy-CT1"/>
+                                    <constraint firstItem="eAK-4e-0QN" firstAttribute="bottom" secondItem="2tR-N4-0NV" secondAttribute="top" constant="-30" id="58X-Kd-ChP"/>
+                                    <constraint firstItem="TDK-SA-eHf" firstAttribute="top" secondItem="kPV-VR-o4W" secondAttribute="top" constant="44" id="7bd-PA-XkB"/>
+                                    <constraint firstItem="w6Q-Yd-U7n" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="kPV-VR-o4W" secondAttribute="leading" id="9M4-ZA-Pc8"/>
+                                    <constraint firstItem="w6Q-Yd-U7n" firstAttribute="trailing" secondItem="kPV-VR-o4W" secondAttribute="trailing" id="BMC-KL-011"/>
+                                    <constraint firstItem="PAE-fL-ZJS" firstAttribute="centerX" secondItem="kPV-VR-o4W" secondAttribute="centerX" id="FpL-0W-fAN"/>
+                                    <constraint firstItem="2tR-N4-0NV" firstAttribute="bottom" secondItem="w6Q-Yd-U7n" secondAttribute="top" constant="-20" id="Pmy-aF-aHf"/>
+                                    <constraint firstItem="w6Q-Yd-U7n" firstAttribute="centerX" secondItem="kPV-VR-o4W" secondAttribute="centerX" id="Zzt-hQ-vd5"/>
+                                    <constraint firstItem="TDK-SA-eHf" firstAttribute="centerX" secondItem="kPV-VR-o4W" secondAttribute="centerX" id="aSI-JS-UlZ"/>
+                                    <constraint firstItem="PAE-fL-ZJS" firstAttribute="centerY" secondItem="kPV-VR-o4W" secondAttribute="centerY" id="cCb-HH-GnU"/>
+                                    <constraint firstItem="w6Q-Yd-U7n" firstAttribute="width" secondItem="kPV-VR-o4W" secondAttribute="width" id="gvL-w5-4LF"/>
+                                    <constraint firstItem="eAK-4e-0QN" firstAttribute="centerX" secondItem="kPV-VR-o4W" secondAttribute="centerX" id="pRL-Bk-1Xz"/>
+                                    <constraint firstItem="eAK-4e-0QN" firstAttribute="top" secondItem="PAE-fL-ZJS" secondAttribute="bottom" constant="31" id="rB0-EV-rZ0"/>
+                                    <constraint firstItem="2tR-N4-0NV" firstAttribute="centerX" secondItem="kPV-VR-o4W" secondAttribute="centerX" id="vZ3-WK-7Mu"/>
+                                </constraints>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="kPV-VR-o4W" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="3Hy-AT-JPI"/>
+                            <constraint firstItem="kPV-VR-o4W" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="3OS-FG-MEm"/>
+                            <constraint firstItem="kPV-VR-o4W" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="BK0-14-Xy3"/>
+                            <constraint firstItem="kPV-VR-o4W" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" id="gRd-Im-jLE"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                    <connections>
+                        <outlet property="playerName" destination="eAK-4e-0QN" id="bL3-nv-BC7"/>
+                        <outlet property="scrollView" destination="kPV-VR-o4W" id="Zoc-Xb-JfS"/>
+                        <outlet property="serverName" destination="2tR-N4-0NV" id="X2S-dY-vHV"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="117.59999999999999" y="118.29085457271366"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="crazyhorse.png" width="120" height="67"/>
+    </resources>
+</document>

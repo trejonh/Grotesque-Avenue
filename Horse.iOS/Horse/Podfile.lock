@@ -1,0 +1,15 @@
+PODS:
+  - BlueSocket (0.12.94)
+  - SwiftyBeaver (1.5.1)
+
+DEPENDENCIES:
+  - BlueSocket
+  - SwiftyBeaver (~> 1.5)
+
+SPEC CHECKSUMS:
+  BlueSocket: 184ff448002475bfb5d676286c2458da5d971f47
+  SwiftyBeaver: 4f74563624b2c1e821c522c54142b5dd5ebb0f30
+
+PODFILE CHECKSUM: 4c879f40c34732dbab060153c145ac9d08dee3ae
+
+COCOAPODS: 1.4.0
